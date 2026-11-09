@@ -116,7 +116,7 @@ One admitted operation: a report run over an immutable snapshot of source record
     "reason": "<fixed token> | null",
     "execution": {"execution_id": "…", "run_id": "…", "run_state": "succeeded | failed | null", "run_reason": null, "attempts": {"used": 1, "limit": 3}}
   },
-  "sources": [{"source_record_id": "sentryinsight:source:…", "position": 0, "outcome": "executed | excluded | not_reported"}],
+  "sources": [{"source_record_id": "sentryinsight:source:…", "position": 0, "outcome": "executed | excluded | not_reported", "exclusion": "filtered | review_required | source_rejected | null"}],
   "artifact": {"sha256": "<64 hex>", "manifest_sha256": "<64 hex>", "file_count": 3, "total_bytes": 1234, "verified_at": "…"},
   "publications": [{"target": "site", "publication_id": "<64 hex>", "state": "pending | uncertain | published | refused | refused_by_publisher", "reason": null, "observed_at": "<RFC 3339> | null"}],
   "report_published": true,
@@ -139,10 +139,13 @@ One admitted operation: a report run over an immutable snapshot of source record
 
 **`run.execution`:** `run_state`, `run_reason` and `attempts` are given only once the run is terminal.
 
-**`sources[].outcome`:** `excluded` means the execution side left the record out by its policy. `not_reported` applies to any run that did not succeed, and to a run that completed before migration `0003` recorded per-article outcomes.
+**`sources[].outcome`:** `excluded` means the run read the source and did not give it to the model. `not_reported` applies to any run that did not succeed, to a projected run whose producer did not establish its outcomes, and to a run that completed before migration `0003` recorded per-article outcomes.
+
+**`sources[].exclusion`:** why an `excluded` source was not executed, when the producer reported it. `filtered` was removed by the keyword filter or triage before source review; `review_required` and `source_rejected` are the source-review plan's own states. It is `null` for every other outcome and when the reason was not reported (the execution service reports only the executed set).
 
 **`publications`:**
-- Only this operation's own publications are listed. Operations that converge on one artifact share its publications, which belong to the first operation that published it. A consumer can join runs by `artifact.sha256`.
+- A publication made through this store's publisher is of an artifact, so it is listed on every succeeded run with that artifact; runs that converge on one artifact all show it, and each of their `record_version`s advances when it changes.
+- An observed publication (`observed_at` set) belongs to one projected run and target. It is listed on that run only, even when another run produced identical bytes.
 - An intent that was never claimed is not listed.
 - `uncertain` means the effect has not been observed yet.
 - `observed_at` is set for a projected run's publication: the time its producer's deployment was observed to complete. A publication made through this store's publisher has `null`.

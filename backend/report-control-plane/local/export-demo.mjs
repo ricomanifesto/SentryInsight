@@ -110,7 +110,7 @@ try {
   });
   const projected = await env.call("POST", "/v1/projections", "projector", {
     schema: "report-control-plane/projection/1", pipeline: "history", policy_id: "production", source_revision: "actions:1001:1", snapshot_sha256: sha(snapshot),
-    run: { execution_id: "actions-run-1001-1", source_commit: reportCommit, outcome: "succeeded", reason: null, executed_links: [dated.link], completed_at: "2026-11-08T16:00:00Z" },
+    run: { execution_id: "actions-run-1001-1", source_commit: reportCommit, outcome: "succeeded", reason: null, source_outcomes: { [dated.link]: "executed", [undated.link]: "review_required" } },
     artifact: { files: [{ path: "index.md", sha256: sha(projectedReport), bytes: projectedReport.byteLength }] },
   });
   check("a deployment observed first waits for its run", () => assert.equal(observedFirst.status, 202));
@@ -141,7 +141,7 @@ try {
   check("the projected run names its origin, commit and observed deployment", () => {
     assert.deepEqual([run(p).run.origin, run(p).run.source_commit, run(p).report_published], ["project", reportCommit, true]);
     assert.deepEqual(run(p).publications.map((x) => [x.target, x.observed_at]), [["production", "2026-11-08T16:02:00Z"]]);
-    assert.deepEqual(run(p).sources.map((x) => x.outcome), ["executed", "excluded"]);
+    assert.deepEqual(run(p).sources.map((x) => [x.outcome, x.exclusion]), [["executed", null], ["excluded", "review_required"]]);
   });
   check("a producer time is kept and a missing one stays unknown", () => {
     assert.equal(backfill.get(sourceId(dated.link, dated.content)).times.published_at, "2026-11-08T15:43:08Z");

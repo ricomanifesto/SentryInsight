@@ -1,4 +1,4 @@
-"""A run-local snapshot of the sources a report run read and analyzed.
+"""A run-local snapshot of the sources a report run read, and what it did with each.
 
 The report workflow writes it after a run when ``SENTRYINSIGHT_PROJECTION_SNAPSHOT``
 names a path, so a later step can project the run into the report history.
@@ -17,6 +17,9 @@ from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any, Mapping
 
+from src.core.reporting import ReportingGroundingError, reporting_key
+from src.core.source_review import PLAN_KEY
+
 from .admission import PROJECTION_LIMITS, AdmissionRefused, checked_record
 
 ENV_PATH = "SENTRYINSIGHT_PROJECTION_SNAPSHOT"
@@ -31,6 +34,13 @@ KEPT = (
     "source_links",
     "cves",
 )
+
+# A source-review plan row's state, as the source's outcome in this run.
+ROW_OUTCOMES = {
+    "eligible": "executed",
+    "review_required": "review_required",
+    "source_rejected": "source_rejected",
+}
 
 logger = logging.getLogger(__name__)
 
@@ -65,8 +75,55 @@ def source_record(article: Mapping[str, Any]) -> dict[str, Any]:
     return record
 
 
+def _key(link: Any) -> str | None:
+    try:
+        return reporting_key(link)
+    except ReportingGroundingError:
+        return None
+
+
+def source_outcomes(
+    state: Mapping[str, Any], articles: list[dict[str, Any]]
+) -> dict[str, str] | None:
+    """What the run did with each source, or None when that is not established.
+
+    The model receives exactly the source-review plan's eligible rows, and
+    report generation refuses to proceed unless the stored plan, the plan the
+    analysis used and a plan rebuilt from the filtered articles are equal. So
+    a generated report is the evidence: only then is an eligible row
+    ``executed`` and every other source excluded with its reason. A plan
+    alone is not evidence, because analysis can stop after building it and
+    before any model call; every other ending reports None.
+    """
+    if state.get("report_generated") is not True:
+        return None
+    plan = state.get(PLAN_KEY)
+    results = state.get("analysis_results")
+    if not isinstance(plan, Mapping) or not isinstance(results, Mapping):
+        return None
+    if results.get("skipped") or results.get("error") or results.get(PLAN_KEY) != plan:
+        return None
+    rows = plan.get("sources")
+    if not isinstance(rows, list):
+        return None
+    by_key: dict[str, str] = {}
+    for row in rows:
+        outcome = (
+            ROW_OUTCOMES.get(row.get("state")) if isinstance(row, Mapping) else None
+        )
+        if outcome is None or not isinstance(row.get("key"), str):
+            return None
+        by_key[row["key"]] = outcome
+    filtered = {_key(a.get("link")) for a in state.get("filtered_articles") or []}
+    if filtered != set(by_key):
+        return None
+    # Rows match sources by the product's own URL identity, never raw links.
+    # A source the plan does not hold was removed by the filter or triage.
+    return {a["link"]: by_key.get(_key(a["link"]), "filtered") for a in articles}
+
+
 def build_run_snapshot(state: Mapping[str, Any] | None) -> dict[str, Any]:
-    """Sources the run read, which of them it analyzed, and how it ended."""
+    """Sources the run read, what it did with each, and how it ended."""
     state = state or {}
     articles: list[dict[str, Any]] = []
     seen: set[str] = set()
@@ -86,20 +143,13 @@ def build_run_snapshot(state: Mapping[str, Any] | None) -> dict[str, Any]:
     if len(articles) > PROJECTION_LIMITS.articles:
         dropped += len(articles) - PROJECTION_LIMITS.articles
         articles = articles[: PROJECTION_LIMITS.articles]
-    kept = {a["link"] for a in articles}
-    filtered = state.get("filtered_articles")
-    analyzed = (
-        None
-        if filtered is None
-        else [a.get("link") for a in filtered if a.get("link") in kept]
-    )
     failure = state.get("failure") or {}
     return {
         "schema": SCHEMA,
         "status": state.get("status"),
         "failure_codes": list(failure.get("codes") or []),
         "articles": articles,
-        "analyzed_links": analyzed,
+        "source_outcomes": source_outcomes(state, articles),
         "dropped_articles": dropped,
     }
 

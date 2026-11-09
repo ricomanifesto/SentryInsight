@@ -8,6 +8,7 @@ import pytest
 
 from src.control_plane import projection, run_snapshot
 from src.control_plane.admission import PROJECTION_LIMITS, admission_body
+from src.core.source_review import PLAN_KEY, prepare_source_review
 
 
 def sha(data):
@@ -40,6 +41,19 @@ def state(**overrides):
     return value
 
 
+def generated(articles, filtered, **overrides):
+    """The final state of a run that generated a report from a real plan."""
+    packet = prepare_source_review(filtered).packet
+    return state(
+        articles=articles,
+        filtered_articles=filtered,
+        report_generated=True,
+        source_review_plan=packet,
+        analysis_results={PLAN_KEY: packet, "exploitation_report": "# R"},
+        **overrides,
+    )
+
+
 COMMIT = "a" * 40
 FILES = {
     "index.md": b"# Report\n",
@@ -68,7 +82,76 @@ def test_snapshot_keeps_accepted_fields_and_never_invents_a_time():
     assert first["published_at"] == "2026-11-08T15:43:08Z"
     assert "published_at" not in second, "the fallback 'date' is never used"
     assert "date" not in first and "published" not in first
-    assert snapshot["analyzed_links"] == ["https://example.test/1"]
+    assert snapshot["source_outcomes"] is None, "no generated report, no outcomes"
+
+
+ELIGIBLE = article(10, content="An advisory.")
+REJECTED = article(11, content="Affected versions:")
+HELD = article(
+    12,
+    content="An attack vector targets instances running version 3.2 or earlier.",
+)
+UNFILTERED = article(13, content="An unrelated story.")
+
+
+def test_outcomes_come_from_the_plan_the_model_used_not_the_filtered_list():
+    # The reported defect: a source rejected for an empty affected-version
+    # list was filtered in but never reached the model.
+    snapshot = run_snapshot.build_run_snapshot(
+        generated([ELIGIBLE, REJECTED, HELD, UNFILTERED], [ELIGIBLE, REJECTED, HELD])
+    )
+    assert snapshot["source_outcomes"] == {
+        ELIGIBLE["link"]: "executed",
+        REJECTED["link"]: "source_rejected",
+        HELD["link"]: "review_required",
+        UNFILTERED["link"]: "filtered",
+    }
+
+
+def test_outcomes_match_rows_by_the_reporting_identity_not_the_raw_link():
+    raw = article(14, content="An advisory.", link="https://Example.TEST:443/a/../14")
+    snapshot = run_snapshot.build_run_snapshot(generated([raw], [raw]))
+    plan_url = prepare_source_review([raw]).packet["sources"][0]["url"]
+    assert plan_url != raw["link"], "the plan holds the normalized URL"
+    assert snapshot["source_outcomes"] == {raw["link"]: "executed"}
+
+
+@pytest.mark.parametrize(
+    "ending",
+    [
+        # The plan was built and written, then analysis stopped before any
+        # model call (budget or model check): a plan is not evidence.
+        {
+            "report_generated": False,
+            "status": "failed",
+            "analysis_results": "pre-inference error",
+        },
+        {"report_generated": False, "status": "review_required"},
+        {"report_generated": False, "status": "completed_unchanged"},
+        {"analysis_results": "skipped"},
+        {"analysis_results": "other plan"},
+        {"source_review_plan": None},
+        {"filtered_articles": [ELIGIBLE]},
+    ],
+)
+def test_outcomes_are_unreported_unless_a_generated_report_establishes_them(ending):
+    value = generated([ELIGIBLE, REJECTED], [ELIGIBLE, REJECTED])
+    packet = value[PLAN_KEY]
+    replacements = {
+        "pre-inference error": {
+            PLAN_KEY: packet,
+            "error": "Model budget exceeded",
+            "error_class": "analysis_exception",
+        },
+        "skipped": {PLAN_KEY: packet, "skipped": True},
+        "other plan": {PLAN_KEY: {**packet, "plan_id": "0" * 64}},
+    }
+    for key, item in ending.items():
+        if item is None:
+            value.pop(key)
+        else:
+            value[key] = replacements.get(item, item) if isinstance(item, str) else item
+    assert run_snapshot.build_run_snapshot(value)["source_outcomes"] is None
 
 
 def test_snapshot_drops_unrecordable_or_duplicate_sources_and_counts_them():
@@ -89,7 +172,7 @@ def test_snapshot_drops_unrecordable_or_duplicate_sources_and_counts_them():
     ]
     assert snapshot["articles"][1]["content"] == ""
     assert snapshot["dropped_articles"] == 2
-    assert snapshot["analyzed_links"] is None
+    assert snapshot["source_outcomes"] is None
 
 
 def test_writing_the_snapshot_never_raises(tmp_path, monkeypatch):
@@ -103,8 +186,10 @@ def test_writing_the_snapshot_never_raises(tmp_path, monkeypatch):
 
 
 def plan(outcome="published", **kwargs):
+    first = article(1, content="An advisory.")
+    default = generated([first, article(2, content_kind="feed")], [first])
     return projection.plan_run(
-        run_snapshot.build_run_snapshot(kwargs.pop("state", state())),
+        run_snapshot.build_run_snapshot(kwargs.pop("state", default)),
         workflow_outcome=outcome,
         run_id="123",
         run_attempt="2",
@@ -123,9 +208,12 @@ def test_a_published_run_names_its_commit_files_and_analyzed_sources():
         "source_commit": COMMIT,
         "outcome": "succeeded",
         "reason": None,
-        "executed_links": ["https://example.test/1"],
-        "completed_at": None,
+        "source_outcomes": {
+            "https://example.test/1": "executed",
+            "https://example.test/2": "filtered",
+        },
     }
+    assert "completed_at" not in request["run"], "projection time is not run evidence"
     assert [f["path"] for f in request["artifact"]["files"]] == [
         "current-findings.json",
         "index.md",
@@ -144,6 +232,9 @@ def test_failed_runs_keep_their_reason_and_other_outcomes_are_skipped():
         "model_unavailable",
     )
     assert request["run"]["source_commit"] is None
+    assert request["run"]["source_outcomes"] is None
+    # Even a snapshot with outcomes reports none for a run that did not publish.
+    assert plan("failed")[2]["run"]["source_outcomes"] is None
     assert plan("cancelled")[2]["run"]["reason"] == "generation_cancelled"
     for skipped in ("unchanged", "not-published"):
         assert plan(skipped) is None

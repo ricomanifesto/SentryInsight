@@ -112,7 +112,7 @@ function runStatements(db, operationId) {
     // Each admitted article with its revision facts, all in commit order.
     db
       .prepare(
-        `SELECT oa.position, oa.executed, r.article_key, r.content_sha256, r.title, r.source, r.content_kind,
+        `SELECT oa.position, oa.executed, oa.exclusion, r.article_key, r.content_sha256, r.title, r.source, r.content_kind,
            r.content_bytes, r.first_operation_id, r.created_at, r.published_at,
            (SELECT count(*) FROM article_revisions x WHERE x.article_key = r.article_key AND x.rowid < r.rowid) + 1 AS revision_index,
            (SELECT x.content_sha256 FROM article_revisions x WHERE x.article_key = r.article_key AND x.rowid < r.rowid
@@ -130,10 +130,21 @@ function runStatements(db, operationId) {
     db
       .prepare("SELECT a.* FROM operations o JOIN artifacts a ON a.artifact_sha256 = o.artifact_sha256 WHERE o.operation_id = ?")
       .bind(operationId),
-    // Which publication is a target's current last-good changes with another
-    // operation's events, so it is not part of this record; a consumer orders
-    // a target's published runs by admission_seq.
-    db.prepare("SELECT * FROM publications WHERE operation_id = ? ORDER BY target").bind(operationId),
+    // A publisher publication is of an artifact, so it belongs to every
+    // completed run with that artifact; an observed one belongs to its own run
+    // only. The change-log triggers fan out the same way. Which publication is
+    // a target's current last-good changes with another operation's events, so
+    // it is not part of this record; a consumer orders a target's published
+    // runs by admission_seq.
+    db
+      .prepare(
+        `SELECT p.* FROM publications p
+         WHERE (p.authority = 'observed' AND p.operation_id = ?)
+            OR (p.authority = 'publisher' AND p.artifact_sha256 =
+                 (SELECT artifact_sha256 FROM operations WHERE operation_id = ? AND state = 'completed'))
+         ORDER BY p.target, p.publication_id`,
+      )
+      .bind(operationId, operationId),
     db
       .prepare(
         `SELECT source_revision, refused_fingerprint, observed_at FROM identity_conflicts
@@ -259,6 +270,8 @@ function runRecord(op, version, articles, artifact, publications, conflicts, sou
       source_record_id: sourceIds[i],
       position: a.position,
       outcome: outcome !== "succeeded" ? "not_reported" : a.executed === 1 ? "executed" : a.executed === 0 ? "excluded" : "not_reported",
+      // Why an excluded source was not executed, when the producer said.
+      exclusion: outcome === "succeeded" && a.executed === 0 ? (a.exclusion ?? null) : null,
     })),
     artifact:
       artifact === undefined

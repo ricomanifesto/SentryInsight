@@ -7,11 +7,11 @@
       "next_cursor": 49,
       "has_more": false,
       "coverage": {
-        "earliest_admitted_at": "2026-11-09T03:14:30.973Z",
+        "earliest_admitted_at": "2026-11-09T13:49:27.456Z",
         "gaps": [
           {
             "kind": "before_first_admission",
-            "until": "2026-11-09T03:14:30.973Z",
+            "until": "2026-11-09T13:49:27.456Z",
             "detail": "history before this store's first admission is not captured"
           }
         ]
@@ -43,14 +43,14 @@
           },
           "times": {
             "published_at": null,
-            "captured_at": "2026-11-09T03:14:30.973Z"
+            "captured_at": "2026-11-09T13:49:27.456Z"
           },
           "first_seen_run_id": "sentryinsight:run:472d1fe8d88d4dce9c44b960101269b48a37f40664ef130abb2aa3e7c3bb4d0e",
           "independence": {
             "status": "first_seen",
             "same_content_first_url": null
           },
-          "record_sha256": "a66b8717761e252f815d14755fe0892198d6dcb7425472b1a32aa42429905626"
+          "record_sha256": "a9267cbf4bc5f91b62855bcc5871237dfd961efb0061afc8b6b409006ac83faa"
         },
         {
           "schema": "sentryinsight-export/1",
@@ -78,14 +78,14 @@
           },
           "times": {
             "published_at": null,
-            "captured_at": "2026-11-09T03:14:30.973Z"
+            "captured_at": "2026-11-09T13:49:27.456Z"
           },
           "first_seen_run_id": "sentryinsight:run:472d1fe8d88d4dce9c44b960101269b48a37f40664ef130abb2aa3e7c3bb4d0e",
           "independence": {
             "status": "first_seen",
             "same_content_first_url": null
           },
-          "record_sha256": "e7394833575c5f4b16984e24fa3e9947c1292b000b4ff51ef20d213b6e0893c6"
+          "record_sha256": "3471e66f4ec89d61880417533fb90b51cfba8f81a15745643ef6597e2491dc0d"
         },
         {
           "schema": "sentryinsight-export/1",
@@ -102,7 +102,7 @@
             "admission_seq": 1,
             "source_revision": "demo-run-1",
             "snapshot_sha256": "8ceb2420f664fcd4d9b983f09fe8ec12a4cd440aa870ac6b55bb3f1cfecb27eb",
-            "admitted_at": "2026-11-09T03:14:30.973Z",
+            "admitted_at": "2026-11-09T13:49:27.456Z",
             "outcome": "succeeded",
             "reason": null,
             "execution": {
@@ -120,12 +120,14 @@
             {
               "source_record_id": "sentryinsight:source:f45b56a76ae07145d0d650c251cc5beed674fed6ed411c0400012e61f629c386:ba900bec87c3872d2903d4a20c3c7b7271040971ee33959cb606b26f90aa5e46",
               "position": 0,
-              "outcome": "executed"
+              "outcome": "executed",
+              "exclusion": null
             },
             {
               "source_record_id": "sentryinsight:source:6cb199494f358ccedb4923a01eb46d842992f78a56251bbec1c28b8e2a9b33ba:94007c81a0e742271202e6f27055ba7bef93dd816c12380d5b731d6688654253",
               "position": 1,
-              "outcome": "excluded"
+              "outcome": "excluded",
+              "exclusion": null
             }
           ],
           "artifact": {
@@ -133,7 +135,7 @@
             "manifest_sha256": "3f80d81cd18ad0e9e7193f356f2fef75cf2d723860774f8b755405d12e5e0663",
             "file_count": 3,
             "total_bytes": 66,
-            "verified_at": "2026-11-09T03:14:32.038Z"
+            "verified_at": "2026-11-09T13:49:28.622Z"
           },
           "publications": [
             {
@@ -156,14 +158,14 @@
             {
               "source_revision": "demo-run-1",
               "refused_snapshot_sha256": "1aa73b5b036db2076d87e6c2f5d02f49f21acb74c55ee2ce2a872b5d8b4afe5c",
-              "observed_at": "2026-11-09T03:14:33.225Z"
+              "observed_at": "2026-11-09T13:49:29.849Z"
             }
           ],
           "derived_claims": {
             "status": "not_exported",
             "reason": "artifact_not_interpreted"
           },
-          "record_sha256": "f58ee34abc1b816e353bf95d76b41142b67b8ac34dfc2cddfa12e80d5324c74f"
+          "record_sha256": "40d897367049ce4bdfab749023357d0cf64a6d1ba2b3e22aa0358368522b9f0d"
         },
         {
           "schema": "sentryinsight-export/1",
@@ -191,14 +193,14 @@
           },
           "times": {
             "published_at": null,
-            "captured_at": "2026-11-09T03:14:32.108Z"
+            "captured_at": "2026-11-09T13:49:28.674Z"
           },
           "first_seen_run_id": "sentryinsight:run:d46ba99bd488ab129e535a7f60e82dd2553236639338bdee36ca1d16cd663394",
           "independence": {
             "status": "first_seen",
             "same_content_first_url": null
           },
-          "record_sha256": "023c28c1de9010dc0c1cfde4f55790d331cf24ba9536daa8cb9061b27d31013a"
+          "record_sha256": "05bb80ac30495523dbfaf150b87b5ff33ca1ca2cbfe3751255140517db16838b"
         },
         {
           "schema": "sentryinsight-export/1",
@@ -226,14 +228,14 @@
           },
           "times": {
             "published_at": null,
-            "captured_at": "2026-11-09T03:14:32.108Z"
+            "captured_at": "2026-11-09T13:49:28.674Z"
           },
           "first_seen_run_id": "sentryinsight:run:d46ba99bd488ab129e535a7f60e82dd2553236639338bdee36ca1d16cd663394",
           "independence": {
             "status": "duplicate_content",
             "same_content_first_url": "https://example.test/articles/1"
           },
-          "record_sha256": "e1f011a361afc54c52b52713e62051d9dac54f4c3f8a659ebbd4d2612915839f"
+          "record_sha256": "c813055cb785d5a3d3604a07e255b7cfdf05667ef6f0583dfe5c935c73b2cec4"
         },
         {
           "schema": "sentryinsight-export/1",
@@ -257,14 +259,14 @@
           },
           "times": {
             "published_at": null,
-            "captured_at": "2026-11-09T03:14:32.108Z"
+            "captured_at": "2026-11-09T13:49:28.674Z"
           },
           "first_seen_run_id": "sentryinsight:run:d46ba99bd488ab129e535a7f60e82dd2553236639338bdee36ca1d16cd663394",
           "independence": {
             "status": "not_applicable",
             "same_content_first_url": null
           },
-          "record_sha256": "8108e59e4e4638244aa0f337880fdaf73d3a92038112f39f27d0b2b0b547c129"
+          "record_sha256": "ac4e33f2488accf6e17761b2b691b4e1517570ffd2c5e0ed62410d0609b75fbe"
         },
         {
           "schema": "sentryinsight-export/1",
@@ -281,7 +283,7 @@
             "admission_seq": 2,
             "source_revision": "demo-run-2",
             "snapshot_sha256": "82766026e773188488bb9a5b415b8983c890518c100ca94a7a30cdc533fe2cd7",
-            "admitted_at": "2026-11-09T03:14:32.108Z",
+            "admitted_at": "2026-11-09T13:49:28.674Z",
             "outcome": "succeeded",
             "reason": null,
             "execution": {
@@ -299,22 +301,26 @@
             {
               "source_record_id": "sentryinsight:source:f45b56a76ae07145d0d650c251cc5beed674fed6ed411c0400012e61f629c386:b91807151d1006515e8e046e27e825fda377d7e6b70f9c5527c7dd4d224d9265",
               "position": 0,
-              "outcome": "executed"
+              "outcome": "executed",
+              "exclusion": null
             },
             {
               "source_record_id": "sentryinsight:source:043d220b3477008e1ee570a6150e626487f38a943774d673fe0babfafa527cff:b91807151d1006515e8e046e27e825fda377d7e6b70f9c5527c7dd4d224d9265",
               "position": 1,
-              "outcome": "executed"
+              "outcome": "executed",
+              "exclusion": null
             },
             {
               "source_record_id": "sentryinsight:source:0c2e7936792a36853bd64ddb2292ecdde4aab7fc6cd95f2362f2c29602ae2b93:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
               "position": 2,
-              "outcome": "executed"
+              "outcome": "executed",
+              "exclusion": null
             },
             {
               "source_record_id": "sentryinsight:source:6cb199494f358ccedb4923a01eb46d842992f78a56251bbec1c28b8e2a9b33ba:94007c81a0e742271202e6f27055ba7bef93dd816c12380d5b731d6688654253",
               "position": 3,
-              "outcome": "executed"
+              "outcome": "executed",
+              "exclusion": null
             }
           ],
           "artifact": {
@@ -322,7 +328,7 @@
             "manifest_sha256": "06e5d502c46d299dbc6b85bd3b0cf80d52052fe1a9642cc11a09cc7d64f2a3d0",
             "file_count": 1,
             "total_bytes": 28,
-            "verified_at": "2026-11-09T03:14:33.173Z"
+            "verified_at": "2026-11-09T13:49:29.806Z"
           },
           "publications": [
             {
@@ -346,7 +352,7 @@
             "status": "not_exported",
             "reason": "artifact_not_interpreted"
           },
-          "record_sha256": "9f04cdce022a52bafe30012ecb9c68a5933c80ed7747a2f99f824309839ab6a3"
+          "record_sha256": "c98b44a2360dce941b2589562a5f6e373af8ac552cdeda418f4d233538cc5500"
         },
         {
           "schema": "sentryinsight-export/1",
@@ -374,14 +380,14 @@
           },
           "times": {
             "published_at": null,
-            "captured_at": "2026-11-09T03:14:33.231Z"
+            "captured_at": "2026-11-09T13:49:29.855Z"
           },
           "first_seen_run_id": "sentryinsight:run:1246579e89a121a17e3e114a6793009083d68915504ef68bc1dcf7936e469f6e",
           "independence": {
             "status": "first_seen",
             "same_content_first_url": null
           },
-          "record_sha256": "140d1f52989c3ba443a6de8f68760086737e92ee33bea0f046ce732ea9a3a5ab"
+          "record_sha256": "06e626a9fbe7f7cea7f090749e3734984f7b038159a69e6fb0f56b9130c347a6"
         },
         {
           "schema": "sentryinsight-export/1",
@@ -398,7 +404,7 @@
             "admission_seq": 3,
             "source_revision": "demo-failed",
             "snapshot_sha256": "bebded3c4a70ad0d48c9cd589a91090b57d6cdb47a00466ce1cff48675d5549a",
-            "admitted_at": "2026-11-09T03:14:33.231Z",
+            "admitted_at": "2026-11-09T13:49:29.855Z",
             "outcome": "failed",
             "reason": "generation_failed",
             "execution": {
@@ -416,7 +422,8 @@
             {
               "source_record_id": "sentryinsight:source:eea5e6d78a347ba0e2d8ad7e095baedeaadb440e466b7e77c8d7735563a92a3f:5e110d74dd5aee9b98deab5baa0aac0676c37e4d11aca06ced40ce07db4e9ec4",
               "position": 0,
-              "outcome": "not_reported"
+              "outcome": "not_reported",
+              "exclusion": null
             }
           ],
           "artifact": null,
@@ -427,7 +434,7 @@
             "status": "not_exported",
             "reason": "artifact_not_interpreted"
           },
-          "record_sha256": "6eedf80f6778c67c55249382b45c90f0b27db68cfca5d357498a400f4454cda1"
+          "record_sha256": "99d1faa4cbce82d954d2bff0b17f95a5062472d4ddd40db16e6665284f2850ba"
         },
         {
           "schema": "sentryinsight-export/1",
@@ -455,14 +462,14 @@
           },
           "times": {
             "published_at": null,
-            "captured_at": "2026-11-09T03:14:34.285Z"
+            "captured_at": "2026-11-09T13:49:31.029Z"
           },
           "first_seen_run_id": "sentryinsight:run:714f3f2f8ee55913eeabc482fbbc7a52c3abee46058d96a30f25bec61048f769",
           "independence": {
             "status": "first_seen",
             "same_content_first_url": null
           },
-          "record_sha256": "e32e5a15976e7dc59a052a69ab1d5fff6d59adbb426cc08f36877c777416bef5"
+          "record_sha256": "43bd836124e89208905a9f199d6c134985e18b97861d1ffeac526e3350e50303"
         },
         {
           "schema": "sentryinsight-export/1",
@@ -479,7 +486,7 @@
             "admission_seq": 4,
             "source_revision": "demo-incomplete",
             "snapshot_sha256": "bd03f6014e4f5dbb8a042821459dd124955227ef1832d91a7f9ff726c47fd243",
-            "admitted_at": "2026-11-09T03:14:34.285Z",
+            "admitted_at": "2026-11-09T13:49:31.029Z",
             "outcome": "incomplete",
             "reason": "delivery_exhausted",
             "execution": null
@@ -488,7 +495,8 @@
             {
               "source_record_id": "sentryinsight:source:53010713cbfa02cb16088fec8010cb0f848a3369f634e83dbf1d22cb9ab9de5a:2747c169c0b5c893ca8c9ff1b7379676fb7d579cbd73212760c17c455e0aeedf",
               "position": 0,
-              "outcome": "not_reported"
+              "outcome": "not_reported",
+              "exclusion": null
             }
           ],
           "artifact": null,
@@ -499,7 +507,7 @@
             "status": "not_exported",
             "reason": "artifact_not_interpreted"
           },
-          "record_sha256": "206eba7209cd3b4379b6698ce353281fe1c19c03f73218cba29d75451dc35f8e"
+          "record_sha256": "6ed0d195825595d77fd705597a17c096b301f9bfe9b55cd5d7bf945a1abf431d"
         },
         {
           "schema": "sentryinsight-export/1",
@@ -527,14 +535,14 @@
           },
           "times": {
             "published_at": null,
-            "captured_at": "2026-11-09T03:14:34.313Z"
+            "captured_at": "2026-11-09T13:49:31.058Z"
           },
           "first_seen_run_id": "sentryinsight:run:c91ee15419dd483ea0bc2b4b6c4eb590a769dcca251da12b51138f3a30f2f437",
           "independence": {
             "status": "first_seen",
             "same_content_first_url": null
           },
-          "record_sha256": "285be295624e149a079e36888a9372d4f4cf01aaf411f3090b19f7d2650de03d"
+          "record_sha256": "71e74b4ac52f977328345e5943d76bf024714b0b000bfdc95c62785163f23853"
         },
         {
           "schema": "sentryinsight-export/1",
@@ -551,7 +559,7 @@
             "admission_seq": 5,
             "source_revision": "demo-interrupted",
             "snapshot_sha256": "ef59f8d73862755cc9b97a63ac1456f893d2d66e66aaaa0924e731bf07580d1f",
-            "admitted_at": "2026-11-09T03:14:34.313Z",
+            "admitted_at": "2026-11-09T13:49:31.058Z",
             "outcome": "succeeded",
             "reason": null,
             "execution": {
@@ -569,7 +577,8 @@
             {
               "source_record_id": "sentryinsight:source:4e2c0d0508da2f9b64283f0132c8a26af975b26da941c516231da1b8e45175b2:b0cfcb1a530784cc9e2d56de95e7be6b84addb52d2cc4e3b32279f6079f10ef2",
               "position": 0,
-              "outcome": "executed"
+              "outcome": "executed",
+              "exclusion": null
             }
           ],
           "artifact": {
@@ -577,7 +586,7 @@
             "manifest_sha256": "de2dcf90637e0b12a22477a7fff20f6c17fd42490cecb6d3f4f433c8fb55170d",
             "file_count": 1,
             "total_bytes": 10,
-            "verified_at": "2026-11-09T03:14:35.673Z"
+            "verified_at": "2026-11-09T13:49:32.432Z"
           },
           "publications": [],
           "report_published": false,
@@ -586,7 +595,7 @@
             "status": "not_exported",
             "reason": "artifact_not_interpreted"
           },
-          "record_sha256": "cfd679b5634925b484cbe3dbbb9b272e3f8056ca70c93e0ed8f514a2b304db60"
+          "record_sha256": "3c84dad9bccd3bd13c890a35622c8b2b8ffcc6b9d67f40e070ffcce1a1f37bf7"
         },
         {
           "schema": "sentryinsight-export/1",
@@ -614,14 +623,14 @@
           },
           "times": {
             "published_at": "2026-11-08T15:43:08Z",
-            "captured_at": "2026-11-09T03:14:35.719Z"
+            "captured_at": "2026-11-09T13:49:32.479Z"
           },
           "first_seen_run_id": "sentryinsight:run:87ff5827408d72a93f136dc0b7914e587dc7196696a47baa0be13a0f6e5f35da",
           "independence": {
             "status": "first_seen",
             "same_content_first_url": null
           },
-          "record_sha256": "5591a322eb9aa765abf2e73fc2d69df200ac56818d8ec45c5ab6c21d77e6c941"
+          "record_sha256": "ff4ddc1fcba0e9cd8d4fd31475954a8ad1b3476e1a045ca7bbd0ebe17a7280b5"
         },
         {
           "schema": "sentryinsight-export/1",
@@ -649,14 +658,14 @@
           },
           "times": {
             "published_at": null,
-            "captured_at": "2026-11-09T03:14:35.719Z"
+            "captured_at": "2026-11-09T13:49:32.479Z"
           },
           "first_seen_run_id": "sentryinsight:run:87ff5827408d72a93f136dc0b7914e587dc7196696a47baa0be13a0f6e5f35da",
           "independence": {
             "status": "first_seen",
             "same_content_first_url": null
           },
-          "record_sha256": "f62640234b0ee39dce4b0ba236b1d85aa7387105db9d5e5fb8af4954b056adfc"
+          "record_sha256": "89701742bf0fc5637869d542e41fec83eab32c746e22c4ce80a6fd6029e44f40"
         },
         {
           "schema": "sentryinsight-export/1",
@@ -673,7 +682,7 @@
             "admission_seq": 6,
             "source_revision": "actions:1001:1",
             "snapshot_sha256": "742344b598d6b463838587f0975c7aa75b0b0137e00b83b1f498a93f6a302356",
-            "admitted_at": "2026-11-09T03:14:35.719Z",
+            "admitted_at": "2026-11-09T13:49:32.479Z",
             "outcome": "succeeded",
             "reason": null,
             "execution": {
@@ -688,12 +697,14 @@
             {
               "source_record_id": "sentryinsight:source:d82885a0a0f2df6567f60697bf2643562b38bb3f49905c21adb89f3e156ec7af:2a7121d23511cc57d39d0b7c26a5c80aa89fd780d78955c9bb925f5077f05c31",
               "position": 0,
-              "outcome": "executed"
+              "outcome": "executed",
+              "exclusion": null
             },
             {
               "source_record_id": "sentryinsight:source:988309ee5da01b3bf66431e9f6a101adfd108bf855e2125548eb93e3b7d6e387:b5337d55b147b14dbf8db3616cc3fcae14756135915804de615310f22471e5a1",
               "position": 1,
-              "outcome": "excluded"
+              "outcome": "excluded",
+              "exclusion": "review_required"
             }
           ],
           "artifact": {
@@ -701,7 +712,7 @@
             "manifest_sha256": "c0cca11fc2d13f5228a39bdcfd4b49260db44d4dab6e201b865103f35fda81a2",
             "file_count": 1,
             "total_bytes": 19,
-            "verified_at": "2026-11-09T03:14:35.719Z"
+            "verified_at": "2026-11-09T13:49:32.479Z"
           },
           "publications": [
             {
@@ -718,7 +729,7 @@
             "status": "not_exported",
             "reason": "artifact_not_interpreted"
           },
-          "record_sha256": "56f38cce81f6a7840995302845cd60989cfddc9624d3aea35d64a1a7c48a3307"
+          "record_sha256": "5dcf7f69e36b0169aa6724bddc871ad20031883236ba01c10e46253e704640ed"
         }
       ]
     }

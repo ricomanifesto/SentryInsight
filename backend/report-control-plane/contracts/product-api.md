@@ -71,7 +71,7 @@ At most 1 MiB, strict JSON. Duplicate keys and unknown fields are refused, and s
 
 ## Scheduled admission
 
-A source bundle is `{"schema": "report-control-plane/source-bundle/1", "articles": [...]}`. When the cron fires, each active schedule with a newly staged bundle is admitted through the same path with principal `scheduler`, source revision `schedule:<id>:<bundle sha256>` and fingerprint = the bundle's SHA-256. A refire is the same operation. One staged bundle may be admitted by several schedules on different pipelines: the snapshot row and object are shared, and each pipeline gets its own operation and binding.
+A source bundle is `{"schema": "report-control-plane/source-bundle/1", "articles": [...]}`. When the cron fires, each active schedule with a newly staged bundle is admitted through the same path with principal `scheduler`, source revision `schedule:<id>:<bundle sha256>` and fingerprint = the bundle's SHA-256. A refire is the same operation. Each sweep reads at most 20 schedules, resuming after the last one it read and wrapping to the start (the cursor is stored in D1), so schedules whose admission keeps failing cannot starve a newer one; the status pull and publication repair rotate the same way. One staged bundle may be admitted by several schedules on different pipelines: the snapshot row and object are shared, and each pipeline gets its own operation and binding.
 
 ## Operation states
 

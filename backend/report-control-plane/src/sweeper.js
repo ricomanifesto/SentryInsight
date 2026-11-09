@@ -92,14 +92,16 @@ export async function reconcile(env, settings, trigger) {
 export async function scheduledAdmission(env, settings) {
   const db = env.PRODUCT_DB;
   const at = now();
-  const { results } = await db
-    .prepare(
-      `SELECT * FROM schedules WHERE state = 'active' AND pending_bundle_sha256 IS NOT NULL
-         AND (last_admitted_fingerprint IS NULL OR last_admitted_fingerprint <> pending_bundle_sha256)
-       ORDER BY schedule_id LIMIT ?`,
-    )
-    .bind(LIMITS.sweepBatch)
-    .all();
+  // A schedule whose admission keeps failing stays eligible, so the batch
+  // rotates (rotatingBatch) rather than rereading the same prefix.
+  const results = await rotatingBatch(
+    db,
+    "schedule",
+    `SELECT rowid AS cursor_key, * FROM schedules WHERE state = 'active' AND pending_bundle_sha256 IS NOT NULL
+       AND (last_admitted_fingerprint IS NULL OR last_admitted_fingerprint <> pending_bundle_sha256)
+       AND rowid > ? AND rowid <= ? ORDER BY rowid LIMIT ?`,
+    LIMITS.sweepBatch,
+  );
   let admitted = 0;
   for (const schedule of results) {
     const fingerprint = schedule.pending_bundle_sha256;

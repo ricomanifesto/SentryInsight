@@ -25,6 +25,10 @@ import { sha256Hex } from "./util.js";
 
 const COMMIT = /^[0-9a-f]{40}$/;
 const OUTCOMES = new Set(["succeeded", "failed"]);
+// What a run did with a source it read: executed it, or excluded it for a
+// reason the producer established (contracts/projection.md).
+export const SOURCE_OUTCOMES = new Set(["executed", "filtered", "review_required", "source_rejected"]);
+const FACTS_DOMAIN = "report-control-plane/projection-facts/1\n";
 
 export class ProjectionRefused extends Error {
   constructor(status, reason) {
@@ -85,22 +89,44 @@ export function parseProjection(bytes) {
   }
   if (typeof value.snapshot_sha256 !== "string" || !HEX64.test(value.snapshot_sha256)) refuse("snapshot_invalid");
   const run = value.run;
-  exactKeys(run, ["execution_id", "source_commit", "outcome", "reason", "executed_links", "completed_at"]);
+  exactKeys(run, ["execution_id", "source_commit", "outcome", "reason", "source_outcomes"]);
   if (typeof run.execution_id !== "string" || !ID_TOKEN.test(run.execution_id)) refuse("run_invalid");
   if (!(run.source_commit === null || (typeof run.source_commit === "string" && COMMIT.test(run.source_commit)))) refuse("run_invalid");
   if (!OUTCOMES.has(run.outcome)) refuse("run_invalid");
   if (!(run.reason === null || (typeof run.reason === "string" && REASON.test(run.reason)))) refuse("run_invalid");
-  if (!(run.completed_at === null || (typeof run.completed_at === "string" && validPublishedAt(run.completed_at)))) refuse("run_invalid");
-  if (!(run.executed_links === null || (Array.isArray(run.executed_links) && run.executed_links.length <= PROJECTION_LIMITS.articles && run.executed_links.every((l) => typeof l === "string")))) {
-    refuse("run_invalid");
+  const outcomes = run.source_outcomes;
+  if (outcomes !== null) {
+    if (typeof outcomes !== "object" || Array.isArray(outcomes)) refuse("run_invalid");
+    const entries = Object.entries(outcomes);
+    if (entries.length > PROJECTION_LIMITS.articles || !entries.every(([, o]) => SOURCE_OUTCOMES.has(o))) refuse("run_invalid");
   }
   if (run.outcome === "succeeded" && (value.artifact === null || run.reason !== null || run.source_commit === null)) refuse("run_inconsistent");
-  if (run.outcome === "failed" && (value.artifact !== null || run.reason === null)) refuse("run_inconsistent");
+  // A run that did not succeed has no established source outcomes.
+  if (run.outcome === "failed" && (value.artifact !== null || run.reason === null || outcomes !== null)) refuse("run_inconsistent");
   if (value.artifact !== null) {
     exactKeys(value.artifact, ["files"]);
     if (!Array.isArray(value.artifact.files)) refuse("artifact_invalid");
+    for (const file of value.artifact.files) exactKeys(file, ["path", "sha256", "bytes"]);
   }
   return value;
+}
+
+// JSON with object keys sorted at every level. Arrays keep their order, which
+// the strict parser already fixes (artifact files are in segment order).
+export function canonicalJson(value) {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  if (value !== null && typeof value === "object") {
+    return `{${Object.keys(value).sort().map((k) => `${JSON.stringify(k)}:${canonicalJson(value[k])}`).join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
+
+// A projected run's complete identity. The strictly parsed request is the
+// accepted fact record in full: every level is checked by exact keys, so a
+// field can only be accepted by adding it to the parser, and then it is in
+// this digest. There is no second list of compared fields.
+export function factsDigest(projection) {
+  return sha256Hex(new TextEncoder().encode(FACTS_DOMAIN + canonicalJson(projection)));
 }
 
 // The run as the producer reported it: the operation id, its terminal state
@@ -127,32 +153,10 @@ async function described(projection, files) {
   return { id, fingerprint, artifact };
 }
 
-// A replay must repeat every recorded fact of the run: its state, identity,
-// reason, artifact and per-article outcomes. Anything else is a conflict, never
-// a silent acknowledgement of different history.
-async function sameRun(db, existing, projection, artifact) {
-  const succeeded = projection.run.outcome === "succeeded";
-  if (
-    existing.origin !== "project" ||
-    existing.state !== (succeeded ? "completed" : "failed") ||
-    existing.execution_id !== projection.run.execution_id ||
-    existing.run_id !== projection.run.source_commit ||
-    existing.reason !== projection.run.reason ||
-    existing.artifact_sha256 !== (artifact?.sha256 ?? null) ||
-    existing.source_revision !== projection.source_revision
-  ) {
-    return false;
-  }
-  const { results } = await db
-    .prepare("SELECT article_key, executed FROM operation_articles WHERE operation_id = ?")
-    .bind(existing.operation_id)
-    .all();
-  const links = projection.run.executed_links;
-  const expected = !succeeded || links === null ? null : new Set(links);
-  if (expected !== null && expected.size !== links.length) return false;
-  if (expected !== null && [...expected].some((link) => !results.some((r) => r.article_key === link))) return false;
-  return results.every((r) => r.executed === (expected === null ? null : expected.has(r.article_key) ? 1 : 0));
-}
+// A replay is the same run only when its complete fact record is equal.
+// Anything else is a conflict, never a silent acknowledgement of different
+// history.
+const sameRun = (existing, facts) => existing.origin === "project" && existing.facts_sha256 === facts;
 
 // Attach every recorded deployment observation of a projected run's commit.
 async function attachObservations(db, op) {
@@ -173,8 +177,8 @@ async function recordPublication(db, op, observation) {
   const [inserted] = await db.batch([
     db
       .prepare(
-        `INSERT INTO publications (publication_id, target, artifact_sha256, operation_id, candidate_seq, state, receipt, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, 'published', ?, ?, ?) ON CONFLICT (publication_id) DO NOTHING RETURNING publication_id`,
+        `INSERT INTO publications (publication_id, target, artifact_sha256, operation_id, candidate_seq, state, receipt, created_at, updated_at, authority)
+         VALUES (?, ?, ?, ?, ?, 'published', ?, ?, ?, 'observed') ON CONFLICT (publication_id) DO NOTHING RETURNING publication_id`,
       )
       .bind(id, observation.target, op.artifact_sha256, op.operation_id, op.seq, receipt, at, at),
     db
@@ -187,6 +191,13 @@ async function recordPublication(db, op, observation) {
   return rowsChanged(inserted);
 }
 
+// The stored (executed, exclusion) pair for one source.
+function articleOutcome(outcomes, key) {
+  if (outcomes === null) return [null, null];
+  const outcome = outcomes[key];
+  return outcome === "executed" ? [1, null] : [0, outcome];
+}
+
 export async function project(env, principal, bytes) {
   const db = env.PRODUCT_DB;
   const projection = parseProjection(bytes);
@@ -196,9 +207,10 @@ export async function project(env, principal, bytes) {
   if (binding.policy_id !== projection.policy_id) refuse("policy_unsupported");
 
   const { id, fingerprint, artifact } = await described(projection, projection.artifact?.files ?? null);
+  const facts = await factsDigest(projection);
   const existing = await operation(db, id);
   if (existing !== null) {
-    if (!(await sameRun(db, existing, projection, artifact))) refuse("projection_conflict", 409);
+    if (!sameRun(existing, facts)) refuse("projection_conflict", 409);
     await attachObservations(db, existing);
     return { status: 200, operation: await operation(db, id) };
   }
@@ -216,11 +228,15 @@ export async function project(env, principal, bytes) {
   if (parsed.pipeline !== projection.pipeline || parsed.policyId !== projection.policy_id || parsed.sourceRevision !== projection.source_revision) {
     refuse("snapshot_mismatch");
   }
-  const keys = new Set(parsed.articles.map((a) => a.article_key));
-  const executed = projection.run.executed_links === null ? null : new Set(projection.run.executed_links);
-  if (executed !== null && (executed.size !== projection.run.executed_links.length || ![...executed].every((k) => keys.has(k)))) {
-    refuse("executed_links_invalid");
+  // Outcomes, when reported, name every source of the snapshot exactly once.
+  const outcomes = projection.run.source_outcomes;
+  if (outcomes !== null) {
+    const named = Object.keys(outcomes);
+    if (named.length !== parsed.articles.length || !parsed.articles.every((a) => Object.hasOwn(outcomes, a.article_key))) {
+      refuse("source_outcomes_invalid");
+    }
   }
+  const executedCount = outcomes === null ? null : Object.values(outcomes).filter((o) => o === "executed").length;
 
   // Immutable bytes first; an orphan is harmless and a retry reuses it.
   try {
@@ -258,14 +274,14 @@ export async function project(env, principal, bytes) {
       .prepare(
         `INSERT INTO operations (operation_id, pipeline, policy_id, binding_id, source_revision, fingerprint, principal, state,
            send_attempts, next_send_at, execution_id, run_id, run_state, run_reason, artifact_sha256, executed_count, reason,
-           origin, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?, ?, ?, ?, ?, ?, 'project', ?, ?)`,
+           origin, facts_sha256, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?, ?, ?, ?, ?, ?, 'project', ?, ?, ?)`,
       )
       .bind(
         id, projection.pipeline, projection.policy_id, binding.binding_id, projection.source_revision, fingerprint, principal,
         succeeded ? "completed" : "failed", projection.run.execution_id, projection.run.source_commit,
         succeeded ? "succeeded" : "failed", projection.run.reason, artifact?.sha256 ?? null,
-        executed === null ? null : executed.size, projection.run.reason, at, at,
+        executedCount, projection.run.reason, facts, at, at,
       ),
   ];
   parsed.articles.forEach((article, position) => {
@@ -279,8 +295,8 @@ export async function project(env, principal, bytes) {
         .bind(article.article_key, article.content_sha256, article.title, article.source, id, at,
           article.content_kind, article.content_bytes, article.published_at),
       db
-        .prepare("INSERT INTO operation_articles (operation_id, position, article_key, content_sha256, executed) VALUES (?, ?, ?, ?, ?)")
-        .bind(id, position, article.article_key, article.content_sha256, !succeeded || executed === null ? null : executed.has(article.article_key) ? 1 : 0),
+        .prepare("INSERT INTO operation_articles (operation_id, position, article_key, content_sha256, executed, exclusion) VALUES (?, ?, ?, ?, ?, ?)")
+        .bind(id, position, article.article_key, article.content_sha256, ...articleOutcome(outcomes, article.article_key)),
     );
   });
   if (artifact !== null) {
@@ -298,7 +314,7 @@ export async function project(env, principal, bytes) {
       operationId: id,
       kind: "projected",
       token: projection.run.outcome,
-      detail: { articles: parsed.articles.length, executed: executed?.size ?? null, files: artifact?.file_count ?? 0 },
+      detail: { articles: parsed.articles.length, executed: executedCount, files: artifact?.file_count ?? 0 },
       at,
     }),
   );
@@ -308,7 +324,7 @@ export async function project(env, principal, bytes) {
     if (!isConstraintError(error)) throw error;
     const same = await operation(db, id);
     if (same !== null) {
-      if (!(await sameRun(db, same, projection, artifact))) refuse("projection_conflict", 409);
+      if (!sameRun(same, facts)) refuse("projection_conflict", 409);
       return { status: 200, operation: same };
     }
     const conflict = await db

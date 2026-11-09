@@ -33,7 +33,7 @@ test("execution and publication refuse before any write; projection, reads and e
     policy_id: "standard",
     source_revision: "actions:1:1",
     snapshot_sha256: sha(snapshot),
-    run: { execution_id: "actions-run-1-1", source_commit: sha("c").slice(0, 40), outcome: "succeeded", reason: null, executed_links: null, completed_at: null },
+    run: { execution_id: "actions-run-1-1", source_commit: sha("c").slice(0, 40), outcome: "succeeded", reason: null, source_outcomes: null },
     artifact: { files: [{ path: "index.md", sha256: sha(report), bytes: report.byteLength }] },
   });
   assert.equal(projected.status, 201, JSON.stringify(projected.body));

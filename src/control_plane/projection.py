@@ -112,8 +112,7 @@ def projection_request(
     source_commit: str | None,
     outcome: str,
     reason: str | None,
-    executed_links: Sequence[str] | None,
-    completed_at: str | None,
+    source_outcomes: Mapping[str, str] | None,
 ) -> dict[str, Any]:
     listing = None
     if files is not None:
@@ -135,10 +134,9 @@ def projection_request(
             "source_commit": source_commit,
             "outcome": outcome,
             "reason": reason,
-            "executed_links": (
-                None if executed_links is None else list(executed_links)
+            "source_outcomes": (
+                None if source_outcomes is None else dict(source_outcomes)
             ),
-            "completed_at": completed_at,
         },
         "artifact": None if listing is None else {"files": listing},
     }
@@ -240,7 +238,6 @@ def plan_run(
     files: Mapping[str, bytes] | None,
     pipeline: str = DEFAULT_PIPELINE,
     policy_id: str = DEFAULT_POLICY,
-    completed_at: str | None = None,
 ) -> tuple[bytes, Mapping[str, bytes] | None, dict[str, Any]] | None:
     """The snapshot bytes, files and request for a finished run, or None to skip."""
     if run_snapshot.get("schema") != SNAPSHOT_SCHEMA:
@@ -280,8 +277,8 @@ def plan_run(
         source_commit=source_commit if succeeded else None,
         outcome=outcome,
         reason=reason,
-        executed_links=run_snapshot.get("analyzed_links") if succeeded else None,
-        completed_at=completed_at,
+        # Only a published run carries established source outcomes.
+        source_outcomes=run_snapshot.get("source_outcomes") if succeeded else None,
     )
     return snapshot, files if succeeded else None, request
 
@@ -400,8 +397,7 @@ def plan_rebuild(
         source_commit=full,
         outcome="succeeded",
         reason=None,
-        executed_links=None,
-        completed_at=None,
+        source_outcomes=None,
     )
     return snapshot, files, request
 
@@ -477,7 +473,6 @@ def main(argv: Sequence[str] | None = None) -> int:
                     run_attempt=args.run_attempt,
                     source_commit=args.source_commit,
                     files=files,
-                    completed_at=now_rfc3339(),
                 )
                 if planned is None:
                     print(

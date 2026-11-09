@@ -69,3 +69,61 @@ test("admission requests are refused on unknown fields, duplicates and bounds", 
 test("migration SQL splits into whole statements", () => {
   assert.deepEqual(splitSql("-- c\nCREATE TABLE a (x TEXT);\n\nCREATE INDEX i ON a (x);\n"), ["CREATE TABLE a (x TEXT)", "CREATE INDEX i ON a (x)"]);
 });
+
+// Run identity is the digest of the complete accepted projection record: the
+// strict parser is the only definition of that record, and every leaf of it
+// is in the digest. There is no separate list of compared fields to forget.
+test("the projection facts digest covers every accepted field, and nothing else can be accepted", async () => {
+  const { canonicalJson, factsDigest, parseProjection, ProjectionRefused } = await import("../src/projection.js");
+  const request = {
+    schema: "report-control-plane/projection/1",
+    pipeline: "reports",
+    policy_id: "production",
+    source_revision: "actions:1:1",
+    snapshot_sha256: sha("snapshot"),
+    run: {
+      execution_id: "actions-run-1-1",
+      source_commit: sha("commit").slice(0, 40),
+      outcome: "succeeded",
+      reason: null,
+      source_outcomes: { "https://example.test/a": "executed", "https://example.test/b": "source_rejected" },
+    },
+    artifact: { files: [{ path: "index.md", sha256: sha("report"), bytes: 9 }] },
+  };
+  const parsed = parseProjection(enc(JSON.stringify(request)));
+  assert.deepEqual(JSON.parse(canonicalJson(parsed)), parsed, "the canonical record is the whole parsed request");
+  assert.equal(canonicalJson({ b: 1, a: { d: 2, c: [3] } }), '{"a":{"c":[3],"d":2},"b":1}');
+  const digest = await factsDigest(parsed);
+  assert.equal(await factsDigest(JSON.parse(JSON.stringify(parsed))), digest, "key order does not matter");
+
+  // Every leaf, found generically, changes the digest when it changes.
+  const leaves = [];
+  const walk = (value, path) => {
+    if (value !== null && typeof value === "object") {
+      for (const [key, item] of Object.entries(value)) walk(item, [...path, key]);
+    } else leaves.push(path);
+  };
+  walk(parsed, []);
+  assert.ok(leaves.some((p) => p.join(".") === "run.reason") && leaves.some((p) => p[1] === "source_outcomes"));
+  for (const path of leaves) {
+    const changed = structuredClone(parsed);
+    const holder = path.slice(0, -1).reduce((v, k) => v[k], changed);
+    const key = path[path.length - 1];
+    holder[key] = holder[key] === null ? "x" : typeof holder[key] === "number" ? holder[key] + 1 : `${holder[key]}x`;
+    assert.notEqual(await factsDigest(changed), digest, path.join("."));
+  }
+
+  // An extra key at any object level, completed_at included, is refused, so
+  // an accepted request never carries a fact the digest does not see.
+  const objects = [[], ["run"], ["artifact"], ["artifact", "files", 0]];
+  for (const path of objects) {
+    for (const extra of ["completed_at", "note"]) {
+      const widened = structuredClone(request);
+      path.reduce((v, k) => v[k], widened)[extra] = "2026-11-08T12:00:00Z";
+      assert.throws(() => parseProjection(enc(JSON.stringify(widened))), (e) => e instanceof ProjectionRefused && e.reason === "projection_malformed", `${path.join(".")}.${extra}`);
+    }
+  }
+  const unknown = structuredClone(request);
+  unknown.run.source_outcomes["https://example.test/a"] = "skipped";
+  assert.throws(() => parseProjection(enc(JSON.stringify(unknown))), ProjectionRefused);
+});

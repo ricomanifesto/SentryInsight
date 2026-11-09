@@ -1,11 +1,12 @@
 // Projection of runs the authoritative producer already completed, against
 // real local D1 and R2: immutable uploads, one-batch recording, replay,
 // changed revisions, failed runs, observed publications in either order,
-// interrupted projection, conflicts and the projector's narrow role.
+// interrupted projection, conflicts, run identity over the complete fact
+// record, publication scope and the projector's narrow role.
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { after, before, test } from "node:test";
-import { ADMISSION, BINDING, admission, article, setup } from "./support/harness.mjs";
+import { ADMISSION, BINDING, REPORT_FILES, admission, article, completed, setup } from "./support/harness.mjs";
 
 let env;
 before(async () => {
@@ -34,7 +35,7 @@ const segment = (a, b) => {
 };
 
 // Upload a snapshot and report files, then post the projection.
-async function projectRun({ revision, articles, files = null, outcome = "succeeded", reason = null, executed = null, sourceCommit = commit(revision), executionId = `actions-run-${sha(revision).slice(0, 8)}-1`, upload: doUpload = true }) {
+async function projectRun({ revision, articles, files = null, outcome = "succeeded", reason = null, outcomes = null, sourceCommit = commit(revision), executionId = `actions-run-${sha(revision).slice(0, 8)}-1`, upload: doUpload = true }) {
   const snapshot = Buffer.from(JSON.stringify({ schema: ADMISSION, pipeline: "history", policy_id: "standard", source_revision: revision, articles }));
   const listing = files === null ? null : Object.entries(files).map(([path, text]) => ({ path, sha256: sha(text), bytes: Buffer.byteLength(text) })).sort((a, b) => segment(a.path, b.path));
   if (doUpload) {
@@ -47,7 +48,7 @@ async function projectRun({ revision, articles, files = null, outcome = "succeed
     policy_id: "standard",
     source_revision: revision,
     snapshot_sha256: sha(snapshot),
-    run: { execution_id: executionId, source_commit: outcome === "succeeded" ? sourceCommit : null, outcome, reason, executed_links: executed, completed_at: "2026-11-08T12:00:00Z" },
+    run: { execution_id: executionId, source_commit: outcome === "succeeded" ? sourceCommit : null, outcome, reason, source_outcomes: outcomes },
     artifact: listing === null ? null : { files: listing },
   };
   return { response: await env.call("POST", "/v1/projections", "projector", body), body, snapshot };
@@ -67,7 +68,8 @@ const REPORT = { "index.md": "# Report\n", "current-findings.json": "{\"finding_
 test("a succeeded run is recorded once from verified uploads, replays as the same run, and exports with its provenance", async () => {
   const withTime = { ...article(8001, "Full text of an advisory."), content_kind: "article", published_at: "2026-11-07T09:30:00Z" };
   const excluded = { ...article(8002, "Feed text about an unrelated event."), content_kind: "feed" };
-  const { response, snapshot } = await projectRun({ revision: "actions:1001:1", articles: [withTime, excluded], files: REPORT, executed: [withTime.link] });
+  const outcomes = { [withTime.link]: "executed", [excluded.link]: "source_rejected" };
+  const { response, snapshot } = await projectRun({ revision: "actions:1001:1", articles: [withTime, excluded], files: REPORT, outcomes });
   assert.equal(response.status, 201, JSON.stringify(response.body));
   const id = response.body.operation.operation_id;
   const row = await env.row(id);
@@ -78,14 +80,14 @@ test("a succeeded run is recorded once from verified uploads, replays as the sam
 
   // Replay: identical projection, same operation, nothing new written.
   const before = await census();
-  const replay = await projectRun({ revision: "actions:1001:1", articles: [withTime, excluded], files: REPORT, executed: [withTime.link], upload: false });
+  const replay = await projectRun({ revision: "actions:1001:1", articles: [withTime, excluded], files: REPORT, outcomes, upload: false });
   assert.deepEqual([replay.response.status, replay.response.body.operation.operation_id], [200, id]);
   assert.deepEqual(await census(), before);
 
   const records = await latest();
   const run = records.get(runId(id));
   assert.deepEqual([run.run.origin, run.run.source_commit, run.run.outcome, run.report_published], ["project", commit("actions:1001:1"), "succeeded", false]);
-  assert.deepEqual(run.sources.map((s) => s.outcome), ["executed", "excluded"]);
+  assert.deepEqual(run.sources.map((s) => [s.outcome, s.exclusion]), [["executed", null], ["excluded", "source_rejected"]]);
   assert.equal(records.get(sourceId(withTime.link, withTime.content)).times.published_at, "2026-11-07T09:30:00Z", "the producer's time is kept");
   assert.equal(records.get(sourceId(excluded.link, excluded.content)).times.published_at, null, "an absent time stays unknown");
   const retained = await env.call("GET", records.get(sourceId(withTime.link, withTime.content)).evidence.retained.fetch, "exporter");
@@ -147,7 +149,7 @@ test("a failed run, a changed revision and an interrupted projection are recorde
   const records = await latest();
   const f = records.get(runId(failedId));
   assert.deepEqual([f.run.outcome, f.run.reason, f.artifact, f.report_published], ["failed", "generation_failed", null, false]);
-  assert.deepEqual(f.sources.map((s) => s.outcome), ["not_reported"]);
+  assert.deepEqual(f.sources.map((s) => [s.outcome, s.exclusion]), [["not_reported", null]]);
   const revised = records.get(sourceId(changed.link, changed.content));
   assert.deepEqual([revised.revision.index, revised.revision.previous_content_sha256], [2, sha(first.content)]);
 });
@@ -168,16 +170,39 @@ test("refusals: missing or wrong bytes, wrong pipeline, conflicts, and the proje
   const rewritten = await projectRun({ revision: "conflict-p", articles: [article(8302)], files: { "index.md": "# P\n" }, executionId: "actions-run-other-1", upload: false });
   assert.deepEqual([rewritten.response.status, rewritten.response.body.error], [409, "projection_conflict"]);
 
-  // A replay that changes any other recorded fact is a conflict, not an
-  // acknowledgement: the executed set, its reporting, or a failure reason.
+  // A replay that changes any recorded fact is a conflict, not an
+  // acknowledgement: every source's outcome and exclusion class, whether
+  // outcomes were reported, the execution, the commit, the artifact, the
+  // outcome itself or a failure reason.
   const two = [article(8306), article(8307)];
-  const base = { revision: "facts-1", articles: two, files: { "index.md": "# F\n" }, executed: [two[0].link] };
+  const classes = ["executed", "filtered", "review_required", "source_rejected"];
+  const baseOutcomes = { [two[0].link]: "executed", [two[1].link]: "filtered" };
+  const base = { revision: "facts-1", articles: two, files: { "index.md": "# F\n" }, outcomes: baseOutcomes };
   assert.equal((await projectRun(base)).response.status, 201);
-  for (const variant of [{ executed: [] }, { executed: [two[1].link] }, { executed: [two[0].link, two[1].link] }, { executed: null }]) {
+  const variants = [{ outcomes: null }, { executionId: "actions-run-facts-2" }, { sourceCommit: commit("other commit") }, { files: { "index.md": "# G\n" } }];
+  for (const link of Object.keys(baseOutcomes)) {
+    for (const other of classes.filter((c) => c !== baseOutcomes[link])) variants.push({ outcomes: { ...baseOutcomes, [link]: other } });
+  }
+  for (const variant of variants) {
     const changed = await projectRun({ ...base, ...variant, upload: false });
     assert.deepEqual([changed.response.status, changed.response.body.error], [409, "projection_conflict"], JSON.stringify(variant));
   }
+  const asFailed = await projectRun({ ...base, outcome: "failed", reason: "generation_failed", outcomes: null, files: null, upload: false });
+  assert.deepEqual([asFailed.response.status, asFailed.response.body.error], [409, "projection_conflict"]);
   assert.equal((await projectRun({ ...base, upload: false })).response.status, 200, "the identical replay is still accepted");
+
+  // Outcomes must name every snapshot source exactly once, and a failed run
+  // reports none. completed_at is no longer accepted: it was projection-time
+  // transport, never run-completion evidence.
+  for (const bad of [{ [two[0].link]: "executed" }, { ...baseOutcomes, "https://example.test/absent": "executed" }]) {
+    const refused = await projectRun({ ...base, revision: "facts-3", outcomes: bad });
+    assert.deepEqual([refused.response.status, refused.response.body.error], [422, "source_outcomes_invalid"]);
+  }
+  const failedWithOutcomes = await projectRun({ revision: "facts-4", articles: [article(8309)], outcome: "failed", reason: "generation_failed", outcomes: { [article(8309).link]: "executed" } });
+  assert.deepEqual([failedWithOutcomes.response.status, failedWithOutcomes.response.body.error], [422, "run_inconsistent"]);
+  const accepted = (await projectRun({ ...base, upload: false })).body;
+  const timed = await env.call("POST", "/v1/projections", "projector", { ...accepted, run: { ...accepted.run, completed_at: "2026-11-08T12:00:00Z" } });
+  assert.deepEqual([timed.status, timed.body.error], [422, "projection_malformed"]);
   const failedBase = { revision: "facts-2", articles: [article(8308)], outcome: "failed", reason: "generation_failed" };
   assert.equal((await projectRun(failedBase)).response.status, 201);
   const otherReason = await projectRun({ ...failedBase, reason: "model_unavailable", upload: false });
@@ -204,5 +229,36 @@ test("refusals: missing or wrong bytes, wrong pipeline, conflicts, and the proje
   }
   for (const who of ["manual", "exporter", "reader"]) {
     assert.equal((await env.call("POST", "/v1/projections", who, reported.body)).status, 403, who);
+  }
+});
+
+test("an observation stays on its own run; a publisher publication is true of every run with its artifact", async () => {
+  // Two projected runs of different commits produced identical report bytes.
+  const files = { "index.md": "# Shared bytes\n" };
+  const a = await projectRun({ revision: "scope-a", articles: [article(8501)], files, sourceCommit: commit("scope-a") });
+  const b = await projectRun({ revision: "scope-b", articles: [article(8502)], files, sourceCommit: commit("scope-b") });
+  const [idA, idB] = [a.response.body.operation.operation_id, b.response.body.operation.operation_id];
+  assert.equal((await env.row(idA)).artifact_sha256, (await env.row(idB)).artifact_sha256);
+  const before = await latest();
+  assert.deepEqual((await observe(commit("scope-a"), "production")).body.runs, [idA]);
+  const after = await latest();
+  assert.deepEqual(after.get(runId(idA)).publications.map((p) => [p.target, p.state]), [["production", "published"]]);
+  assert.deepEqual(after.get(runId(idB)).publications, [], "run A's observation is not run B's");
+  assert.equal(after.get(runId(idB)).report_published, false);
+  assert.equal(after.get(runId(idB)).record_version, before.get(runId(idB)).record_version, "B's record did not change");
+  assert.ok(after.get(runId(idA)).record_version > before.get(runId(idA)).record_version);
+
+  // Two execute-path runs converge on one artifact; one publish publishes it
+  // for both, and both records advance in the same commit as the publication.
+  const one = await completed(env, admission("converge-1", [article(8503)]), REPORT_FILES);
+  const two = await completed(env, admission("converge-2", [article(8504)]), REPORT_FILES);
+  assert.equal((await env.row(one)).artifact_sha256, (await env.row(two)).artifact_sha256);
+  const prior = await latest();
+  assert.equal((await env.publish(one, "site-converged")).body.publication.state, "published");
+  const now = await latest();
+  for (const id of [one, two]) {
+    assert.deepEqual(now.get(runId(id)).publications.map((p) => [p.target, p.state]), [["site-converged", "published"]], id);
+    assert.equal(now.get(runId(id)).report_published, true);
+    assert.ok(now.get(runId(id)).record_version > prior.get(runId(id)).record_version, `${id} version advanced`);
   }
 });
