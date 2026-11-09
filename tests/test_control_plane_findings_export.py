@@ -337,3 +337,17 @@ def test_the_committed_staging_fixture_is_sealed_and_labelled():
             assert (ev["source_record_id"] is None) == (
                 ev["link"] == "not_in_run_sources"
             )
+
+
+def test_generated_at_is_the_same_instant_stated_in_utc(world):
+    store, artifact, sources, runs, _ = world
+    text = report_text().replace(
+        "generated_at: 2026-11-02T12:00:00Z", "generated_at: 2026-11-02T12:00:00+05:00"
+    )
+    files = {"index.md": text.encode()}
+    other, manifest = artifact_for(files)
+    runs[0]["artifact"] = {"sha256": other}
+    store.artifacts[other] = (manifest, files)
+    done = fx.build(client(store))["entries"][0]
+    assert done["findings_status"] == "parsed"
+    assert done["report"]["generated_at"] == "2026-11-02T07:00:00Z"

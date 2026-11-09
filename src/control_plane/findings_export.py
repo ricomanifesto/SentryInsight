@@ -27,6 +27,7 @@ import argparse
 import hashlib
 import json
 import sys
+from datetime import timezone
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 from urllib.parse import quote
@@ -184,7 +185,11 @@ def findings(
     report = {
         "report_schema_version": artifact.schema_version,
         "report_date": artifact.report_date.isoformat(),
-        "generated_at": artifact.generated_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        # The artifact may carry any offset; the export states the same
+        # instant in UTC.
+        "generated_at": artifact.generated_at.astimezone(timezone.utc).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        ),
         "digest_issue_url": artifact.digest_issue_url,
         "finding_count": len(records),
         "source_coverage": (
