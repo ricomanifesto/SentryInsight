@@ -1716,6 +1716,12 @@
       "run_id": "42616311830",
       "source_revision": "e0da7afbdc6ed4033581ec07171a8c173fb043ac",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "digest:e0da7afbdc6ed4033581ec07171a8c173fb043ac",
+      "at": "2026-11-09T12:21:59.896Z",
+      "run_id": "42616311830",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
