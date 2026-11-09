@@ -6,6 +6,7 @@ import { authenticate } from "./auth.js";
 import { ConfigInvalid, LIMITS, settings as readSettings } from "./config.js";
 import { now, operation, record } from "./db.js";
 import { manualRetry } from "./delivery.js";
+import { ExportRefused, exportPage, parseExportQuery, retainedSource } from "./export.js";
 import { HEX64, TOKEN, pathSegments } from "./identity.js";
 import { publish, targetView } from "./publication.js";
 import { RequestRefused, parseAdmission, parseBundle } from "./request.js";
@@ -26,7 +27,25 @@ const ROUTES = [
   ["PUT", /^\/v1\/pipelines\/([a-z0-9][a-z0-9._-]{0,63})$/, "operate", pipelineRoute],
   ["PUT", /^\/v1\/schedules\/([a-z0-9][a-z0-9._-]{0,63})$/, "operate", scheduleRoute],
   ["PUT", /^\/v1\/schedules\/([a-z0-9][a-z0-9._-]{0,63})\/sources$/, "admit", sourcesRoute],
+  ["GET", /^\/v1\/export$/, "export", exportRoute],
+  ["GET", /^\/v1\/export\/sources\/([0-9a-f]{64})\/(0|[1-9][0-9]{0,2})$/, "export", exportSourceRoute],
 ];
+
+async function exportRoute({ request, env }) {
+  let query;
+  try {
+    query = parseExportQuery(new URL(request.url).search);
+  } catch (error) {
+    if (error instanceof ExportRefused) throw new RequestRefused(error.reason);
+    throw error;
+  }
+  return json(200, await exportPage(env.PRODUCT_DB, query));
+}
+
+async function exportSourceRoute({ env, match }) {
+  const outcome = await retainedSource(env, match[1], Number(match[2]));
+  return json(outcome.status, outcome.body);
+}
 
 async function body(request) {
   return readBounded(request.body, LIMITS.bodyBytes);

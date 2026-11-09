@@ -38,13 +38,14 @@ function token() {
 
 export async function setup({ vars = {}, testFaults = true, persistDir = null, queue = {} } = {}) {
   const root = await mkdtemp(path.join(process.env.REPORT_CONTROL_TEST_ROOT ?? os.tmpdir(), "rcp-"));
-  const tokens = { manual: token(), event: token(), reader: token(), publisher: token(), operator: token() };
+  const tokens = { manual: token(), event: token(), reader: token(), publisher: token(), operator: token(), exporter: token() };
   const principals = [
     { principal: "manual", roles: ["admit", "read"], token_sha256: sha(tokens.manual) },
     { principal: "event", roles: ["admit"], token_sha256: sha(tokens.event) },
     { principal: "reader", roles: ["read"], token_sha256: sha(tokens.reader) },
     { principal: "publisher", roles: ["publish", "read"], token_sha256: sha(tokens.publisher) },
     { principal: "operator", roles: ["operate", "read", "admit"], token_sha256: sha(tokens.operator) },
+    { principal: "exporter", roles: ["export"], token_sha256: sha(tokens.exporter) },
   ];
   const executionToken = token();
   const publisherToken = token();
@@ -98,6 +99,21 @@ export async function setup({ vars = {}, testFaults = true, persistDir = null, q
   env.status = (id) => env.call("GET", `/v1/operations/${id}`, "reader");
   env.publish = (id, target = "site") => env.call("POST", `/v1/operations/${id}/publish`, "publisher", { target });
   env.reconcile = () => env.call("POST", "/v1/reconcile", "operator");
+  env.exportPage = (after = 0, limit) =>
+    env.call("GET", `/v1/export?after=${after}${limit === undefined ? "" : `&limit=${limit}`}`, "exporter");
+  // Every page from a cursor, in order; the records and the final cursor.
+  env.exportAll = async (after = 0, limit) => {
+    const records = [];
+    let cursor = after;
+    for (let page = 0; page < 1000; page += 1) {
+      const response = await env.exportPage(cursor, limit);
+      if (response.status !== 200) throw new Error(`export ${response.status} ${JSON.stringify(response.body)}`);
+      records.push(...response.body.records);
+      cursor = response.body.next_cursor;
+      if (!response.body.has_more) return { records, cursor };
+    }
+    throw new Error("export did not finish");
+  };
   env.q = async (sql, ...params) => (await env.stack.db.prepare(sql).bind(...params).all()).results;
   env.one = async (sql, ...params) => (await env.q(sql, ...params))[0];
   env.r2 = async (prefix = "") => (await env.stack.bucket.list({ prefix })).objects.map((o) => ({ key: o.key, size: o.size }));

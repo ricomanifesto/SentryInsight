@@ -68,6 +68,15 @@ function validateArticle(record) {
   return record;
 }
 
+// The product labels a record 'feed' (the feed's own text) or 'article' (the
+// fetched page). Any other label is kept as 'other'; an absent one stays null.
+// The admitted bytes are unchanged either way.
+const CONTENT_KINDS = new Set(["feed", "article"]);
+export function contentKind(value) {
+  if (value === undefined) return null;
+  return CONTENT_KINDS.has(value) ? value : "other";
+}
+
 async function validateArticles(list) {
   if (!Array.isArray(list) || list.length === 0 || list.length > LIMITS.articles) {
     throw new RequestRefused("articles_invalid");
@@ -83,6 +92,8 @@ async function validateArticles(list) {
       content_sha256: await sha256Hex(record.content),
       title: record.title,
       source: record.source ?? null,
+      content_kind: contentKind(record.content_kind),
+      content_bytes: utf8(record.content).byteLength,
     });
   }
   return articles;

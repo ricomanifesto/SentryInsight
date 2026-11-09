@@ -5,7 +5,9 @@ import { HEX64, TOKEN } from "./identity.js";
 import { ConfigInvalid } from "./config.js";
 import { sameHex, sha256Hex } from "./util.js";
 
-export const ROLES = Object.freeze(["admit", "read", "publish", "operate"]);
+// `export` reads the research export and nothing else; it is the only role a
+// downstream consumer such as the newsletter needs.
+export const ROLES = Object.freeze(["admit", "read", "publish", "operate", "export"]);
 const BEARER = /^Bearer ([\x21-\x7e]{16,512})$/;
 
 // AUTH_PRINCIPALS: [{"principal": "manual", "roles": ["admit", "read"], "token_sha256": "<hex>"}]

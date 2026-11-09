@@ -202,6 +202,15 @@ async function complete(env, settings, row, receipt) {
          SELECT ?, 'completed', NULL, ?, ? WHERE EXISTS (SELECT 1 FROM operations WHERE ${done})`,
       )
       .bind(row.operation_id, JSON.stringify({ files: artifact.file_count, executed: executedCount }), at, row.operation_id, nonce),
+    // Which admitted articles the execution side ran; the rest were excluded
+    // by its policy. Written under the same nonce as the completion.
+    db
+      .prepare(
+        `UPDATE operation_articles
+           SET executed = CASE WHEN article_key IN (SELECT value FROM json_each(?)) THEN 1 ELSE 0 END
+         WHERE operation_id = ? AND EXISTS (SELECT 1 FROM operations WHERE ${done})`,
+      )
+      .bind(JSON.stringify(receipt.articles.executed.map((a) => a.article_key)), row.operation_id, row.operation_id, nonce),
   ]);
   return results[0].meta.changes === 1 ? "completed" : "stale";
 }

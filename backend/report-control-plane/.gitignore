@@ -3,3 +3,4 @@
 *.local.json
 local/state/
 node_modules/
+.wrangler/

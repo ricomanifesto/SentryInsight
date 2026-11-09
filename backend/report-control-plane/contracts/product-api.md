@@ -6,7 +6,8 @@ Every route except `/healthz` takes `Authorization: Bearer <token>`. Callers are
 - `admit`: submit, retry and stage sources;
 - `read`: status, targets and artifacts;
 - `publish`: publish operations;
-- `operate`: set pipelines and schedules, and run the sweeper.
+- `operate`: set pipelines and schedules, and run the sweeper;
+- `export`: the research export only (`contracts/export.md`).
 
 **Responses:** refusals are `{"error": "<token>"}`. Status responses carry states, versions, ids, digests, counts and fixed reason tokens, never paths, hosts or upstream messages.
 
@@ -23,6 +24,8 @@ Every route except `/healthz` takes `Authorization: Bearer <token>`. Callers are
 | `PUT /v1/pipelines/{pipeline}` | operate | `{"policy_id", "binding_id", "state": "active" or "retired"}` |
 | `PUT /v1/schedules/{id}` | operate | `{"pipeline", "policy_id", "state": "active" or "paused"}` |
 | `PUT /v1/schedules/{id}/sources` | admit | stage a source bundle for the next scheduled admission |
+| `GET /v1/export` | export | a page of the research export, `?after=<cursor>&limit=<1..25>` |
+| `GET /v1/export/sources/{snapshot}/{position}` | export | one retained article's text, re-verified |
 
 ## Configuration
 
@@ -54,8 +57,8 @@ At most 1 MiB, strict JSON. Duplicate keys and unknown fields are refused, and s
 **Identities:**
 - **Snapshot:** `fingerprint = sha256(request bytes)`. The bytes are stored once at `snapshots/<fingerprint>`.
 - **Operation:** `operation_id = sha256("report-control-plane/1\n" + pipeline + "\n" + policy_id + "\n" + fingerprint)`. Identical bytes are one operation.
-- **Source revision:** a label reused with different bytes is a conflict.
-- **Article metadata:** written in the same batch as the operation. `article_revisions(article_key, content_sha256)` rows are immutable.
+- **Source revision:** a label reused with different bytes is a conflict. The refusal records one `identity_conflicts` row per distinct refused snapshot, plus one `identity_conflict` event on the existing operation; the refused bytes stay in R2 and the existing operation is unchanged.
+- **Article metadata:** written in the same batch as the operation. `article_revisions(article_key, content_sha256)` rows are immutable and keep the record's `content_kind` (`feed`, `article`, `other` or absent) and content length. When an operation completes, each of its articles is marked executed or excluded as the execution receipt reports.
 
 ## Scheduled admission
 

@@ -8,7 +8,7 @@ This directory is a local slice. Nothing here is deployed, and no account, route
 
 | Store | Owns |
 |---|---|
-| D1 | operations, article revisions, artifacts, publications, targets, schedules and the audit of events |
+| D1 | operations, article revisions with their evidence kind, per-run article outcomes, artifacts, publications, targets, schedules, refused identity conflicts and the audit of events |
 | R2 | immutable bytes: admitted snapshots at `snapshots/<sha256>`, and verified artifacts with their manifests at `artifacts/<sha256>/` |
 | The execution service | runs, attempts, leases and execution retries; its contract is `contracts/execution-service.md` |
 | The publisher | the published revision and its receipts; its contract is `contracts/publisher.md` |
@@ -28,12 +28,23 @@ The Worker is the only writer of D1 and R2, and completion is pulled from the ex
 | Path | Contents |
 |---|---|
 | `src/` | Worker modules: routes, authentication, identities, strict JSON, admission, delivery, completion, publication and the sweeper |
-| `migrations/0001_init.sql` | the D1 schema |
-| `contracts/` | product API, execution service and publisher |
+| `migrations/` | the D1 schema: `0001_init.sql`, `0002_transition_nonce.sql`, and `0003_export.sql` for the facts the research export needs |
+| `contracts/` | product API, execution service, publisher and the research export (`export.md`) |
 | `cli/report-control.mjs` | a command-line client; `artifact` downloads and verifies an accepted artifact |
 | `local/stack.mjs`, `local/serve.mjs` | the local stack on the installed Miniflare/workerd API, plus a runner with a read-only inspection endpoint |
 | `tests/` | `node:test` suites against the real local D1, R2 and Queue bindings, a fake execution service and a durable fake publisher (`tests/support/`) |
 | `wrangler.toml` | the deployment-shaped declaration of the same bindings; it is not used locally |
+| `wrangler.staging.toml` | the same Worker against the provisioned staging D1, R2 and queues; nothing here applies it |
+| `local/export-demo.mjs` | a synthetic end-to-end demonstration that writes example export pages to `fixtures/export/` |
+| `fixtures/export/` | synthetic export pages, a retained-source response and the demonstration's checks |
+
+## Research export
+
+`GET /v1/export` is a bounded, read-only change feed for downstream consumers such as a newsletter backend; `contracts/export.md` defines its records and consumer rules. To regenerate the synthetic fixtures:
+
+```bash
+MINIFLARE_MODULE=/path/to/miniflare/dist/src/index.js node local/export-demo.mjs --out fixtures/export
+```
 
 ## Running locally
 
@@ -87,6 +98,14 @@ node cli/report-control.mjs status <operation_id>
 **Completion:**
 - An operation completes only after every artifact part is fetched, length- and hash-checked, stored immutably, and its digest recomputed.
 - Wrong, missing, reordered, oversized or stale artifacts are rejected.
+
+**Export:**
+- The `export` role reads the export and nothing else, and reading it writes nothing.
+- A replayed admission or export changes nothing, and a changed article is a new revision that names its predecessor.
+- A refused reuse of a source revision is retained and visible on the existing run, once per distinct refused snapshot.
+- Failed, incomplete, excluded and refused outcomes are exported apart from published results.
+- Identical text under another URL is a duplicate, not corroboration.
+- Retained text is re-verified against its digest before it is returned, and missing or corrupt snapshots are reported, not served.
 
 **Publication:**
 - One claim wins per target, and a stale candidate is refused.

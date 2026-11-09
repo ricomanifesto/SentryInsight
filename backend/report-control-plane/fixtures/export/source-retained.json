@@ -1,0 +1,9 @@
+{
+  "schema": "sentryinsight-export-source/1",
+  "snapshot_sha256": "8ceb2420f664fcd4d9b983f09fe8ec12a4cd440aa870ac6b55bb3f1cfecb27eb",
+  "position": 0,
+  "canonical_url": "https://example.test/articles/1",
+  "content_sha256": "ba900bec87c3872d2903d4a20c3c7b7271040971ee33959cb606b26f90aa5e46",
+  "content_kind": "article",
+  "content": "Vendor advisory text: CVE-2026-0101 is exploited in the wild."
+}

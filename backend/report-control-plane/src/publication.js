@@ -65,6 +65,19 @@ export function targetView(t) {
   };
 }
 
+// An audit event for a claim transition, written in the claim's own batch and
+// only when its target update applied (the claim token is fresh, so only that
+// update can have written it). It follows the coupled statements, so the
+// change counts allOrNone reads are unchanged.
+function claimEvent(db, subject, kind, target, token, at) {
+  return db
+    .prepare(
+      `INSERT INTO events (subject, kind, token, detail, at)
+       SELECT ?, ?, NULL, NULL, ? WHERE EXISTS (SELECT 1 FROM targets WHERE target = ? AND claim_token = ?)`,
+    )
+    .bind(subject, kind, at, target, token);
+}
+
 // Claim a free target for a fresh publication.
 async function claimFree(db, settings, p) {
   const token = randomToken();
@@ -84,6 +97,7 @@ async function claimFree(db, settings, p) {
            AND EXISTS (SELECT 1 FROM targets WHERE target = ? AND claim_token = ?)`,
       )
       .bind(token, at, p.publication_id, p.target, token),
+    claimEvent(db, p.publication_id, "publication_claimed", p.target, token, at),
   ]);
   return allOrNone(results, 2) ? token : null;
 }
@@ -107,6 +121,7 @@ async function reclaimOwn(db, settings, p, oldToken) {
            AND EXISTS (SELECT 1 FROM targets WHERE target = ? AND claim_token = ?)`,
       )
       .bind(token, at, p.publication_id, oldToken, p.target, token),
+    claimEvent(db, p.publication_id, "publication_reclaimed", p.target, token, at),
   ]);
   return allOrNone(results, 2) ? token : null;
 }
@@ -140,6 +155,8 @@ async function takeOver(db, settings, p, previous, oldToken) {
            AND EXISTS (SELECT 1 FROM targets WHERE target = ? AND claim_token = ?)`,
       )
       .bind(at, previous, oldToken, p.target, token),
+    claimEvent(db, p.publication_id, "publication_claimed", p.target, token, at),
+    claimEvent(db, previous, "publication_superseded", p.target, token, at),
   ]);
   return allOrNone(results, 3) ? token : null;
 }

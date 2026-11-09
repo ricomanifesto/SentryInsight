@@ -10,6 +10,7 @@ import { fault } from "./faults.js";
 import { operationId as deriveOperationId } from "./identity.js";
 import { sendDelivery } from "./delivery.js";
 import { backoff } from "./timing.js";
+import { randomToken } from "./util.js";
 
 export class SnapshotConflict extends Error {}
 
@@ -22,6 +23,35 @@ export async function putImmutable(bucket, key, bytes, sha256) {
   const existingHex = checksum ? [...new Uint8Array(checksum)].map((b) => b.toString(16).padStart(2, "0")).join("") : null;
   if (existingHex !== sha256 || existing.size !== bytes.byteLength) throw new SnapshotConflict(key);
   return "existing";
+}
+
+// A refused reuse of a source revision label stays visible: one conflict row
+// per distinct refused snapshot, and one audit event written only by the
+// insert that created it. The refused bytes are already in R2 under their own
+// digest; the conflict row is what lets the export serve them, since their
+// snapshot row rolled back with the refused batch. Nothing about the existing
+// operation changes. When the label was reused under another policy, the
+// refused snapshot can equal the existing one.
+async function recordConflict(db, { pipeline, sourceRevision, fingerprint, existing }) {
+  const nonce = randomToken();
+  const at = now();
+  await db.batch([
+    db
+      .prepare(
+        `INSERT INTO identity_conflicts (pipeline, source_revision, refused_fingerprint, existing_operation_id,
+           observation_nonce, observed_at)
+         VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (pipeline, source_revision, refused_fingerprint) DO NOTHING`,
+      )
+      .bind(pipeline, sourceRevision, fingerprint, existing, nonce, at),
+    db
+      .prepare(
+        `INSERT INTO events (operation_id, kind, token, detail, at)
+         SELECT ?, 'identity_conflict', 'source_revision_conflict', ?, ?
+         WHERE EXISTS (SELECT 1 FROM identity_conflicts WHERE pipeline = ? AND source_revision = ?
+           AND refused_fingerprint = ? AND observation_nonce = ?)`,
+      )
+      .bind(existing, JSON.stringify({ refused_fingerprint: fingerprint }), at, pipeline, sourceRevision, fingerprint, nonce),
+  ]);
 }
 
 export async function admit(env, settings, request) {
@@ -58,10 +88,12 @@ export async function admit(env, settings, request) {
     statements.push(
       db
         .prepare(
-          `INSERT INTO article_revisions (article_key, content_sha256, title, source, first_operation_id, created_at)
-           VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (article_key, content_sha256) DO NOTHING`,
+          `INSERT INTO article_revisions (article_key, content_sha256, title, source, first_operation_id, created_at,
+             content_kind, content_bytes)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (article_key, content_sha256) DO NOTHING`,
         )
-        .bind(article.article_key, article.content_sha256, article.title, article.source, operationId, at),
+        .bind(article.article_key, article.content_sha256, article.title, article.source, operationId, at,
+          article.content_kind, article.content_bytes),
       db
         .prepare("INSERT INTO operation_articles (operation_id, position, article_key, content_sha256) VALUES (?, ?, ?, ?)")
         .bind(operationId, position, article.article_key, article.content_sha256),
@@ -78,7 +110,10 @@ export async function admit(env, settings, request) {
       .prepare("SELECT operation_id FROM operations WHERE pipeline = ? AND source_revision = ?")
       .bind(pipeline, sourceRevision)
       .first();
-    if (conflict !== null) return { status: 409, body: { error: "source_revision_conflict", operation_id: conflict.operation_id } };
+    if (conflict !== null) {
+      await recordConflict(db, { pipeline, sourceRevision, fingerprint, existing: conflict.operation_id });
+      return { status: 409, body: { error: "source_revision_conflict", operation_id: conflict.operation_id } };
+    }
     throw error;
   }
 

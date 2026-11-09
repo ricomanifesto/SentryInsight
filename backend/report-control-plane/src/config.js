@@ -19,6 +19,9 @@ export const SCHEMAS = Object.freeze({
   bundle: "report-control-plane/source-bundle/1",
   receipt: "execution-receipt/1",
   manifest: "report-control-plane/artifact-manifest/1",
+  export: "sentryinsight-export/1",
+  exportPage: "sentryinsight-export-page/1",
+  exportSource: "sentryinsight-export-source/1",
 });
 
 export const LIMITS = Object.freeze({
