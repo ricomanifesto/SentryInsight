@@ -1664,6 +1664,17 @@
       "at": "2026-11-09T09:19:07.581Z",
       "run_id": "42592387477",
       "stage": "invoked"
+    },
+    {
+      "admission_key": "digest:12bb1213892f9abd0df13e937dd8855df03bec8f",
+      "at": "2026-11-09T09:19:15.415Z",
+      "attempt": 1,
+      "limit": 3,
+      "request_sha256": "63c21ccacb3a3c94fb61e2b7dcac19724779d81f3d936926cff0fbb296f72a6c",
+      "revision": "b7de141f09397d4b7ee78c84508f3f173db9692c",
+      "run_id": "42592387477",
+      "stage": "request_reserved",
+      "token": "3f1f400085baac0c2d14f11bca0bd042"
     }
   ],
   "schema_version": 1,
