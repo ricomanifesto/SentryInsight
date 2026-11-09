@@ -7,6 +7,8 @@ after the fact, through the control plane's ``project`` role:
 - ``run`` projects the run that just finished from its run snapshot and the
   report files it committed;
 - ``observe`` records that a deployment of a source commit completed;
+- ``observe-serving`` reads the release descriptor the production origin
+  itself serves and records the source commit it names;
 - ``rebuild`` re-projects an earlier report commit whose feed snapshot was
   retained at a commit-addressed URL, with feed-level evidence only.
 
@@ -26,6 +28,7 @@ import dataclasses
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -283,6 +286,34 @@ def plan_run(
     return snapshot, files if succeeded else None, request
 
 
+def site_origin(config_path: Path) -> str:
+    """The production origin the site configuration names for this site."""
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    return config["origins"][config["site"]]["production"]
+
+
+def serving_commit(http: httpx.Client, origin: str, repository: str) -> str:
+    """The source commit of the release the production origin serves now.
+
+    The descriptor must name this repository and origin; anything else is
+    refused rather than recorded.
+    """
+    response = http.get(f"{origin.rstrip('/')}/_release/descriptor.json")
+    if response.status_code != 200:
+        raise ProjectionError(f"descriptor unavailable: http_{response.status_code}")
+    descriptor = response.json()
+    revision = descriptor.get("source_revision")
+    if (
+        descriptor.get("kind") != "release"
+        or descriptor.get("expected_repository") != repository
+        or descriptor.get("expected_origin", "").rstrip("/") != origin.rstrip("/")
+        or not isinstance(revision, str)
+        or not re.fullmatch(r"[0-9a-f]{40}", revision)
+    ):
+        raise ProjectionError("descriptor does not name this site's release")
+    return revision
+
+
 def feed_from_message(message: str) -> str | None:
     """The commit-addressed feed a report commit was admitted from, if retained."""
     for line in message.splitlines():
@@ -314,16 +345,38 @@ async def _feed_articles(feed_url: str) -> list[dict[str, Any]]:
     return articles
 
 
+COMMIT = re.compile(r"[0-9a-f]{7,40}")
+
+
 def plan_rebuild(
     root: Path, commit: str, feed_articles: Callable[[str], list[dict]]
 ) -> tuple[bytes, Mapping[str, bytes], dict[str, Any]]:
-    message = _git(root, "log", "-1", "--format=%B", commit)
+    # Only a hexadecimal commit name reaches git, after --end-of-options, so
+    # an argument can never be read as an option.
+    if not COMMIT.fullmatch(commit):
+        raise ProjectionError("commit must be a hexadecimal commit id")
+    message = _git(root, "log", "-1", "--format=%B", "--end-of-options", commit)
     if message is None:
         raise ProjectionError("commit not found")
     feed = feed_from_message(message.decode())
     if feed is None:
         raise ProjectionError("feed_not_retained")
-    full = (_git(root, "rev-parse", commit) or b"").decode().strip()
+    full = (
+        (
+            _git(
+                root,
+                "rev-parse",
+                "--verify",
+                "--end-of-options",
+                f"{commit}^{{commit}}",
+            )
+            or b""
+        )
+        .decode()
+        .strip()
+    )
+    if not re.fullmatch(r"[0-9a-f]{40}", full):
+        raise ProjectionError("commit not found")
     files = report_files(root, lambda path: _git(root, "show", f"{full}:{path}"))
     if "index.md" not in files:
         raise ProjectionError("commit has no report")
@@ -365,8 +418,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     run.add_argument("--outcome", required=True)
     observe = commands.add_parser("observe", help="Record a completed deployment")
     observe.add_argument("--source-commit", required=True)
-    observe.add_argument("--target", default="github-pages")
+    observe.add_argument("--target", default="production")
     observe.add_argument("--observed-at", default=None)
+    serving = commands.add_parser(
+        "observe-serving",
+        help="Record the release the production origin serves now",
+    )
+    serving.add_argument(
+        "--site-config", type=Path, default=Path("publication/site.json")
+    )
     rebuild = commands.add_parser(
         "rebuild", help="Re-project a report commit from its retained feed snapshot"
     )
@@ -381,7 +441,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         with httpx.Client(timeout=30.0) as http:
             client = Client(store, http)
-            if args.command == "observe":
+            if args.command == "observe-serving":
+                config = json.loads(args.site_config.read_text(encoding="utf-8"))
+                commit = serving_commit(
+                    http, site_origin(args.site_config), config["repository"]
+                )
+                result = client.observe(
+                    DEFAULT_PIPELINE, commit, "production", now_rfc3339()
+                )
+            elif args.command == "observe":
                 result = client.observe(
                     DEFAULT_PIPELINE,
                     args.source_commit,

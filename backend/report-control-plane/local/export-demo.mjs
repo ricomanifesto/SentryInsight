@@ -106,7 +106,7 @@ try {
   const reportCommit = sha("projected report commit").slice(0, 40);
   for (const bytes of [snapshot, projectedReport]) await env.call("PUT", `/v1/projections/blobs/${sha(bytes)}`, "projector", bytes);
   const observedFirst = await env.call("POST", "/v1/projections/publications", "projector", {
-    schema: "report-control-plane/publication-observation/1", pipeline: "history", source_commit: reportCommit, target: "github-pages", observed_at: "2026-11-08T16:02:00Z",
+    schema: "report-control-plane/publication-observation/1", pipeline: "history", source_commit: reportCommit, target: "production", observed_at: "2026-11-08T16:02:00Z",
   });
   const projected = await env.call("POST", "/v1/projections", "projector", {
     schema: "report-control-plane/projection/1", pipeline: "history", policy_id: "production", source_revision: "actions:1001:1", snapshot_sha256: sha(snapshot),
@@ -140,7 +140,7 @@ try {
   check("recovered run succeeded once", () => assert.equal(run(e).run.outcome, "succeeded"));
   check("the projected run names its origin, commit and observed deployment", () => {
     assert.deepEqual([run(p).run.origin, run(p).run.source_commit, run(p).report_published], ["project", reportCommit, true]);
-    assert.deepEqual(run(p).publications.map((x) => [x.target, x.observed_at]), [["github-pages", "2026-11-08T16:02:00Z"]]);
+    assert.deepEqual(run(p).publications.map((x) => [x.target, x.observed_at]), [["production", "2026-11-08T16:02:00Z"]]);
     assert.deepEqual(run(p).sources.map((x) => x.outcome), ["executed", "excluded"]);
   });
   check("a producer time is kept and a missing one stays unknown", () => {

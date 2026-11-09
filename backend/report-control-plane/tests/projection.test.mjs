@@ -156,6 +156,21 @@ test("refusals: missing or wrong bytes, wrong pipeline, conflicts, and the proje
   const rewritten = await projectRun({ revision: "conflict-p", articles: [article(8302)], files: { "index.md": "# P\n" }, executionId: "actions-run-other-1", upload: false });
   assert.deepEqual([rewritten.response.status, rewritten.response.body.error], [409, "projection_conflict"]);
 
+  // A replay that changes any other recorded fact is a conflict, not an
+  // acknowledgement: the executed set, its reporting, or a failure reason.
+  const two = [article(8306), article(8307)];
+  const base = { revision: "facts-1", articles: two, files: { "index.md": "# F\n" }, executed: [two[0].link] };
+  assert.equal((await projectRun(base)).response.status, 201);
+  for (const variant of [{ executed: [] }, { executed: [two[1].link] }, { executed: [two[0].link, two[1].link] }, { executed: null }]) {
+    const changed = await projectRun({ ...base, ...variant, upload: false });
+    assert.deepEqual([changed.response.status, changed.response.body.error], [409, "projection_conflict"], JSON.stringify(variant));
+  }
+  assert.equal((await projectRun({ ...base, upload: false })).response.status, 200, "the identical replay is still accepted");
+  const failedBase = { revision: "facts-2", articles: [article(8308)], outcome: "failed", reason: "generation_failed" };
+  assert.equal((await projectRun(failedBase)).response.status, 201);
+  const otherReason = await projectRun({ ...failedBase, reason: "model_unavailable", upload: false });
+  assert.deepEqual([otherReason.response.status, otherReason.response.body.error], [409, "projection_conflict"]);
+
   // An admission cannot write a projection pipeline, a projected run cannot be
   // published here, and a projection cannot write an execution pipeline.
   const admitted = await env.admit({ ...admission("history-admit", [article(8304)]), pipeline: "history" });

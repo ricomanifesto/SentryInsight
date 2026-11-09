@@ -227,6 +227,50 @@ def test_unconfigured_store_skips_successfully(monkeypatch, capsys):
     assert "not configured" in capsys.readouterr().out
 
 
+def descriptor_client(payload, status=200):
+    return httpx.Client(
+        transport=httpx.MockTransport(
+            lambda request: httpx.Response(status, json=payload)
+        )
+    )
+
+
+def test_the_serving_commit_comes_only_from_this_sites_release_descriptor():
+    origin, repository = "https://site.example.test/", "owner/site"
+    good = {
+        "kind": "release",
+        "expected_repository": repository,
+        "expected_origin": origin,
+        "source_revision": COMMIT,
+    }
+    assert (
+        projection.serving_commit(descriptor_client(good), origin, repository) == COMMIT
+    )
+    for bad in (
+        {**good, "expected_repository": "owner/other"},
+        {**good, "expected_origin": "https://other.test/"},
+        {**good, "kind": "preview"},
+        {**good, "source_revision": "main"},
+    ):
+        with pytest.raises(projection.ProjectionError):
+            projection.serving_commit(descriptor_client(bad), origin, repository)
+    with pytest.raises(projection.ProjectionError, match="unavailable"):
+        projection.serving_commit(descriptor_client({}, 404), origin, repository)
+
+
+def test_the_origin_is_the_site_configurations_production_origin():
+    root = __import__("pathlib").Path(__file__).resolve().parents[1]
+    assert projection.site_origin(root / "publication" / "site.json") == (
+        "https://sentryinsight.ricomanifesto.com/"
+    )
+
+
+def test_rebuild_refuses_a_commit_name_that_is_not_hexadecimal(tmp_path):
+    for name in ("--output=/tmp/x", "HEAD", "main~1", "abc"):
+        with pytest.raises(projection.ProjectionError, match="hexadecimal"):
+            projection.plan_rebuild(tmp_path, name, lambda url: [])
+
+
 def test_rebuild_requires_a_retained_commit_addressed_feed():
     retained = "https://raw.githubusercontent.com/ricomanifesto/SentryDigest/42e6/site/feed.xml"
     assert (

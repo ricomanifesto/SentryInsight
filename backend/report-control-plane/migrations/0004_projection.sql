@@ -47,6 +47,13 @@ CREATE TABLE publication_observations (
   PRIMARY KEY (pipeline, source_commit, target)
 );
 
+-- Where the sweeper's bounded status pull resumes, so every submitted
+-- operation is eventually polled even while older ones stay pending.
+CREATE TABLE sweep_cursors (
+  name TEXT PRIMARY KEY,
+  after_seq INTEGER NOT NULL
+);
+
 -- A projected run's source commit is kept in run_id; publication observations
 -- find the run by it.
 CREATE INDEX operations_by_run ON operations (pipeline, run_id);

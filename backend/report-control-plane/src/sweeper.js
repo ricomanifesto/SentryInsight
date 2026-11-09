@@ -46,6 +46,25 @@ async function resend(env, settings, row, at) {
   return (await sendDelivery(env, updated)) ? "resent" : "send_failed";
 }
 
+// The next bounded batch of submitted operations, resuming after the last one
+// polled and wrapping to the oldest, so a block of long-pending operations
+// cannot starve newer ones. The cursor is advanced before the pulls.
+async function pullBatch(db, limit) {
+  const cursor = await db.prepare("SELECT after_seq FROM sweep_cursors WHERE name = 'pull'").first();
+  const after = cursor?.after_seq ?? 0;
+  const select = "SELECT * FROM operations WHERE state = 'submitted' AND seq > ? AND seq <= ? ORDER BY seq LIMIT ?";
+  const { results: tail } = await db.prepare(select).bind(after, Number.MAX_SAFE_INTEGER, limit).all();
+  const { results: head } = tail.length < limit ? await db.prepare(select).bind(0, after, limit - tail.length).all() : { results: [] };
+  const batch = [...tail, ...head];
+  if (batch.length > 0) {
+    await db
+      .prepare("INSERT INTO sweep_cursors (name, after_seq) VALUES ('pull', ?) ON CONFLICT (name) DO UPDATE SET after_seq = excluded.after_seq")
+      .bind(batch[batch.length - 1].seq)
+      .run();
+  }
+  return batch;
+}
+
 export async function reconcile(env, settings, trigger) {
   const db = env.PRODUCT_DB;
   const at = now();
@@ -65,11 +84,8 @@ export async function reconcile(env, settings, trigger) {
     const outcome = await resend(env, settings, row, at);
     if (outcome in counts) counts[outcome] += 1;
   }
-  const submitted = await db
-    .prepare("SELECT * FROM operations WHERE state = 'submitted' ORDER BY seq LIMIT ?")
-    .bind(LIMITS.sweepBatch)
-    .all();
-  for (const row of settings.executionConfigured ? submitted.results : []) {
+  const submitted = settings.executionConfigured ? await pullBatch(db, LIMITS.sweepBatch) : [];
+  for (const row of submitted) {
     counts.pulled += 1;
     const outcome = await pullStatus(env, settings, row);
     if (outcome === "completed") counts.completed += 1;

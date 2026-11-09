@@ -80,7 +80,7 @@ The body is strict JSON, at most 64 KiB:
 ## `POST /v1/projections/publications`
 
 ```json
-{"schema": "report-control-plane/publication-observation/1", "pipeline": "reports", "source_commit": "<40 hex>", "target": "github-pages", "observed_at": "<RFC 3339>"}
+{"schema": "report-control-plane/publication-observation/1", "pipeline": "reports", "source_commit": "<40 hex>", "target": "production", "observed_at": "<RFC 3339>"}
 ```
 
 This records that the producer's deployment of a source commit completed.
@@ -97,7 +97,7 @@ The report workflow runs `python -m src.control_plane.projection` with `CONTROL_
 | Command | Where it runs | What it does |
 |---|---|---|
 | `run` | `generate-report`, after the outcome is recorded | `main.py` writes a run-local snapshot (`SENTRYINSIGHT_PROJECTION_SNAPSHOT`) holding every eligible article it read, with its full text and feed publication time, and the links it analyzed after filtering and triage. The snapshot stays in the runner. A `published` run records the committed report: `index.md`, `current-findings.json` and the dated `reports/<date>.md`. `failed` and `cancelled` record a failure with its reason. Other outcomes record nothing |
-| `observe` | `deploy-pages`, after a successful deployment | records the deployed commit for the target `github-pages` |
+| `observe-serving` | `record-report-history.yml`, after Publish Production succeeds and daily, with read-only repository access | reads the release descriptor the production origin serves (`_release/descriptor.json`), checks that it names this repository and origin, and records its source commit for the target `production` |
 | `rebuild --commit <sha>` | operator replay | re-projects a report commit whose `Admission-Feed` trailer names a commit-addressed feed snapshot. Evidence is feed level (`content_kind: feed`), and the executed set is unreported. A commit without a retained feed is refused (`feed_not_retained`) and stays a coverage gap |
 
 Every upload is content-addressed and every write idempotent, so a repeated command changes nothing.

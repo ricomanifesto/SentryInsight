@@ -5,11 +5,11 @@
   "next_cursor": 27,
   "has_more": false,
   "coverage": {
-    "earliest_admitted_at": "2026-11-09T02:25:26.098Z",
+    "earliest_admitted_at": "2026-11-09T03:04:59.494Z",
     "gaps": [
       {
         "kind": "before_first_admission",
-        "until": "2026-11-09T02:25:26.098Z",
+        "until": "2026-11-09T03:04:59.494Z",
         "detail": "history before this store's first admission is not captured"
       }
     ]
@@ -41,14 +41,14 @@
       },
       "times": {
         "published_at": null,
-        "captured_at": "2026-11-09T02:25:27.339Z"
+        "captured_at": "2026-11-09T03:05:00.604Z"
       },
       "first_seen_run_id": "sentryinsight:run:d46ba99bd488ab129e535a7f60e82dd2553236639338bdee36ca1d16cd663394",
       "independence": {
         "status": "first_seen",
         "same_content_first_url": null
       },
-      "record_sha256": "4c46f819783f0ed8d219783ccd0c3a2ccf47cbcb0dfb552551d40c4a9a1b095e"
+      "record_sha256": "4eb6ce395e4324253492c4dc0f6abad513181e0a59ea68a0caa2a680e755a8cd"
     },
     {
       "schema": "sentryinsight-export/1",
@@ -76,14 +76,14 @@
       },
       "times": {
         "published_at": null,
-        "captured_at": "2026-11-09T02:25:27.339Z"
+        "captured_at": "2026-11-09T03:05:00.604Z"
       },
       "first_seen_run_id": "sentryinsight:run:d46ba99bd488ab129e535a7f60e82dd2553236639338bdee36ca1d16cd663394",
       "independence": {
         "status": "duplicate_content",
         "same_content_first_url": "https://example.test/articles/1"
       },
-      "record_sha256": "652d470efa6fd117d8d9a3a1bcd105cafd1450e8aafbc03068f5517a19be8b1a"
+      "record_sha256": "94fa167fec08188e0232e9596623053c878f3b2d6aee63637b08db909e892049"
     },
     {
       "schema": "sentryinsight-export/1",
@@ -107,14 +107,14 @@
       },
       "times": {
         "published_at": null,
-        "captured_at": "2026-11-09T02:25:27.339Z"
+        "captured_at": "2026-11-09T03:05:00.604Z"
       },
       "first_seen_run_id": "sentryinsight:run:d46ba99bd488ab129e535a7f60e82dd2553236639338bdee36ca1d16cd663394",
       "independence": {
         "status": "not_applicable",
         "same_content_first_url": null
       },
-      "record_sha256": "f06c389a9a844b970723117d50b87d451d89082ff5a077a0bcc27d0ef7e1e1a2"
+      "record_sha256": "3f73862387de221a9cef44551487927c8e8a4303be80095d448a6f9bb397fd0d"
     },
     {
       "schema": "sentryinsight-export/1",
@@ -142,14 +142,14 @@
       },
       "times": {
         "published_at": null,
-        "captured_at": "2026-11-09T02:25:26.098Z"
+        "captured_at": "2026-11-09T03:04:59.494Z"
       },
       "first_seen_run_id": "sentryinsight:run:472d1fe8d88d4dce9c44b960101269b48a37f40664ef130abb2aa3e7c3bb4d0e",
       "independence": {
         "status": "first_seen",
         "same_content_first_url": null
       },
-      "record_sha256": "4eab399392b2c350e5af65eebd66dfce7a1dd6c5a5515f2d743647c9aa09d251"
+      "record_sha256": "adbf66725ecd4603643b7a8d6209f96f68acd6e629d0e8f07dcc95437ceca396"
     },
     {
       "schema": "sentryinsight-export/1",
@@ -166,7 +166,7 @@
         "admission_seq": 2,
         "source_revision": "demo-run-2",
         "snapshot_sha256": "82766026e773188488bb9a5b415b8983c890518c100ca94a7a30cdc533fe2cd7",
-        "admitted_at": "2026-11-09T02:25:27.339Z",
+        "admitted_at": "2026-11-09T03:05:00.604Z",
         "outcome": "succeeded",
         "reason": null,
         "execution": {
@@ -207,7 +207,7 @@
         "manifest_sha256": "06e5d502c46d299dbc6b85bd3b0cf80d52052fe1a9642cc11a09cc7d64f2a3d0",
         "file_count": 1,
         "total_bytes": 28,
-        "verified_at": "2026-11-09T02:25:28.490Z"
+        "verified_at": "2026-11-09T03:05:01.652Z"
       },
       "publications": [
         {
@@ -231,7 +231,7 @@
         "status": "not_exported",
         "reason": "artifact_not_interpreted"
       },
-      "record_sha256": "f0cf60e7c9c243871da1a1cd7a9b350e2b07ff37ecf3cefbaaf694fc234cbca3"
+      "record_sha256": "ae894be8ee9d158577e129fb408ecd14a58ed16daaab45049c07b6693fb2cff7"
     }
   ]
 }

@@ -127,16 +127,31 @@ async function described(projection, files) {
   return { id, fingerprint, artifact };
 }
 
-function sameRun(existing, projection, artifact) {
-  const state = projection.run.outcome === "succeeded" ? "completed" : "failed";
-  return (
-    existing.origin === "project" &&
-    existing.state === state &&
-    existing.execution_id === projection.run.execution_id &&
-    existing.run_id === projection.run.source_commit &&
-    existing.artifact_sha256 === (artifact?.sha256 ?? null) &&
-    existing.source_revision === projection.source_revision
-  );
+// A replay must repeat every recorded fact of the run: its state, identity,
+// reason, artifact and per-article outcomes. Anything else is a conflict, never
+// a silent acknowledgement of different history.
+async function sameRun(db, existing, projection, artifact) {
+  const succeeded = projection.run.outcome === "succeeded";
+  if (
+    existing.origin !== "project" ||
+    existing.state !== (succeeded ? "completed" : "failed") ||
+    existing.execution_id !== projection.run.execution_id ||
+    existing.run_id !== projection.run.source_commit ||
+    existing.reason !== projection.run.reason ||
+    existing.artifact_sha256 !== (artifact?.sha256 ?? null) ||
+    existing.source_revision !== projection.source_revision
+  ) {
+    return false;
+  }
+  const { results } = await db
+    .prepare("SELECT article_key, executed FROM operation_articles WHERE operation_id = ?")
+    .bind(existing.operation_id)
+    .all();
+  const links = projection.run.executed_links;
+  const expected = !succeeded || links === null ? null : new Set(links);
+  if (expected !== null && expected.size !== links.length) return false;
+  if (expected !== null && [...expected].some((link) => !results.some((r) => r.article_key === link))) return false;
+  return results.every((r) => r.executed === (expected === null ? null : expected.has(r.article_key) ? 1 : 0));
 }
 
 // Attach every recorded deployment observation of a projected run's commit.
@@ -183,7 +198,7 @@ export async function project(env, principal, bytes) {
   const { id, fingerprint, artifact } = await described(projection, projection.artifact?.files ?? null);
   const existing = await operation(db, id);
   if (existing !== null) {
-    if (!sameRun(existing, projection, artifact)) refuse("projection_conflict", 409);
+    if (!(await sameRun(db, existing, projection, artifact))) refuse("projection_conflict", 409);
     await attachObservations(db, existing);
     return { status: 200, operation: await operation(db, id) };
   }
@@ -293,7 +308,7 @@ export async function project(env, principal, bytes) {
     if (!isConstraintError(error)) throw error;
     const same = await operation(db, id);
     if (same !== null) {
-      if (!sameRun(same, projection, artifact)) refuse("projection_conflict", 409);
+      if (!(await sameRun(db, same, projection, artifact))) refuse("projection_conflict", 409);
       return { status: 200, operation: same };
     }
     const conflict = await db

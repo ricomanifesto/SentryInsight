@@ -1,0 +1,51 @@
+name: Record Report History
+
+# Records the release the production origin is serving in the report history
+# store, which attaches it to the projected run of that source commit. It
+# reads the release descriptor the origin itself serves, runs main's own code
+# with read-only repository access, and never affects publication. It is
+# skipped until the store's URL and projection token are configured.
+
+on:
+  workflow_run:
+    workflows: ["Publish Production"]
+    types: [completed]
+  schedule:
+    - cron: '50 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: record-report-history
+  cancel-in-progress: false
+
+jobs:
+  observe:
+    if: vars.CONTROL_PLANE_URL != '' && (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Install locked dependencies
+        run: uv sync --frozen
+
+      - name: Record the serving release
+        env:
+          CONTROL_PLANE_URL: ${{ vars.CONTROL_PLANE_URL }}
+          CONTROL_PLANE_TOKEN: ${{ secrets.CONTROL_PLANE_PROJECT_TOKEN }}
+        run: |
+          .venv/bin/python -B -m src.control_plane.projection observe-serving \
+            || echo "::warning::Serving release was not recorded in report history"

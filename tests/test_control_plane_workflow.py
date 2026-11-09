@@ -30,12 +30,16 @@ def test_the_run_is_projected_after_its_outcome_is_recorded_and_never_fails_the_
     assert "upload-artifact" not in project, "the run snapshot holds article text"
 
 
-def test_a_deployment_is_observed_only_after_it_succeeded():
-    text = workflow("deploy-pages.yml")
-    assert text.index("- name: Deploy Pages artifact") < text.index(
-        "- name: Record deployment in report history"
-    )
-    observe = step(text, "Record deployment in report history")
-    assert "if: success() && vars.CONTROL_PLANE_URL != ''" in observe
-    assert "projection observe" in observe
-    assert '|| echo "::warning::' in observe
+def test_the_serving_release_is_observed_by_a_read_only_workflow():
+    text = workflow("record-report-history.yml")
+    assert 'workflows: ["Publish Production"]' in text
+    assert "github.event.workflow_run.conclusion == 'success'" in text
+    assert "permissions:\n  contents: read\n" in text
+    assert "write" not in text.split("jobs:")[0]
+    assert "head_sha" not in text, "only trusted main code runs with the secret"
+    assert "vars.CONTROL_PLANE_URL != ''" in text
+    assert "projection observe-serving" in text
+    assert '|| echo "::warning::' in text
+    for name in ("publish-production.yml", "deploy-pages.yml"):
+        assert "report history" not in workflow(name)
+        assert "CONTROL_PLANE" not in workflow(name)
