@@ -1,0 +1,11 @@
+{
+  "miniflare_module": "<absolute path of the installed miniflare dist/src/index.js>",
+  "persist_dir": "<absolute directory for local D1 and R2 state>",
+  "port": 0,
+  "vars_file": "<absolute path of a JSON object of variables, see .dev.vars.example; ADMISSIONS_QUEUE_NAME and DEAD_LETTER_QUEUE_NAME there also name the local queues>",
+  "inspect_port": 0,
+  "inspect_token_file": "<absolute path of a file holding the inspection token>",
+  "ready_file": "<absolute path where the ready JSON is written>",
+  "test_faults": false,
+  "queue": { "retryDelay": 5, "maxRetries": 2 }
+}
