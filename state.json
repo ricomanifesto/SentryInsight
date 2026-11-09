@@ -6708,6 +6708,17 @@
       "release_key": "4d5e9c335d10a6adcf3d9eb2e87196a587c74ce26dab80c9e50e93ca6ed97ed8",
       "release_ref": "11c74fc26d94b822e26bd2e0628b8786bfedd98a",
       "stage": "serving"
+    },
+    {
+      "at": "2026-11-09T15:33:11.792Z",
+      "kind": "release",
+      "payload_digest": "df8f3b38b74a2d1daf56559a8c7e05ad6ae6863fee204abe28015ceefba162fa",
+      "proof": "on",
+      "release_key": "6fb40d0a4126f16a4329ded9b310736d5de314ad32c0fe42afbe96adb4c889db",
+      "release_ref": "154253f1a1539a02a8ba6e28bc56b72311d30dfc",
+      "source_revision": "486947e401d6aa2b1740479d42031978f35d15e2",
+      "stage": "released",
+      "tree_digest": "0618ad45f18abc57330f7f7a8888b9420484b1e16d874f7725af65b9fa431ed5"
     }
   ],
   "schema_version": 1,
