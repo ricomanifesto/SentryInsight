@@ -132,35 +132,26 @@ def _fragment(url: Any) -> str | None:
 
 
 def findings(
-    text: str, artifact_sha: str, run_sources: Sequence[Mapping[str, Any]]
+    text: str, artifact_sha: str
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
-    """The report's own facts and its findings, with evidence linked to sources."""
+    """The report's own facts and findings: artifact-level, the same for every
+    run that recorded this artifact."""
     artifact = parse_report_artifact(text)
     rows = report_findings(text).rows
     if [r.title for r in rows] != [f.title for f in artifact.findings]:
         raise ReportArtifactError("finding table and artifact disagree")
-    by_fragment = {_fragment(s["canonical_url"]): s for s in run_sources}
-    by_fragment.pop(None, None)
     records = []
     for position, (finding, row) in enumerate(zip(artifact.findings, rows)):
         fields = row.fields()
-        evidence = []
-        for ref in finding.reporting:
-            source = by_fragment.get(ref.digest_fragment)
-            evidence.append(
-                {
-                    "publisher": ref.publisher,
-                    "title": ref.title,
-                    "url": ref.url,
-                    "reporting_fragment": ref.digest_fragment,
-                    # The run's own retained source for this citation, or
-                    # none: a citation the run's sources cannot back.
-                    "link": "run_source" if source else "not_in_run_sources",
-                    "source_record_id": source and source["record_id"],
-                    "article_key_sha256": source and source["article_key_sha256"],
-                    "content_sha256": source and source["content_sha256"],
-                }
-            )
+        citations = [
+            {
+                "publisher": ref.publisher,
+                "title": ref.title,
+                "url": ref.url,
+                "reporting_fragment": ref.digest_fragment,
+            }
+            for ref in finding.reporting
+        ]
         status = finding.affected_versions_status
         records.append(
             sealed(
@@ -183,7 +174,7 @@ def findings(
                     "exceptions": finding.exceptions,
                     "recommended_actions": finding.recommended_actions,
                     "vendor_links": list(finding.vendor_links),
-                    "evidence": evidence,
+                    "citations": citations,
                     "text_sha256": row.sha256,
                 },
                 "finding_sha256",
@@ -203,6 +194,34 @@ def findings(
         ),
     }
     return report, records
+
+
+def evidence_links(
+    records: Sequence[Mapping[str, Any]], run_sources: Sequence[Mapping[str, Any]]
+) -> list[dict[str, Any]]:
+    """This run's link for every citation: its own retained source, or none.
+
+    Links belong to the run, not the finding: runs sharing an artifact can
+    retain different revisions of a cited source, or not retain it at all.
+    """
+    by_fragment = {_fragment(s["canonical_url"]): s for s in run_sources}
+    by_fragment.pop(None, None)
+    links = []
+    for record in records:
+        for index, citation in enumerate(record["citations"]):
+            source = by_fragment.get(citation["reporting_fragment"])
+            links.append(
+                {
+                    "finding_key": record["finding_key"],
+                    "citation": index,
+                    "reporting_fragment": citation["reporting_fragment"],
+                    "link": "run_source" if source else "not_in_run_sources",
+                    "source_record_id": source and source["record_id"],
+                    "article_key_sha256": source and source["article_key_sha256"],
+                    "content_sha256": source and source["content_sha256"],
+                }
+            )
+    return links
 
 
 def entry(
@@ -236,6 +255,7 @@ def entry(
         "acceptance": None,
         "report": None,
         "findings": [],
+        "evidence": [],
         "findings_status": "no_accepted_artifact",
         "findings_note": None,
     }
@@ -244,7 +264,7 @@ def entry(
         value["acceptance"] = ACCEPTANCE
         try:
             text, file_sha = accepted_report(client, artifact["sha256"])
-            report, records = findings(text, artifact["sha256"], run_sources)
+            report, records = findings(text, artifact["sha256"])
         except LookupError as error:
             value["findings_status"], value["findings_note"] = "unavailable", str(error)
         except ReportArtifactError as error:
@@ -258,6 +278,7 @@ def entry(
                 **report,
             }
             value["findings"] = records
+            value["evidence"] = evidence_links(records, run_sources)
             value["findings_status"] = "parsed"
     return sealed(value, "entry_sha256")
 

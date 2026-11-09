@@ -152,7 +152,13 @@ def test_findings_come_from_the_verified_accepted_artifact(world):
     )
     assert (finding["basis"], finding["verification"]) == (fx.BASIS, fx.VERIFICATION)
     assert finding["description"], "the report's own description text"
-    [evidence] = finding["evidence"]
+    [citation] = finding["citations"]
+    [evidence] = done["evidence"]
+    assert (evidence["finding_key"], evidence["citation"]) == (
+        finding["finding_key"],
+        0,
+    )
+    assert evidence["reporting_fragment"] == citation["reporting_fragment"]
     assert evidence["link"] == "run_source"
     assert evidence["source_record_id"] == sources[0]["record_id"]
     assert evidence["article_key_sha256"] == sources[0]["article_key_sha256"]
@@ -215,10 +221,34 @@ def test_runs_sharing_one_artifact_share_finding_identity(world):
     assert len(keys) == 2 and keys[0] == keys[1], "one finding, seen in two runs"
 
 
+def test_runs_sharing_an_artifact_keep_their_own_evidence_links(world):
+    # The same report recorded twice, once with the cited source's fetched
+    # text and once with only a feed excerpt (as a rebuild records it), and
+    # once more with the citation not retained at all.
+    store, artifact, sources, runs, _ = world
+    excerpt = source_record(sources[0]["canonical_url"], content="feed excerpt")
+    rebuilt = run_record("4" * 64, 4, "succeeded", artifact, [excerpt])
+    bare = run_record("5" * 64, 5, "succeeded", artifact, [sources[1]])
+    store.pages = {0: page([*sources, excerpt, *runs, rebuilt, bare])}
+    done = [e for e in fx.build(client(store))["entries"] if e["findings"]]
+    assert (
+        len({fx.canonical(e["findings"]) for e in done}) == 1
+    ), "one artifact, one finding record"
+    links = [
+        (e["evidence"][0]["link"], e["evidence"][0]["content_sha256"]) for e in done
+    ]
+    assert links == [
+        ("run_source", sources[0]["content_sha256"]),
+        ("run_source", excerpt["content_sha256"]),
+        ("not_in_run_sources", None),
+    ]
+    assert len({e["entry_sha256"] for e in done}) == 3
+
+
 def test_a_citation_the_run_cannot_back_is_marked_not_linked(world):
     store, artifact, sources, runs, _ = world
     runs[0]["sources"] = [{"source_record_id": sources[1]["record_id"]}]
-    [evidence] = fx.build(client(store))["entries"][0]["findings"][0]["evidence"]
+    [evidence] = fx.build(client(store))["entries"][0]["evidence"]
     assert evidence["link"] == "not_in_run_sources"
     assert evidence["source_record_id"] is None and evidence["content_sha256"] is None
 
@@ -297,8 +327,13 @@ def test_the_committed_staging_fixture_is_sealed_and_labelled():
                 f["finding_key"]
                 == f"sentryinsight:finding:{e['report']['artifact_sha256']}:{f['slug']}"
             )
-            for ev in f["evidence"]:
-                assert ev["link"] in {"run_source", "not_in_run_sources"}
-                assert (ev["source_record_id"] is None) == (
-                    ev["link"] == "not_in_run_sources"
-                )
+        keys = {f["finding_key"]: len(f["citations"]) for f in e["findings"]}
+        assert len(e["evidence"]) == sum(keys.values()), "one link per citation"
+        for ev in e["evidence"]:
+            assert (
+                ev["finding_key"] in keys and ev["citation"] < keys[ev["finding_key"]]
+            )
+            assert ev["link"] in {"run_source", "not_in_run_sources"}
+            assert (ev["source_record_id"] is None) == (
+                ev["link"] == "not_in_run_sources"
+            )

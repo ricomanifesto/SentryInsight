@@ -47,7 +47,8 @@ Nothing is generated, fetched from elsewhere or inferred. A run without an accep
 | `report` | `artifact_sha256`, `file`, `file_sha256`, `report_schema_version`, `report_date`, `generated_at`, `digest_issue_url`, `finding_count`, and `source_coverage` (`coverage_id`, `counts`) for schema-5 reports. `null` without parsed findings |
 | `findings_status` | see below |
 | `findings_note` | why findings are `unavailable` or `unparseable`; otherwise `null` |
-| `findings` | the report's findings in report order; `[]` unless `parsed` |
+| `findings` | the report's findings in report order; `[]` unless `parsed`. They are artifact-level: identical for every run that recorded this artifact |
+| `evidence` | this run's link for every citation of every finding, described below; `[]` unless `parsed` |
 | `entry_sha256` | SHA-256 of the entry's canonical JSON without this field |
 
 `findings_status` values:
@@ -70,12 +71,17 @@ Nothing is generated, fetched from elsewhere or inferred. A run without an accep
 | `description`, `impact`, `status` | the finding's own text fields, verbatim; `null` when absent |
 | `severity`, `exploitation_status`, `action`, `cve_ids` | parsed values |
 | `affected_versions`, `affected_versions_status`, `exceptions`, `recommended_actions`, `vendor_links` | parsed values |
-| `evidence` | one entry per Reporting citation, described below |
+| `citations` | one per Reporting citation: `publisher`, `title`, `url`, `reporting_fragment` |
 | `text_sha256` | SHA-256 of the finding's exact text in `index.md` |
 | `finding_sha256` | SHA-256 of the finding's canonical JSON without this field |
 
+### Evidence (per run)
+
+Links belong to the run, not the finding. Runs that share an artifact can retain different revisions of a cited source (a rebuild retains a feed excerpt where the original run fetched the article), or not retain it at all. So links sit on the entry and stay outside `finding_sha256`.
+
 Each evidence entry has:
-- `publisher`, `title`, `url`, `reporting_fragment`;
+- `finding_key` and `citation`, the citation's index in that finding's `citations`;
+- `reporting_fragment`;
 - `link`:
   - `run_source`: a source of this same run, matched by the reporting URL identity. `source_record_id`, `article_key_sha256` and `content_sha256` name its research-export source revision.
   - `not_in_run_sources`: the run did not retain the cited source, for example one its projection bounds dropped. Those three fields are then `null`. A source revision from another run is never substituted.
@@ -85,5 +91,5 @@ Each evidence entry has:
 - **Identical replay:** the same history gives the same bytes. The document carries no wall-clock time.
 - **Changed revision:** a run record whose version advances changes its entry's `run_record_version` and `entry_sha256`. That happens, for example, when a deployment is observed. The run's findings do not change, because the artifact is immutable.
 - **Failure and non-publication:** failed runs appear, with no findings. `report_published` is false until a publication is recorded.
-- **Conflicting identity:** a `finding_key` names one artifact and one slug. Two different `finding_sha256` values for one key would mean the producer's derivation changed; treat that as a conflict, not a new revision.
+- **Conflicting identity:** a `finding_key` names one artifact and one slug, and its `finding_sha256` depends only on that artifact. Runs that share the artifact give identical finding records even when their evidence links differ. Two different `finding_sha256` values for one key would mean the producer's derivation changed; treat that as a conflict, not a new revision.
 - **Cursor:** `history.next_cursor` is the research-export cursor. Re-running with `--after` reads only runs changed since. Entries are cumulative per run, so a consumer upserts by `entry_key` and `run_record_version`.
