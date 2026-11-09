@@ -231,11 +231,12 @@ test("a refused publication keeps the last-good report and is exported as refuse
   assert.equal(o.run.outcome, "succeeded", "a verified artifact is not a published report");
   const published = records.get(runId(newer));
   assert.equal(published.report_published, true);
-  // The claim that led to the effect is audited in its own batch, so every
-  // exported publication state arrives with an event and a new record_version.
+  // The claim that led to the effect is audited in its own batch, and the
+  // run's version is its newest change.
   const claimed = await env.q("SELECT * FROM events WHERE subject = ? AND kind = 'publication_claimed'", published.publications[0].publication_id);
   assert.equal(claimed.length, 1);
-  assert.ok(published.record_version >= claimed[0].id);
+  const newest = await env.one("SELECT max(id) AS v FROM export_changes WHERE operation_id = ?", newer);
+  assert.equal(published.record_version, newest.v);
 });
 
 test("an interrupted handoff recovers, and the run record advances by version", async () => {
@@ -312,4 +313,49 @@ test("the export role reads the export only, never writes, and leaks no operatio
     assert.deepEqual([response.status, response.body.error], [422, "export_query_invalid"], query);
   }
   assert.deepEqual(await census(), before);
+});
+
+test("a change committed without any audit event still advances the export past the cursor", async () => {
+  const id = await completed(env, admission("silent-1", [article(9801)]), { "index.html": "silent\n" });
+  assert.equal((await env.publish(id, "site-silent")).status, 200);
+  const { cursor } = await env.exportAll();
+  const before = (await latest()).get(runId(id));
+  // Model a writer that crashed after its state change and before its event:
+  // the state changes, no event is written.
+  const events = (await env.one("SELECT count(*) AS n FROM events")).n;
+  await env.stack.db.prepare("UPDATE operations SET reason = 'operator_note', version = version + 1, updated_at = ? WHERE operation_id = ?").bind(Date.now(), id).run();
+  await env.stack.db.prepare("UPDATE publications SET state = 'refused', reason = 'operator_withdrawn', updated_at = ? WHERE operation_id = ?").bind(Date.now(), id).run();
+  assert.equal((await env.one("SELECT count(*) AS n FROM events")).n, events, "no event was written");
+  const delta = new Map((await env.exportAll(cursor)).records.map((r) => [r.record_id, r]));
+  const after = delta.get(runId(id));
+  assert.ok(after, "the changed run is in the incremental export");
+  assert.ok(after.record_version > before.record_version);
+  assert.deepEqual(after.publications.map((p) => [p.state, p.reason]), [["refused", "operator_withdrawn"]]);
+});
+
+test("reads interleaved with concurrent writes never show two contents at one version", async () => {
+  const ids = [];
+  for (let n = 0; n < 6; n += 1) ids.push(await admitted(env, admission(`interleave-${n}`, [article(9900 + n)])));
+  const seen = new Map();
+  const watch = async () => {
+    for (const record of (await env.exportAll()).records) {
+      if (record.record_type !== "run" || !ids.some((id) => record.record_id === runId(id))) continue;
+      const versions = seen.get(record.record_id) ?? new Map();
+      const prior = versions.get(record.record_version);
+      assert.ok(prior === undefined || prior === record.record_sha256, `${record.record_id} v${record.record_version} has two contents`);
+      versions.set(record.record_version, record.record_sha256);
+      seen.set(record.record_id, versions);
+    }
+  };
+  const writers = ids.map(async (id, n) => {
+    env.execution.succeed(id, { "index.html": `interleaved ${n}\n` });
+    await env.reconcile();
+  });
+  const readers = Array.from({ length: 8 }, () => watch());
+  await Promise.all([...writers, ...readers]);
+  await Promise.all(ids.map((id) => env.waitFor(async () => (await env.row(id)).state === "completed" || (await env.reconcile(), false))));
+  await watch();
+  const final = await latest();
+  for (const id of ids) assert.equal(final.get(runId(id)).run.outcome, "succeeded");
+  assert.ok([...seen.values()].some((versions) => versions.size > 1), "some run was observed in more than one state");
 });

@@ -32,7 +32,7 @@ export async function putImmutable(bucket, key, bytes, sha256) {
 // snapshot row rolled back with the refused batch. Nothing about the existing
 // operation changes. When the label was reused under another policy, the
 // refused snapshot can equal the existing one.
-async function recordConflict(db, { pipeline, sourceRevision, fingerprint, existing }) {
+export async function recordConflict(db, { pipeline, sourceRevision, fingerprint, existing }) {
   const nonce = randomToken();
   const at = now();
   await db.batch([
@@ -57,9 +57,13 @@ async function recordConflict(db, { pipeline, sourceRevision, fingerprint, exist
 export async function admit(env, settings, request) {
   const { principal, pipeline, policyId, sourceRevision, articles, bytes, fingerprint } = request;
   const db = env.PRODUCT_DB;
-  const binding = await db.prepare("SELECT policy_id, binding_id, state FROM pipelines WHERE pipeline = ?").bind(pipeline).first();
+  const binding = await db.prepare("SELECT policy_id, binding_id, state, mode FROM pipelines WHERE pipeline = ?").bind(pipeline).first();
   if (binding === null || binding.state !== "active") return { status: 422, body: { error: "pipeline_unavailable" } };
   if (binding.policy_id !== policyId) return { status: 422, body: { error: "policy_unsupported" } };
+  // A projection pipeline records runs its producer already completed; it is
+  // written only through the projection route.
+  if (binding.mode === "project") return { status: 422, body: { error: "pipeline_projection_only" } };
+  if (!settings.executionConfigured) return { status: 503, body: { error: "execution_unconfigured" } };
 
   const operationId = await deriveOperationId(pipeline, policyId, fingerprint);
   const existing = await operation(db, operationId);
@@ -89,11 +93,11 @@ export async function admit(env, settings, request) {
       db
         .prepare(
           `INSERT INTO article_revisions (article_key, content_sha256, title, source, first_operation_id, created_at,
-             content_kind, content_bytes)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (article_key, content_sha256) DO NOTHING`,
+             content_kind, content_bytes, published_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (article_key, content_sha256) DO NOTHING`,
         )
         .bind(article.article_key, article.content_sha256, article.title, article.source, operationId, at,
-          article.content_kind, article.content_bytes),
+          article.content_kind, article.content_bytes, article.published_at),
       db
         .prepare("INSERT INTO operation_articles (operation_id, position, article_key, content_sha256) VALUES (?, ?, ?, ?)")
         .bind(operationId, position, article.article_key, article.content_sha256),

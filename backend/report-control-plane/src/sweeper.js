@@ -5,7 +5,7 @@
 
 import { admit } from "./admission.js";
 import { LIMITS } from "./config.js";
-import { now, record } from "./db.js";
+import { now, record, rowsChanged } from "./db.js";
 import { sendDelivery } from "./delivery.js";
 import { pullStatus } from "./completion.js";
 import { repairPublications } from "./publication.js";
@@ -21,11 +21,11 @@ async function resend(env, settings, row, at) {
       .prepare(
         `UPDATE operations SET state = 'dead_letter', reason = 'send_exhausted', claim_token = NULL,
            claim_expires_at = NULL, version = version + 1, updated_at = ?
-         WHERE operation_id = ? AND state = ? AND version = ? AND delivery_generation = ?`,
+         WHERE operation_id = ? AND state = ? AND version = ? AND delivery_generation = ? RETURNING operation_id`,
       )
       .bind(at, row.operation_id, row.state, row.version, row.delivery_generation)
       .run();
-    if (result.meta.changes === 1) {
+    if (rowsChanged(result) === 1) {
       await record(db, { operationId: row.operation_id, kind: "dead_letter", token: "send_exhausted", at });
       return "exhausted";
     }
@@ -37,11 +37,11 @@ async function resend(env, settings, row, at) {
       `UPDATE operations SET send_attempts = ?, next_send_at = ?,
          enqueued_at = CASE WHEN state = 'enqueued' THEN ? ELSE enqueued_at END,
          version = version + 1, updated_at = ?
-       WHERE operation_id = ? AND state = ? AND version = ? AND delivery_generation = ?`,
+       WHERE operation_id = ? AND state = ? AND version = ? AND delivery_generation = ? RETURNING operation_id`,
     )
     .bind(attempt, at + backoff(settings, attempt), at, at, row.operation_id, row.state, row.version, row.delivery_generation)
     .run();
-  if (result.meta.changes !== 1) return "stale";
+  if (rowsChanged(result) !== 1) return "stale";
   const updated = { ...row, send_attempts: attempt, version: row.version + 1 };
   return (await sendDelivery(env, updated)) ? "resent" : "send_failed";
 }
@@ -60,7 +60,8 @@ export async function reconcile(env, settings, trigger) {
     )
     .bind(at, at - settings.ENQUEUED_STALE_MS, at, at, at, LIMITS.sweepBatch)
     .all();
-  for (const row of due.results) {
+  // Without an execution service nothing is sent or pulled; rows wait.
+  for (const row of settings.executionConfigured ? due.results : []) {
     const outcome = await resend(env, settings, row, at);
     if (outcome in counts) counts[outcome] += 1;
   }
@@ -68,14 +69,14 @@ export async function reconcile(env, settings, trigger) {
     .prepare("SELECT * FROM operations WHERE state = 'submitted' ORDER BY seq LIMIT ?")
     .bind(LIMITS.sweepBatch)
     .all();
-  for (const row of submitted.results) {
+  for (const row of settings.executionConfigured ? submitted.results : []) {
     counts.pulled += 1;
     const outcome = await pullStatus(env, settings, row);
     if (outcome === "completed") counts.completed += 1;
     if (outcome === "failed") counts.failed += 1;
     if (outcome === "artifact_rejected") counts.rejected += 1;
   }
-  counts.publications = await repairPublications(env, settings, LIMITS.sweepBatch);
+  counts.publications = settings.publisherConfigured ? await repairPublications(env, settings, LIMITS.sweepBatch) : 0;
   await record(db, { kind: "sweep", token: trigger, detail: counts, at: now() });
   return counts;
 }

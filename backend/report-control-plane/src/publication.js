@@ -87,14 +87,14 @@ async function claimFree(db, settings, p) {
       .prepare(
         `UPDATE targets SET active_publication_id = ?, claim_token = ?, claim_expires_at = ?, updated_at = ?
          WHERE target = ? AND active_publication_id IS NULL AND last_good_seq < ?
-           AND EXISTS (SELECT 1 FROM publications WHERE publication_id = ? AND state IN ${FRESH})`,
+           AND EXISTS (SELECT 1 FROM publications WHERE publication_id = ? AND state IN ${FRESH}) RETURNING rowid`,
       )
       .bind(p.publication_id, token, at + settings.PUBLICATION_CLAIM_MS, at, p.target, p.candidate_seq, p.publication_id),
     db
       .prepare(
         `UPDATE publications SET state = 'claimed', claim_token = ?, attempts = attempts + 1, reason = NULL, updated_at = ?
          WHERE publication_id = ? AND state IN ${FRESH}
-           AND EXISTS (SELECT 1 FROM targets WHERE target = ? AND claim_token = ?)`,
+           AND EXISTS (SELECT 1 FROM targets WHERE target = ? AND claim_token = ?) RETURNING rowid`,
       )
       .bind(token, at, p.publication_id, p.target, token),
     claimEvent(db, p.publication_id, "publication_claimed", p.target, token, at),
@@ -111,14 +111,14 @@ async function reclaimOwn(db, settings, p, oldToken) {
       .prepare(
         `UPDATE targets SET claim_token = ?, claim_expires_at = ?, updated_at = ?
          WHERE target = ? AND active_publication_id = ? AND claim_token = ? AND claim_expires_at < ?
-           AND EXISTS (SELECT 1 FROM publications WHERE publication_id = ? AND claim_token = ? AND state IN ${HELD})`,
+           AND EXISTS (SELECT 1 FROM publications WHERE publication_id = ? AND claim_token = ? AND state IN ${HELD}) RETURNING rowid`,
       )
       .bind(token, at + settings.PUBLICATION_CLAIM_MS, at, p.target, p.publication_id, oldToken, at, p.publication_id, oldToken),
     db
       .prepare(
         `UPDATE publications SET state = 'claimed', claim_token = ?, attempts = attempts + 1, updated_at = ?
          WHERE publication_id = ? AND claim_token = ? AND state IN ${HELD}
-           AND EXISTS (SELECT 1 FROM targets WHERE target = ? AND claim_token = ?)`,
+           AND EXISTS (SELECT 1 FROM targets WHERE target = ? AND claim_token = ?) RETURNING rowid`,
       )
       .bind(token, at, p.publication_id, oldToken, p.target, token),
     claimEvent(db, p.publication_id, "publication_reclaimed", p.target, token, at),
@@ -137,7 +137,7 @@ async function takeOver(db, settings, p, previous, oldToken) {
         `UPDATE targets SET active_publication_id = ?, claim_token = ?, claim_expires_at = ?, updated_at = ?
          WHERE target = ? AND active_publication_id = ? AND claim_token = ? AND claim_expires_at < ? AND last_good_seq < ?
            AND EXISTS (SELECT 1 FROM publications WHERE publication_id = ? AND state IN ${FRESH})
-           AND EXISTS (SELECT 1 FROM publications WHERE publication_id = ? AND claim_token = ? AND state IN ${HELD})`,
+           AND EXISTS (SELECT 1 FROM publications WHERE publication_id = ? AND claim_token = ? AND state IN ${HELD}) RETURNING rowid`,
       )
       .bind(p.publication_id, token, at + settings.PUBLICATION_CLAIM_MS, at, p.target, previous, oldToken, at, p.candidate_seq,
         p.publication_id, previous, oldToken),
@@ -145,14 +145,14 @@ async function takeOver(db, settings, p, previous, oldToken) {
       .prepare(
         `UPDATE publications SET state = 'claimed', claim_token = ?, attempts = attempts + 1, reason = NULL, updated_at = ?
          WHERE publication_id = ? AND state IN ${FRESH}
-           AND EXISTS (SELECT 1 FROM targets WHERE target = ? AND claim_token = ?)`,
+           AND EXISTS (SELECT 1 FROM targets WHERE target = ? AND claim_token = ?) RETURNING rowid`,
       )
       .bind(token, at, p.publication_id, p.target, token),
     db
       .prepare(
         `UPDATE publications SET state = 'superseded', claim_token = NULL, updated_at = ?
          WHERE publication_id = ? AND claim_token = ? AND state IN ${HELD}
-           AND EXISTS (SELECT 1 FROM targets WHERE target = ? AND claim_token = ?)`,
+           AND EXISTS (SELECT 1 FROM targets WHERE target = ? AND claim_token = ?) RETURNING rowid`,
       )
       .bind(at, previous, oldToken, p.target, token),
     claimEvent(db, p.publication_id, "publication_claimed", p.target, token, at),
@@ -177,14 +177,14 @@ export async function settle(db, p, token, receipt) {
            last_good_publication_id = ?, remote_version = ?, active_publication_id = NULL, claim_token = NULL,
            claim_expires_at = NULL, coupling_nonce = ?, updated_at = ?
          WHERE target = ? AND active_publication_id = ? AND claim_token = ? AND last_good_seq < ?
-           AND EXISTS (SELECT 1 FROM publications WHERE publication_id = ? AND claim_token = ? AND state IN ${HELD})`,
+           AND EXISTS (SELECT 1 FROM publications WHERE publication_id = ? AND claim_token = ? AND state IN ${HELD}) RETURNING rowid`,
       )
       .bind(p.artifact_sha256, p.operation_id, p.candidate_seq, p.publication_id, receipt.remote_version, nonce, at,
         p.target, p.publication_id, token, p.candidate_seq, p.publication_id, token),
     db
       .prepare(
         `UPDATE publications SET state = 'published', receipt = ?, claim_token = NULL, reason = NULL, updated_at = ?
-         WHERE publication_id = ? AND claim_token = ? AND state IN ${HELD} AND ${settled}`,
+         WHERE publication_id = ? AND claim_token = ? AND state IN ${HELD} AND ${settled} RETURNING rowid`,
       )
       .bind(JSON.stringify(receipt), at, p.publication_id, token, p.target, nonce),
     db
@@ -204,14 +204,14 @@ async function release(db, p, token, reason) {
         `UPDATE targets SET active_publication_id = NULL, claim_token = NULL, claim_expires_at = NULL,
            coupling_nonce = ?, updated_at = ?
          WHERE target = ? AND active_publication_id = ? AND claim_token = ?
-           AND EXISTS (SELECT 1 FROM publications WHERE publication_id = ? AND claim_token = ? AND state = 'claimed')`,
+           AND EXISTS (SELECT 1 FROM publications WHERE publication_id = ? AND claim_token = ? AND state = 'claimed') RETURNING rowid`,
       )
       .bind(nonce, at, p.target, p.publication_id, token, p.publication_id, token),
     db
       .prepare(
         `UPDATE publications SET state = 'conflict', claim_token = NULL, reason = ?, updated_at = ?
          WHERE publication_id = ? AND claim_token = ? AND state = 'claimed'
-           AND EXISTS (SELECT 1 FROM targets WHERE target = ? AND coupling_nonce = ?)`,
+           AND EXISTS (SELECT 1 FROM targets WHERE target = ? AND coupling_nonce = ?) RETURNING rowid`,
       )
       .bind(reason, at, p.publication_id, token, p.target, nonce),
   ]);
@@ -220,7 +220,7 @@ async function release(db, p, token, reason) {
 
 async function refuse(db, p, reason) {
   await db
-    .prepare(`UPDATE publications SET state = 'refused', reason = ?, updated_at = ? WHERE publication_id = ? AND state IN ${FRESH}`)
+    .prepare(`UPDATE publications SET state = 'refused', reason = ?, updated_at = ? WHERE publication_id = ? AND state IN ${FRESH} RETURNING rowid`)
     .bind(reason, now(), p.publication_id)
     .run();
   await record(db, { operationId: p.operation_id, subject: p.publication_id, kind: "publish_refused", token: reason, at: now() });
@@ -304,6 +304,10 @@ async function advance(env, settings, p) {
 
 export async function publish(env, settings, operation, target) {
   const db = env.PRODUCT_DB;
+  // A projected run was published, or not, by its own producer; its
+  // publications are observations, never effects made here.
+  if (operation.origin === "project") return { status: 409, body: { error: "projection_not_publishable" } };
+  if (!settings.publisherConfigured) return { status: 503, body: { error: "publisher_unconfigured" } };
   if (operation.state !== "completed") {
     await record(db, { operationId: operation.operation_id, kind: "publish_refused", token: "not_completed", at: now() });
     return { status: 409, body: { error: "not_publishable", state: operation.state } };

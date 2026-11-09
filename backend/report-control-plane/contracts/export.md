@@ -20,7 +20,7 @@ The export reports history. It is not a publication, and it is not a sent newsle
 
 ## Paging and the cursor
 
-The cursor is an audit event id. A page names the operations touched by events after `after`, in event order, up to `limit` runs. It scans at most 2,000 events. `next_cursor` is the last event it accounted for, and `has_more` says whether to call again. `after=0` is a deliberate full backfill. A later cursor gives a bounded incremental read.
+The cursor is an id in the store's change log. Database triggers write a change row in the same statement as every change a run record reflects: its operation, its publications, its identity conflicts and its per-article outcomes. A change therefore cannot be committed without moving past every earlier cursor. A page names the runs changed after `after`, in change order, up to `limit` runs. It scans at most 2,000 changes. `next_cursor` is the last change it accounted for, and `has_more` says whether to call again. `after=0` is a deliberate full backfill. A later cursor gives a bounded incremental read.
 
 A page carries the source records of each run it names, then the run record. A source record already sent in the same page is not repeated. A record from an earlier page may be sent again.
 
@@ -45,8 +45,7 @@ No snapshot is invented for history before the first admission. That gap is decl
 
 - **Upsert by `record_id`.** A record with a `record_sha256` you already hold is a replay: change nothing.
 - **Source records are immutable.** One `record_id` always carries the same content.
-- **Run records are versioned.** Each run is read in one D1 batch, a single transaction. Each of its fields changes only together with an audit event about that run, and `record_version` is the newest such event id. Never replace a run with a lower `record_version`.
-- **One known exception:** a few transitions write their state and their event as two statements, not one batch. A crash between the two can leave a run whose content changed at an unchanged `record_version`. The next event about that run re-emits it with a higher version.
+- **Run records are versioned.** Each run is read in one D1 batch, a single transaction. `record_version` is the newest change id for that run, and every change to its content writes a new one atomically. Equal versions therefore carry equal content. Never replace a run with a lower `record_version`. A version can also advance without visible change, for example on an internal retry.
 
 ## `source_revision` record
 
@@ -88,7 +87,7 @@ One admitted article revision. A change to the article's content under the same 
 
 **Retained text:** `retained` locates the text in an admitted snapshot. A digest alone is not the text. The text is read with the `fetch` route.
 
-**Times:** the admission record has no publication time, so `published_at` is always `null`. `captured_at` is when this store first admitted the revision.
+**Times:** `published_at` is the producer's own publication time for the article, in UTC RFC 3339, when the producer supplied one, and `null` otherwise. For SentryInsight runs it is the source feed's item date; nothing fills a missing time. `captured_at` is when this store first recorded the revision.
 
 **Independence:** identical text under another URL is `duplicate_content` and names the first URL seen with it. Such a copy is one source seen twice, not corroboration. Paraphrased syndication is not detected. Metadata-only records carry no text, so they are `not_applicable`.
 
@@ -107,6 +106,8 @@ One admitted operation: a report run over an immutable snapshot of source record
   "policy_id": "standard",
   "run": {
     "operation_id": "<64 hex>",
+    "origin": "execute | project",
+    "source_commit": "<40 hex> | null",
     "admission_seq": 3,
     "source_revision": "caller-label-1",
     "snapshot_sha256": "<64 hex>",
@@ -117,7 +118,7 @@ One admitted operation: a report run over an immutable snapshot of source record
   },
   "sources": [{"source_record_id": "sentryinsight:source:…", "position": 0, "outcome": "executed | excluded | not_reported"}],
   "artifact": {"sha256": "<64 hex>", "manifest_sha256": "<64 hex>", "file_count": 3, "total_bytes": 1234, "verified_at": "…"},
-  "publications": [{"target": "site", "publication_id": "<64 hex>", "state": "pending | uncertain | published | refused | refused_by_publisher", "reason": null}],
+  "publications": [{"target": "site", "publication_id": "<64 hex>", "state": "pending | uncertain | published | refused | refused_by_publisher", "reason": null, "observed_at": "<RFC 3339> | null"}],
   "report_published": true,
   "identity_conflicts": [{"source_revision": "caller-label-1", "refused_snapshot_sha256": "<64 hex>", "observed_at": "…"}],
   "derived_claims": {"status": "not_exported", "reason": "artifact_not_interpreted"},
@@ -134,6 +135,8 @@ One admitted operation: a report run over an immutable snapshot of source record
 | `incomplete` | delivery was exhausted before execution. An operator may retry it |
 | `in_progress` | anything before a terminal state |
 
+**`run.origin`:** `execute` runs were handed to the execution service by this store. `project` runs were completed by the authoritative producer and recorded afterwards (`contracts/projection.md`). For those, `source_commit` is the report commit the producer published, and `execution.execution_id` names the producer's own run.
+
 **`run.execution`:** `run_state`, `run_reason` and `attempts` are given only once the run is terminal.
 
 **`sources[].outcome`:** `excluded` means the execution side left the record out by its policy. `not_reported` applies to any run that did not succeed, and to a run that completed before migration `0003` recorded per-article outcomes.
@@ -142,6 +145,7 @@ One admitted operation: a report run over an immutable snapshot of source record
 - Only this operation's own publications are listed. Operations that converge on one artifact share its publications, which belong to the first operation that published it. A consumer can join runs by `artifact.sha256`.
 - An intent that was never claimed is not listed.
 - `uncertain` means the effect has not been observed yet.
+- `observed_at` is set for a projected run's publication: the time its producer's deployment was observed to complete. A publication made through this store's publisher has `null`.
 - Which publication is a target's current last-good depends on other runs, so it is not part of this record. Among a target's published runs, the higher `admission_seq` is the newer.
 
 **`identity_conflicts`:** a later admission that reused this run's `source_revision` label with different bytes. It was refused, and its bytes are retained under `refused_snapshot_sha256`, readable with the `fetch` route. When the label was reused under another policy, the refused snapshot can equal this run's own. At most 50 are listed.

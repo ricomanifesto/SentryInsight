@@ -7,7 +7,20 @@ import { JsonRefused, decodeStrictJson } from "./strict-json.js";
 import { sha256Hex, utf8 } from "./util.js";
 
 // The record fields the execution side accepts; anything else is refused.
-const STRING_FIELDS = new Set(["title", "link", "source", "content", "summary", "content_kind"]);
+const STRING_FIELDS = new Set(["title", "link", "source", "content", "summary", "content_kind", "published_at"]);
+// The producer's own publication time, RFC 3339 in UTC; anything else is refused.
+const PUBLISHED_AT = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,6})?Z$/;
+
+export function validPublishedAt(value) {
+  const m = PUBLISHED_AT.exec(value);
+  if (m === null) return false;
+  const [year, month, day, hour, minute, second] = m.slice(1).map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+  return (
+    date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day &&
+    hour < 24 && minute < 60 && second < 60
+  );
+}
 const LIST_FIELDS = new Set(["source_links", "cves"]);
 
 export class RequestRefused extends Error {
@@ -38,7 +51,7 @@ function canonicalRecordLength(record) {
   return length;
 }
 
-function validateArticle(record) {
+function validateArticle(record, limits) {
   if (record === null || typeof record !== "object" || Array.isArray(record)) {
     throw new RequestRefused("article_invalid");
   }
@@ -54,17 +67,18 @@ function validateArticle(record) {
     }
   }
   const { title, link, content, source } = record;
-  if (typeof title !== "string" || title.trim() === "" || title.length > LIMITS.titleChars) {
+  if (record.published_at !== undefined && !validPublishedAt(record.published_at)) throw new RequestRefused("article_invalid");
+  if (typeof title !== "string" || title.trim() === "" || title.length > limits.titleChars) {
     throw new RequestRefused("article_invalid");
   }
-  if (typeof link !== "string" || link.length > LIMITS.keyChars || !/^https?:\/\/[\x21-\x7e]+$/.test(link)) {
+  if (typeof link !== "string" || link.length > limits.keyChars || !/^https?:\/\/[\x21-\x7e]+$/.test(link)) {
     throw new RequestRefused("article_invalid");
   }
-  if (typeof content !== "string" || utf8(content).byteLength > LIMITS.contentBytes) {
+  if (typeof content !== "string" || utf8(content).byteLength > limits.contentBytes) {
     throw new RequestRefused("article_invalid");
   }
-  if (source !== undefined && source.length > LIMITS.sourceChars) throw new RequestRefused("article_invalid");
-  if (canonicalRecordLength(record) > LIMITS.recordBytes) throw new RequestRefused("article_too_large");
+  if (source !== undefined && source.length > limits.sourceChars) throw new RequestRefused("article_invalid");
+  if (canonicalRecordLength(record) > limits.recordBytes) throw new RequestRefused("article_too_large");
   return record;
 }
 
@@ -77,14 +91,14 @@ export function contentKind(value) {
   return CONTENT_KINDS.has(value) ? value : "other";
 }
 
-async function validateArticles(list) {
-  if (!Array.isArray(list) || list.length === 0 || list.length > LIMITS.articles) {
+async function validateArticles(list, limits) {
+  if (!Array.isArray(list) || list.length === 0 || list.length > limits.articles) {
     throw new RequestRefused("articles_invalid");
   }
   const keys = new Set();
   const articles = [];
   for (const record of list) {
-    validateArticle(record);
+    validateArticle(record, limits);
     if (keys.has(record.link)) throw new RequestRefused("article_duplicate_key");
     keys.add(record.link);
     articles.push({
@@ -94,14 +108,15 @@ async function validateArticles(list) {
       source: record.source ?? null,
       content_kind: contentKind(record.content_kind),
       content_bytes: utf8(record.content).byteLength,
+      published_at: record.published_at ?? null,
     });
   }
   return articles;
 }
 
-function decode(bytes) {
+function decode(bytes, limits) {
   if (bytes.byteLength === 0) throw new RequestRefused("request_malformed");
-  if (bytes.byteLength > LIMITS.bodyBytes) throw new RequestRefused("request_too_large");
+  if (bytes.byteLength > limits.bodyBytes) throw new RequestRefused("request_too_large");
   try {
     return decodeStrictJson(bytes);
   } catch (error) {
@@ -119,8 +134,9 @@ function exactKeys(value, keys) {
   if (keys.some((key) => !(key in value))) throw new RequestRefused("field_missing");
 }
 
-export async function parseAdmission(bytes) {
-  const value = decode(bytes);
+// `limits` are the admission bounds; a projection passes its own, larger ones.
+export async function parseAdmission(bytes, limits = LIMITS) {
+  const value = decode(bytes, limits);
   exactKeys(value, ["schema", "pipeline", "policy_id", "source_revision", "articles"]);
   if (value.schema !== SCHEMAS.admission) throw new RequestRefused("schema_unsupported");
   if (typeof value.pipeline !== "string" || !TOKEN.test(value.pipeline)) throw new RequestRefused("pipeline_invalid");
@@ -133,13 +149,13 @@ export async function parseAdmission(bytes) {
     pipeline: value.pipeline,
     policyId: value.policy_id,
     sourceRevision: value.source_revision,
-    articles: await validateArticles(value.articles),
+    articles: await validateArticles(value.articles, limits),
   };
 }
 
 export async function parseBundle(bytes) {
-  const value = decode(bytes);
+  const value = decode(bytes, LIMITS);
   exactKeys(value, ["schema", "articles"]);
   if (value.schema !== SCHEMAS.bundle) throw new RequestRefused("schema_unsupported");
-  return { articles: await validateArticles(value.articles) };
+  return { articles: await validateArticles(value.articles, LIMITS) };
 }

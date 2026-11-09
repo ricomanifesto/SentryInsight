@@ -16,6 +16,7 @@ except ImportError:
 from src.core.observability import configure_observability
 from src.core.workflow import run_exploitation_analysis
 from src.core.review_delivery import write_run_outcome
+from src.control_plane.run_snapshot import write_run_snapshot
 from src.core.failure_receipt import (
     ENV_PATH,
     make_receipt,
@@ -79,6 +80,9 @@ async def main():
         raise SystemExit(1)
     finally:
         finish_receipt(diagnostic_path, result)
+        # Run-local source snapshot for the history projection; written only
+        # when configured, and never changes the run.
+        write_run_snapshot(result)
         root = Path(
             (result or {}).get("config", {}).get("output_path", "index.md")
         ).parent

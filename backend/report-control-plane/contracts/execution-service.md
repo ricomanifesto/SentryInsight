@@ -4,7 +4,7 @@ The control plane hands an admitted operation to an execution service and later 
 
 ## `POST /executions`
 
-Body: the snapshot bytes exactly as admitted. Headers:
+Body: the snapshot bytes exactly as admitted. A record may carry `published_at`, the producer's own publication time in RFC 3339 UTC. The service may use it or ignore it, but it must not refuse a snapshot because of it. Headers:
 
 | Header | Value |
 |---|---|

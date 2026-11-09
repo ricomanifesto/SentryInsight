@@ -24,10 +24,17 @@ export function isConstraintError(error) {
 
 export class InvariantViolation extends Error {}
 
+// Rows a guarded statement changed itself. D1's meta.changes also counts rows
+// written by triggers (migration 0004 logs every run change through them), so
+// every guarded statement ends in RETURNING and is counted by its rows.
+export function rowsChanged(result) {
+  return result.results.length;
+}
+
 // A coupled batch either changes every guarded row or none: anything else is
 // an invariant violation, never a partial success.
 export function allOrNone(results, count) {
-  const changes = results.slice(0, count).map((r) => r.meta.changes);
+  const changes = results.slice(0, count).map(rowsChanged);
   if (changes.every((c) => c === 1)) return true;
   if (changes.every((c) => c === 0)) return false;
   throw new InvariantViolation(`changes ${changes.join(",")}`);

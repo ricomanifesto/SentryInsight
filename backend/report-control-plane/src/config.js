@@ -22,6 +22,8 @@ export const SCHEMAS = Object.freeze({
   export: "sentryinsight-export/1",
   exportPage: "sentryinsight-export-page/1",
   exportSource: "sentryinsight-export-source/1",
+  projection: "report-control-plane/projection/1",
+  observation: "report-control-plane/publication-observation/1",
 });
 
 export const LIMITS = Object.freeze({
@@ -39,6 +41,17 @@ export const LIMITS = Object.freeze({
   maxSendAttempts: 3,
   maxRetryRounds: 3,
   sweepBatch: 20,
+});
+
+// A projection records a run the producer already completed, so its snapshot
+// carries the producer's full article text: larger records, the same count.
+export const PROJECTION_LIMITS = Object.freeze({
+  ...LIMITS,
+  bodyBytes: 8 * 1024 * 1024,
+  contentBytes: 256 * 1024,
+  recordBytes: 320 * 1024,
+  blobBytes: 8 * 1024 * 1024,
+  projectionBytes: 64 * 1024,
 });
 
 const DEFAULTS = Object.freeze({
@@ -85,23 +98,34 @@ export function settings(env) {
     if (!Number.isInteger(value) || value < low || value > high) throw new ConfigInvalid(name);
     out[name] = value;
   }
-  for (const name of ["EXECUTION_URL", "PUBLISHER_URL"]) {
-    const raw = env[name];
+  // The execution service and the publisher are each optional as a pair. With
+  // neither variable set, that dependency is unconfigured: the routes and
+  // sweeps that need it refuse or skip, and everything else serves. One
+  // variable without the other, or a malformed value, is invalid.
+  for (const [urlName, tokenName, flag] of [
+    ["EXECUTION_URL", "EXECUTION_TOKEN", "executionConfigured"],
+    ["PUBLISHER_URL", "PUBLISHER_TOKEN", "publisherConfigured"],
+  ]) {
+    const [rawUrl, rawToken] = [env[urlName], env[tokenName]];
+    if (rawUrl === undefined && rawToken === undefined) {
+      out[urlName] = null;
+      out[tokenName] = null;
+      out[flag] = false;
+      continue;
+    }
     let url;
     try {
-      url = new URL(raw);
+      url = new URL(rawUrl);
     } catch {
-      throw new ConfigInvalid(name);
+      throw new ConfigInvalid(urlName);
     }
-    if (!["http:", "https:"].includes(url.protocol) || url.search || url.hash) throw new ConfigInvalid(name);
-    out[name] = url.href.replace(/\/$/, "");
-  }
-  for (const name of ["EXECUTION_TOKEN", "PUBLISHER_TOKEN"]) {
-    const raw = env[name];
-    if (typeof raw !== "string" || raw.length < 16 || raw.length > 512 || /\s/.test(raw)) {
-      throw new ConfigInvalid(name);
+    if (!["http:", "https:"].includes(url.protocol) || url.search || url.hash) throw new ConfigInvalid(urlName);
+    out[urlName] = url.href.replace(/\/$/, "");
+    if (typeof rawToken !== "string" || rawToken.length < 16 || rawToken.length > 512 || /\s/.test(rawToken)) {
+      throw new ConfigInvalid(tokenName);
     }
-    out[name] = raw;
+    out[tokenName] = rawToken;
+    out[flag] = true;
   }
   // A claim must outlive the call it protects, so a caller that is still
   // waiting never sees its claim taken over.

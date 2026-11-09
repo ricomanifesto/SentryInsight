@@ -36,9 +36,10 @@ function token() {
   return randomBytes(24).toString("hex");
 }
 
-export async function setup({ vars = {}, testFaults = true, persistDir = null, queue = {} } = {}) {
+// `omit` names variables to leave unset, such as an unconfigured dependency.
+export async function setup({ vars = {}, testFaults = true, persistDir = null, queue = {}, omit = [] } = {}) {
   const root = await mkdtemp(path.join(process.env.REPORT_CONTROL_TEST_ROOT ?? os.tmpdir(), "rcp-"));
-  const tokens = { manual: token(), event: token(), reader: token(), publisher: token(), operator: token(), exporter: token() };
+  const tokens = { manual: token(), event: token(), reader: token(), publisher: token(), operator: token(), exporter: token(), projector: token() };
   const principals = [
     { principal: "manual", roles: ["admit", "read"], token_sha256: sha(tokens.manual) },
     { principal: "event", roles: ["admit"], token_sha256: sha(tokens.event) },
@@ -46,6 +47,7 @@ export async function setup({ vars = {}, testFaults = true, persistDir = null, q
     { principal: "publisher", roles: ["publish", "read"], token_sha256: sha(tokens.publisher) },
     { principal: "operator", roles: ["operate", "read", "admit"], token_sha256: sha(tokens.operator) },
     { principal: "exporter", roles: ["export"], token_sha256: sha(tokens.exporter) },
+    { principal: "projector", roles: ["project"], token_sha256: sha(tokens.projector) },
   ];
   const executionToken = token();
   const publisherToken = token();
@@ -68,6 +70,7 @@ export async function setup({ vars = {}, testFaults = true, persistDir = null, q
     QUEUE_RETRY_DELAY_S: "1",
     ...vars,
   };
+  for (const name of omit) delete allVars[name];
   // workerVars (tests only) are variables the Worker sees on top of allVars
   // while the topology still follows allVars; see workerOptions.
   const start = (workerVars) =>

@@ -7,7 +7,8 @@ Every route except `/healthz` takes `Authorization: Bearer <token>`. Callers are
 - `read`: status, targets and artifacts;
 - `publish`: publish operations;
 - `operate`: set pipelines and schedules, and run the sweeper;
-- `export`: the research export only (`contracts/export.md`).
+- `export`: the research export only (`contracts/export.md`);
+- `project`: projection uploads, runs and observations only (`contracts/projection.md`).
 
 **Responses:** refusals are `{"error": "<token>"}`. Status responses carry states, versions, ids, digests, counts and fixed reason tokens, never paths, hosts or upstream messages.
 
@@ -21,13 +22,21 @@ Every route except `/healthz` takes `Authorization: Bearer <token>`. Callers are
 | `GET /v1/targets/{target}` | read | last-good publication of a target |
 | `GET /v1/artifacts/{sha256}` | read | the verified artifact manifest |
 | `GET /v1/artifacts/{sha256}/files/{path}` | read | one verified artifact file |
-| `PUT /v1/pipelines/{pipeline}` | operate | `{"policy_id", "binding_id", "state": "active" or "retired"}` |
+| `PUT /v1/pipelines/{pipeline}` | operate | `{"policy_id", "binding_id", "state": "active" or "retired", "mode": "execute" (default) or "project"}` |
 | `PUT /v1/schedules/{id}` | operate | `{"pipeline", "policy_id", "state": "active" or "paused"}` |
 | `PUT /v1/schedules/{id}/sources` | admit | stage a source bundle for the next scheduled admission |
+| `PUT /v1/projections/blobs/{sha256}` | project | upload immutable bytes |
+| `POST /v1/projections` | project | record a completed run |
+| `POST /v1/projections/publications` | project | record an observed deployment |
 | `GET /v1/export` | export | a page of the research export, `?after=<cursor>&limit=<1..25>` |
 | `GET /v1/export/sources/{snapshot}/{position}` | export | one retained article's text, re-verified |
 
 ## Configuration
+
+`EXECUTION_URL` with `EXECUTION_TOKEN`, and `PUBLISHER_URL` with `PUBLISHER_TOKEN`, are optional pairs.
+
+- **Unset pair:** with neither variable set, that dependency is unconfigured. Admission into an execution pipeline and manual retry answer `503 execution_unconfigured`, and publishing answers `503 publisher_unconfigured`, before any write. The sweeper skips sends, pulls and publication repair. Projection, reads and the export serve.
+- **Half-set pair:** one variable of a pair without the other is invalid (`503 config_invalid`).
 
 The admission queue and its dead-letter queue are named by `ADMISSIONS_QUEUE_NAME` (default `report-admissions`) and `DEAD_LETTER_QUEUE_NAME` (default `report-admissions-dead`). Each must be 1 to 63 lowercase letters, digits and hyphens, starting and ending with a letter or digit, and the two must differ. With an invalid name, every authenticated route answers `503 config_invalid` before any write, and no Queue or scheduled work is done. Messages are dispatched by these names only; a batch from any other queue is retried, never handled.
 
@@ -52,7 +61,7 @@ At most 1 MiB, strict JSON. Duplicate keys and unknown fields are refused, and s
 - `source`: at most 256 characters;
 - `content`: at most 64 KiB;
 - each record's ASCII-escaped JSON encoding: at most 64 KiB;
-- optional fields: `summary`, `content_kind`, `source_links` and `cves`.
+- optional fields: `summary`, `content_kind`, `source_links`, `cves` and `published_at` (the producer's publication time, RFC 3339 UTC, for example `2026-11-08T15:43:08Z`).
 
 **Identities:**
 - **Snapshot:** `fingerprint = sha256(request bytes)`. The bytes are stored once at `snapshots/<fingerprint>`.

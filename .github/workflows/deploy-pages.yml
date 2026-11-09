@@ -68,3 +68,17 @@ jobs:
       - name: Deploy Pages artifact
         id: deployment
         uses: actions/deploy-pages@v5
+
+      # Records the completed deployment in the report history store, which
+      # attaches it to the projected run of this commit. It runs only after a
+      # successful deployment, a failure only annotates the run, and it is
+      # skipped until the store is configured.
+      - name: Record deployment in report history
+        if: success() && vars.CONTROL_PLANE_URL != ''
+        env:
+          CONTROL_PLANE_URL: ${{ vars.CONTROL_PLANE_URL }}
+          CONTROL_PLANE_TOKEN: ${{ secrets.CONTROL_PLANE_PROJECT_TOKEN }}
+          SOURCE_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          .venv/bin/python -B -m src.control_plane.projection observe --source-commit "$SOURCE_SHA" --target github-pages \
+            || echo "::warning::Deployment was not recorded in report history"

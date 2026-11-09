@@ -6,8 +6,9 @@ import { ConfigInvalid } from "./config.js";
 import { sameHex, sha256Hex } from "./util.js";
 
 // `export` reads the research export and nothing else; it is the only role a
-// downstream consumer such as the newsletter needs.
-export const ROLES = Object.freeze(["admit", "read", "publish", "operate", "export"]);
+// downstream consumer such as the newsletter needs. `project` records runs the
+// authoritative producer already completed, and nothing else.
+export const ROLES = Object.freeze(["admit", "read", "publish", "operate", "export", "project"]);
 const BEARER = /^Bearer ([\x21-\x7e]{16,512})$/;
 
 // AUTH_PRINCIPALS: [{"principal": "manual", "roles": ["admit", "read"], "token_sha256": "<hex>"}]

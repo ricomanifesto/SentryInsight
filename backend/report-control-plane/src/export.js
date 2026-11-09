@@ -1,16 +1,17 @@
 // The research export: a bounded, read-only change feed over product history
 // for downstream consumers such as the newsletter. It never writes.
 //
-// The cursor is the audit event id. A page names each operation touched by
-// the events after the cursor and emits two kinds of record:
+// The cursor is an export_changes id. Triggers write a change row in the same
+// statement as every change a run record reflects (migration 0004), so a
+// change can never be committed without advancing past the cursor. A page
+// names each operation changed after the cursor and emits two kinds of record:
 //
 // - source_revision: one immutable admitted article revision. Its fields are
 //   derived in commit order (rowid), so a replay yields identical records.
 // - run: the exported state of one operation, read in one D1 batch (a single
-//   transaction), so its fields and its record_version come from one state.
-//   Every field changes only together with an audit event about that
-//   operation, so record_version (the newest such event id) orders states and
-//   equal versions carry equal content (record_sha256).
+//   transaction), so its fields and its record_version (the newest change id
+//   for that operation) come from one committed state. Equal versions carry
+//   equal content (record_sha256).
 //
 // A consumer upserts by record_id, ignores a record whose record_sha256 it
 // already holds, and never replaces a run with a lower record_version.
@@ -57,9 +58,8 @@ export function parseExportQuery(search) {
 
 const iso = (ms) => (ms === null || ms === undefined ? null : new Date(ms).toISOString());
 
-// The operations touched by events after the cursor, in event order. An event
-// belongs to an operation directly, or through the publication it names as its
-// subject. Returns the cursor of the last event accounted for.
+// The operations changed after the cursor, in change order. Returns the
+// cursor of the last change accounted for.
 export async function touchedOperations(db, after, limit, limits = EXPORT_LIMITS) {
   const operations = [];
   const seen = new Set();
@@ -68,9 +68,7 @@ export async function touchedOperations(db, after, limit, limits = EXPORT_LIMITS
   for (;;) {
     const { results } = await db
       .prepare(
-        `SELECT e.id AS id, COALESCE(e.operation_id, p.operation_id) AS operation_id
-         FROM events e LEFT JOIN publications p ON e.operation_id IS NULL AND p.publication_id = e.subject
-         WHERE e.id > ? ORDER BY e.id LIMIT ?`,
+        "SELECT id, operation_id FROM export_changes WHERE id > ? ORDER BY id LIMIT ?",
       )
       .bind(cursor, limits.eventChunk)
       .all();
@@ -110,21 +108,12 @@ function evidenceKind(row) {
 function runStatements(db, operationId) {
   return [
     db.prepare("SELECT * FROM operations WHERE operation_id = ?").bind(operationId),
-    // The newest event about this operation, directly or through its publications.
-    db
-      .prepare(
-        `SELECT max(v) AS v FROM (
-           SELECT max(id) AS v FROM events WHERE operation_id = ?
-           UNION ALL
-           SELECT max(e.id) AS v FROM publications p JOIN events e ON e.subject = p.publication_id
-           WHERE p.operation_id = ?)`,
-      )
-      .bind(operationId, operationId),
+    db.prepare("SELECT max(id) AS v FROM export_changes WHERE operation_id = ?").bind(operationId),
     // Each admitted article with its revision facts, all in commit order.
     db
       .prepare(
         `SELECT oa.position, oa.executed, r.article_key, r.content_sha256, r.title, r.source, r.content_kind,
-           r.content_bytes, r.first_operation_id, r.created_at,
+           r.content_bytes, r.first_operation_id, r.created_at, r.published_at,
            (SELECT count(*) FROM article_revisions x WHERE x.article_key = r.article_key AND x.rowid < r.rowid) + 1 AS revision_index,
            (SELECT x.content_sha256 FROM article_revisions x WHERE x.article_key = r.article_key AND x.rowid < r.rowid
               ORDER BY x.rowid DESC LIMIT 1) AS previous_sha256,
@@ -181,7 +170,7 @@ async function sourceRecord(row) {
               fetch: `/v1/export/sources/${row.retained_snapshot}/${row.retained_position}`,
             },
     },
-    times: { published_at: null, captured_at: iso(row.created_at) },
+    times: { published_at: row.published_at ?? null, captured_at: iso(row.created_at) },
     first_seen_run_id: runRecordId(row.first_operation_id),
     // Identical text under another URL is one source seen twice, not
     // corroboration. Metadata-only records carry no text to compare.
@@ -217,6 +206,14 @@ const PUBLICATION_STATES = {
 };
 const PUBLICATION_REASONS = new Set(["refused", "conflict"]);
 
+// A projected publication carries the time its deployment was observed; a
+// publication made through the publisher carries none.
+function observedAt(p) {
+  if (p.state !== "published" || !p.receipt) return null;
+  const receipt = JSON.parse(p.receipt);
+  return receipt.authority === "observed" && typeof receipt.observed_at === "string" ? receipt.observed_at : null;
+}
+
 function runRecord(op, version, articles, artifact, publications, conflicts, sourceIds) {
   const outcome = OUTCOMES[op.state];
   const terminal = outcome === "succeeded" || outcome === "failed";
@@ -227,6 +224,7 @@ function runRecord(op, version, articles, artifact, publications, conflicts, sou
       publication_id: p.publication_id,
       state: PUBLICATION_STATES[p.state],
       reason: PUBLICATION_REASONS.has(p.state) ? p.reason : null,
+      observed_at: observedAt(p),
     }));
   return sealed({
     schema: SCHEMAS.export,
@@ -238,6 +236,8 @@ function runRecord(op, version, articles, artifact, publications, conflicts, sou
     policy_id: op.policy_id,
     run: {
       operation_id: op.operation_id,
+      origin: op.origin,
+      source_commit: op.origin === "project" ? op.run_id : null,
       admission_seq: op.seq,
       source_revision: op.source_revision,
       snapshot_sha256: op.fingerprint,

@@ -4,7 +4,7 @@
 // row are one batch, and the row is written only if the update applied.
 
 import { LIMITS, SCHEMAS } from "./config.js";
-import { now, record } from "./db.js";
+import { now, record, rowsChanged } from "./db.js";
 import { fault } from "./faults.js";
 import { HEX64, ID_TOKEN, REASON, artifactDigest, comparePaths, pathSegments } from "./identity.js";
 import { fetchPart, readExecution } from "./execution-client.js";
@@ -13,7 +13,7 @@ import { randomToken, sha256Hex, utf8 } from "./util.js";
 
 const STATES = new Set(["queued", "running", "waiting_retry", "succeeded", "failed", "unknown"]);
 
-class Rejected extends Error {
+export class Rejected extends Error {
   constructor(token) {
     super(token);
     this.token = token;
@@ -66,7 +66,7 @@ export function receiptProblem(r) {
   return null;
 }
 
-async function checkArtifact(artifact) {
+export async function checkArtifact(artifact) {
   const { files } = artifact;
   if (!HEX64.test(artifact.sha256 ?? "") || !HEX64.test(artifact.accepted_output_sha256 ?? "")) throw new Rejected("artifact_receipt_invalid");
   if (artifact.accepted_output_sha256 !== artifact.sha256) throw new Rejected("artifact_accepted_mismatch");
@@ -126,12 +126,13 @@ async function fail(db, row, reason, kind, token) {
   const result = await db
     .prepare(
       `UPDATE operations SET state = 'failed', reason = ?, version = version + 1, updated_at = ?
-       WHERE operation_id = ? AND state = 'submitted' AND version = ?`,
+       WHERE operation_id = ? AND state = 'submitted' AND version = ? RETURNING operation_id`,
     )
     .bind(reason, at, row.operation_id, row.version)
     .run();
-  if (result.meta.changes === 1) await record(db, { operationId: row.operation_id, kind, token, at });
-  return result.meta.changes === 1 ? kind : "stale";
+  const applied = rowsChanged(result) === 1;
+  if (applied) await record(db, { operationId: row.operation_id, kind, token, at });
+  return applied ? kind : "stale";
 }
 
 function reject(db, row, token) {
@@ -186,7 +187,8 @@ async function complete(env, settings, row, receipt) {
       .prepare(
         `UPDATE operations SET state = 'completed', artifact_sha256 = ?, executed_count = ?, run_state = 'succeeded',
            reason = NULL, transition_nonce = ?, version = version + 1, updated_at = ?
-         WHERE operation_id = ? AND state = 'submitted' AND execution_id = ? AND binding_id = ? AND version = ?`,
+         WHERE operation_id = ? AND state = 'submitted' AND execution_id = ? AND binding_id = ? AND version = ?
+         RETURNING operation_id`,
       )
       .bind(artifact.sha256, executedCount, nonce, at, row.operation_id, row.execution_id, row.binding_id, row.version),
     db
@@ -212,7 +214,7 @@ async function complete(env, settings, row, receipt) {
       )
       .bind(JSON.stringify(receipt.articles.executed.map((a) => a.article_key)), row.operation_id, row.operation_id, nonce),
   ]);
-  return results[0].meta.changes === 1 ? "completed" : "stale";
+  return rowsChanged(results[0]) === 1 ? "completed" : "stale";
 }
 
 async function project(db, row, receipt) {
@@ -224,11 +226,11 @@ async function project(db, row, receipt) {
     .prepare(
       `UPDATE operations SET run_state = ?, run_reason = ?, attempts_used = ?, attempts_limit = ?,
          budget_reserved = ?, budget_limit = ?, version = version + 1, updated_at = ?
-       WHERE operation_id = ? AND state = 'submitted' AND version = ?`,
+       WHERE operation_id = ? AND state = 'submitted' AND version = ? RETURNING operation_id`,
     )
     .bind(...values, at, row.operation_id, row.version)
     .run();
-  if (result.meta.changes !== 1) return null;
+  if (rowsChanged(result) !== 1) return null;
   return { ...row, run_state: values[0], run_reason: values[1], version: row.version + 1 };
 }
 

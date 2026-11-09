@@ -10,7 +10,7 @@
 // by its claim token.
 
 import { LIMITS } from "./config.js";
-import { now, operation, record } from "./db.js";
+import { now, operation, record, rowsChanged } from "./db.js";
 import { fault } from "./faults.js";
 import { HEX64 } from "./identity.js";
 import { submitExecution } from "./execution-client.js";
@@ -65,11 +65,11 @@ async function settleClaim(db, operationId, token, assignments, values, kind, to
     .prepare(
       `UPDATE operations SET ${assignments}, claim_token = NULL, claim_expires_at = NULL,
          version = version + 1, updated_at = ?
-       WHERE operation_id = ? AND state = 'submitting' AND claim_token = ?`,
+       WHERE operation_id = ? AND state = 'submitting' AND claim_token = ? RETURNING operation_id`,
     )
     .bind(...values, at, operationId, token)
     .run();
-  const won = result.meta.changes === 1;
+  const won = rowsChanged(result) === 1;
   await record(db, { operationId, kind: won ? kind : "settle_lost", token: tokenValue, at });
   return won;
 }
@@ -77,6 +77,7 @@ async function settleClaim(db, operationId, token, assignments, values, kind, to
 // Returns "ack" or {retry: seconds}.
 export async function handleDelivery(env, settings, body) {
   const db = env.PRODUCT_DB;
+  if (!settings.executionConfigured) return { retry: settings.QUEUE_RETRY_DELAY_S };
   const message = parseMessage(body);
   if (message === null) return "ack";
   const row = await operation(db, message.operation_id);
@@ -97,11 +98,11 @@ export async function handleDelivery(env, settings, body) {
       `UPDATE operations SET state = 'submitting', claim_token = ?, claim_expires_at = ?,
          version = version + 1, updated_at = ?
        WHERE operation_id = ? AND delivery_generation = ?
-         AND (state IN ('admitted', 'enqueued') OR (state = 'submitting' AND claim_expires_at < ?))`,
+         AND (state IN ('admitted', 'enqueued') OR (state = 'submitting' AND claim_expires_at < ?)) RETURNING operation_id`,
     )
     .bind(token, at + settings.claimMs, at, row.operation_id, message.generation, at)
     .run();
-  if (claim.meta.changes !== 1) {
+  if (rowsChanged(claim) !== 1) {
     await record(db, { operationId: row.operation_id, kind: "claim_lost", at: now() });
     return "ack";
   }
@@ -155,14 +156,15 @@ export async function handleDeadLetter(env, settings, body) {
       `UPDATE operations SET state = 'dead_letter', reason = 'delivery_exhausted', claim_token = NULL,
          claim_expires_at = NULL, version = version + 1, updated_at = ?
        WHERE operation_id = ? AND delivery_generation = ?
-         AND (state IN ('admitted', 'enqueued') OR (state = 'submitting' AND claim_expires_at < ?))`,
+         AND (state IN ('admitted', 'enqueued') OR (state = 'submitting' AND claim_expires_at < ?)) RETURNING operation_id`,
     )
     .bind(at, message.operation_id, message.generation, at)
     .run();
+  const applied = rowsChanged(result) === 1;
   await record(db, {
     operationId: message.operation_id,
-    kind: result.meta.changes === 1 ? "dead_letter" : "stale_dead_letter",
-    token: result.meta.changes === 1 ? "delivery_exhausted" : null,
+    kind: applied ? "dead_letter" : "stale_dead_letter",
+    token: applied ? "delivery_exhausted" : null,
     detail: { generation: message.generation },
     at,
   });
@@ -187,6 +189,7 @@ export async function manualRetry(env, settings, operationId) {
   const row = await operation(db, operationId);
   if (row === null) return { status: 404, body: { error: "not_found" } };
   if (row.state !== "dead_letter") return { status: 409, body: { error: "not_dead_letter" } };
+  if (!settings.executionConfigured) return { status: 503, body: { error: "execution_unconfigured" } };
   if (row.retry_rounds >= LIMITS.maxRetryRounds) return { status: 409, body: { error: "retry_exhausted" } };
   const at = now();
   const update = await db
@@ -194,11 +197,11 @@ export async function manualRetry(env, settings, operationId) {
       `UPDATE operations SET state = 'admitted', delivery_generation = delivery_generation + 1,
          retry_rounds = retry_rounds + 1, send_attempts = 1, next_send_at = ?, reason = NULL,
          enqueued_at = NULL, version = version + 1, updated_at = ?
-       WHERE operation_id = ? AND state = 'dead_letter' AND version = ? AND retry_rounds < ?`,
+       WHERE operation_id = ? AND state = 'dead_letter' AND version = ? AND retry_rounds < ? RETURNING operation_id`,
     )
     .bind(at + backoff(settings, 1), at, operationId, row.version, LIMITS.maxRetryRounds)
     .run();
-  if (update.meta.changes !== 1) return { status: 409, body: { error: "retry_conflict" } };
+  if (rowsChanged(update) !== 1) return { status: 409, body: { error: "retry_conflict" } };
   await record(db, { operationId, kind: "manual_retry", detail: { generation: row.delivery_generation + 1 }, at });
   await sendDelivery(env, await operation(db, operationId));
   return { status: 202, operation: await operation(db, operationId) };

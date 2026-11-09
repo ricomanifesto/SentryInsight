@@ -3,10 +3,11 @@
 
 import { admit, putImmutable } from "./admission.js";
 import { authenticate } from "./auth.js";
-import { ConfigInvalid, LIMITS, settings as readSettings } from "./config.js";
+import { ConfigInvalid, LIMITS, PROJECTION_LIMITS, settings as readSettings } from "./config.js";
 import { now, operation, record } from "./db.js";
 import { manualRetry } from "./delivery.js";
 import { ExportRefused, exportPage, parseExportQuery, retainedSource } from "./export.js";
+import { ProjectionRefused, observe, project, putBlob } from "./projection.js";
 import { HEX64, TOKEN, pathSegments } from "./identity.js";
 import { publish, targetView } from "./publication.js";
 import { RequestRefused, parseAdmission, parseBundle } from "./request.js";
@@ -27,9 +28,28 @@ const ROUTES = [
   ["PUT", /^\/v1\/pipelines\/([a-z0-9][a-z0-9._-]{0,63})$/, "operate", pipelineRoute],
   ["PUT", /^\/v1\/schedules\/([a-z0-9][a-z0-9._-]{0,63})$/, "operate", scheduleRoute],
   ["PUT", /^\/v1\/schedules\/([a-z0-9][a-z0-9._-]{0,63})\/sources$/, "admit", sourcesRoute],
+  ["PUT", /^\/v1\/projections\/blobs\/([0-9a-f]{64})$/, "project", blobRoute],
+  ["POST", /^\/v1\/projections$/, "project", projectionRoute],
+  ["POST", /^\/v1\/projections\/publications$/, "project", observationRoute],
   ["GET", /^\/v1\/export$/, "export", exportRoute],
   ["GET", /^\/v1\/export\/sources\/([0-9a-f]{64})\/(0|[1-9][0-9]{0,2})$/, "export", exportSourceRoute],
 ];
+
+async function blobRoute({ request, env, match }) {
+  const outcome = await putBlob(env, match[1], await readBounded(request.body, PROJECTION_LIMITS.blobBytes));
+  return json(outcome.status, outcome.body);
+}
+
+async function projectionRoute({ request, env, principal }) {
+  const outcome = await project(env, principal, await readBounded(request.body, PROJECTION_LIMITS.projectionBytes));
+  if (outcome.operation) return json(outcome.status, await operationStatus(env.PRODUCT_DB, outcome.operation));
+  return json(outcome.status, outcome.body);
+}
+
+async function observationRoute({ request, env }) {
+  const outcome = await observe(env, await readBounded(request.body, 4096));
+  return json(outcome.status, outcome.body);
+}
 
 async function exportRoute({ request, env }) {
   let query;
@@ -131,22 +151,38 @@ async function artifactFileRoute({ env, match }) {
 }
 
 async function pipelineRoute({ request, env, match, principal }) {
-  const value = await smallJson(request, ["policy_id", "binding_id", "state"]);
-  if (!TOKEN.test(value.policy_id ?? "") || !HEX64.test(value.binding_id ?? "") || !["active", "retired"].includes(value.state)) {
+  // `mode` is optional and defaults to 'execute'.
+  const raw = await readBounded(request.body, 4096);
+  let value;
+  try {
+    value = decodeStrictJson(raw);
+  } catch (error) {
+    if (error instanceof JsonRefused) throw new RequestRefused("request_malformed");
+    throw error;
+  }
+  const keys = value !== null && typeof value === "object" && !Array.isArray(value) ? Object.keys(value).sort().join(",") : "";
+  if (keys !== "binding_id,policy_id,state" && keys !== "binding_id,mode,policy_id,state") throw new RequestRefused("request_malformed");
+  value.mode = value.mode ?? "execute";
+  if (
+    !TOKEN.test(value.policy_id ?? "") ||
+    !HEX64.test(value.binding_id ?? "") ||
+    !["active", "retired"].includes(value.state) ||
+    !["execute", "project"].includes(value.mode)
+  ) {
     throw new RequestRefused("pipeline_invalid");
   }
   const at = now();
   await env.PRODUCT_DB.batch([
     env.PRODUCT_DB
       .prepare(
-        `INSERT INTO pipelines (pipeline, policy_id, binding_id, state, updated_at) VALUES (?, ?, ?, ?, ?)
+        `INSERT INTO pipelines (pipeline, policy_id, binding_id, state, mode, updated_at) VALUES (?, ?, ?, ?, ?, ?)
          ON CONFLICT (pipeline) DO UPDATE SET policy_id = excluded.policy_id, binding_id = excluded.binding_id,
-           state = excluded.state, updated_at = excluded.updated_at`,
+           state = excluded.state, mode = excluded.mode, updated_at = excluded.updated_at`,
       )
-      .bind(match[1], value.policy_id, value.binding_id, value.state, at),
+      .bind(match[1], value.policy_id, value.binding_id, value.state, value.mode, at),
     env.PRODUCT_DB
       .prepare("INSERT INTO events (subject, kind, token, detail, at) VALUES (?, 'pipeline_set', ?, ?, ?)")
-      .bind(match[1], value.state, JSON.stringify({ binding_id: value.binding_id, by: principal }), at),
+      .bind(match[1], value.state, JSON.stringify({ binding_id: value.binding_id, mode: value.mode, by: principal }), at),
   ]);
   return json(200, { pipeline: match[1], ...value });
 }
@@ -201,6 +237,7 @@ export async function route(request, env) {
   } catch (error) {
     if (error instanceof ConfigInvalid) return refusal(503, "config_invalid");
     if (error instanceof RequestRefused) return refusal(422, error.reason);
+    if (error instanceof ProjectionRefused) return refusal(error.status, error.reason);
     if (error instanceof TooLarge) return refusal(413, "request_too_large");
     throw error;
   }

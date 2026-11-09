@@ -1,8 +1,13 @@
 # Report control plane (local, D1-first)
 
-A Cloudflare Worker that admits report requests, records product state in D1, hands work to a generic execution service through a Queue, verifies and stores accepted report artifacts in R2, and publishes them through a fenced publisher while keeping the last-good revision.
+A Cloudflare Worker that keeps SentryInsight's report history in D1 and R2. It works two ways:
 
-This directory is a local slice. Nothing here is deployed, and no account, route, remote binding or credential is used.
+- **Execution:** it admits report requests, hands them to a generic execution service through a Queue, verifies and stores accepted report artifacts in R2, and publishes them through a fenced publisher while keeping the last-good revision.
+- **Projection:** it records runs that the report workflow already completed, together with their observed deployments, as an immutable history (`contracts/projection.md`). The workflow stays the authority for generation and publication.
+
+Either way, a read-only research export serves the history (`contracts/export.md`). The execution service and the publisher are optional. Without them, execution and publication refuse before any write, and projection and the export still serve.
+
+Tests and the local stack use no account, route, remote binding or credential. `wrangler.staging.toml` declares the staging deployment.
 
 ## Authorities
 
@@ -28,8 +33,8 @@ The Worker is the only writer of D1 and R2, and completion is pulled from the ex
 | Path | Contents |
 |---|---|
 | `src/` | Worker modules: routes, authentication, identities, strict JSON, admission, delivery, completion, publication and the sweeper |
-| `migrations/` | the D1 schema: `0001_init.sql`, `0002_transition_nonce.sql`, and `0003_export.sql` for the facts the research export needs |
-| `contracts/` | product API, execution service, publisher and the research export (`export.md`) |
+| `migrations/` | the D1 schema: `0001_init.sql`, `0002_transition_nonce.sql`, `0003_export.sql` for the facts the research export needs, and `0004_projection.sql` for the trigger-written change log, projection pipelines and publication observations |
+| `contracts/` | product API, execution service, publisher, projection (`projection.md`) and the research export (`export.md`) |
 | `cli/report-control.mjs` | a command-line client; `artifact` downloads and verifies an accepted artifact |
 | `local/stack.mjs`, `local/serve.mjs` | the local stack on the installed Miniflare/workerd API, plus a runner with a read-only inspection endpoint |
 | `tests/` | `node:test` suites against the real local D1, R2 and Queue bindings, a fake execution service and a durable fake publisher (`tests/support/`) |
@@ -106,6 +111,14 @@ node cli/report-control.mjs status <operation_id>
 - Failed, incomplete, excluded and refused outcomes are exported apart from published results.
 - Identical text under another URL is a duplicate, not corroboration.
 - Retained text is re-verified against its digest before it is returned, and missing or corrupt snapshots are reported, not served.
+
+**Projection:**
+- Every uploaded byte is re-verified, and a run with its articles, outcomes and artifact is written in one batch. A repeated projection changes nothing.
+- An observed deployment attaches whether it arrives before or after its run.
+- The projector role can do nothing else, and a projected run cannot be published through this store.
+
+**Change log:**
+- Triggers log every change an exported run reflects, in the same statement as the change. D1 counts trigger-written rows in `meta.changes`, so every guarded write ends in `RETURNING` and is counted by its returned rows (`rowsChanged` in `src/db.js`).
 
 **Publication:**
 - One claim wins per target, and a stale candidate is refused.

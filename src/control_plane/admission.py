@@ -13,27 +13,47 @@ import dataclasses
 import hashlib
 import json
 import re
+from datetime import datetime
 from typing import Any, Iterable, Mapping
 
 import httpx
 
 SCHEMA = "report-control-plane/admission/1"
-STRING_FIELDS = ("title", "link", "source", "content", "summary", "content_kind")
+STRING_FIELDS = (
+    "title",
+    "link",
+    "source",
+    "content",
+    "summary",
+    "content_kind",
+    "published_at",
+)
 LIST_FIELDS = ("source_links", "cves")
 
-MAX_ARTICLES = 100
 MAX_LINK_CHARS = 2048
 MAX_TITLE_CHARS = 512
 MAX_SOURCE_CHARS = 256
-MAX_CONTENT_BYTES = 64 * 1024
-MAX_RECORD_BYTES = 64 * 1024
 MAX_LIST_ITEMS = 64
 MAX_LIST_ITEM_CHARS = 2048
-MAX_BODY_BYTES = 1024 * 1024
+
+
+@dataclasses.dataclass(frozen=True)
+class Limits:
+    articles: int
+    content_bytes: int
+    record_bytes: int
+    body_bytes: int
+
+
+# An admission's bounds, and a projection's larger ones for the producer's full
+# article text (the Worker's LIMITS and PROJECTION_LIMITS).
+ADMISSION_LIMITS = Limits(100, 64 * 1024, 64 * 1024, 1024 * 1024)
+PROJECTION_LIMITS = Limits(100, 256 * 1024, 320 * 1024, 8 * 1024 * 1024)
 
 TOKEN = re.compile(r"[a-z0-9][a-z0-9._-]{0,63}")
 SOURCE_REVISION = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:@+/-]{0,199}")
 LINK = re.compile(r"https?://[\x21-\x7e]+")
+PUBLISHED_AT = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?Z")
 
 
 class AdmissionError(Exception):
@@ -79,7 +99,18 @@ def _encodable(text: str) -> bool:
     return True
 
 
-def _record(article: Mapping[str, Any]) -> dict[str, Any]:
+def valid_published_at(value: str) -> bool:
+    """An RFC 3339 UTC timestamp that names a real instant."""
+    if not PUBLISHED_AT.fullmatch(value):
+        return False
+    try:
+        datetime.strptime(value[:19], "%Y-%m-%dT%H:%M:%S")
+    except ValueError:
+        return False
+    return int(value[17:19]) < 60
+
+
+def checked_record(article: Mapping[str, Any], limits: Limits) -> dict[str, Any]:
     record: dict[str, Any] = {}
     for key in STRING_FIELDS:
         value = article.get(key)
@@ -104,12 +135,14 @@ def _record(article: Mapping[str, Any]) -> dict[str, Any]:
         ):
             raise AdmissionRefused("article_invalid")
         record[key] = value
+    if "published_at" in record and not valid_published_at(record["published_at"]):
+        raise AdmissionRefused("article_invalid")
     title, link = record.get("title"), record.get("link")
     if title is None or not title.strip() or _units(title) > MAX_TITLE_CHARS:
         raise AdmissionRefused("article_invalid")
     if link is None or len(link) > MAX_LINK_CHARS or not LINK.fullmatch(link):
         raise AdmissionRefused("article_invalid")
-    if len(record["content"].encode("utf-8")) > MAX_CONTENT_BYTES:
+    if len(record["content"].encode("utf-8")) > limits.content_bytes:
         raise AdmissionRefused("article_invalid")
     if _units(record.get("source", "")) > MAX_SOURCE_CHARS:
         raise AdmissionRefused("article_invalid")
@@ -117,7 +150,7 @@ def _record(article: Mapping[str, Any]) -> dict[str, Any]:
     escaped = json.dumps(
         record, sort_keys=True, ensure_ascii=True, separators=(",", ":")
     )
-    if len(escaped) > MAX_RECORD_BYTES:
+    if len(escaped) > limits.record_bytes:
         raise AdmissionRefused("article_too_large")
     return record
 
@@ -128,6 +161,7 @@ def admission_body(
     pipeline: str,
     policy_id: str,
     source_revision: str,
+    limits: Limits = ADMISSION_LIMITS,
 ) -> bytes:
     """The exact request bytes; the same articles always give the same bytes."""
     if not TOKEN.fullmatch(pipeline):
@@ -141,12 +175,12 @@ def admission_body(
     records = []
     links = set()
     for article in articles:
-        record = _record(article)
+        record = checked_record(article, limits)
         if record["link"] in links:
             raise AdmissionRefused("article_duplicate_key")
         links.add(record["link"])
         records.append(record)
-    if not records or len(records) > MAX_ARTICLES:
+    if not records or len(records) > limits.articles:
         raise AdmissionRefused("articles_invalid")
     body = json.dumps(
         {
@@ -159,7 +193,7 @@ def admission_body(
         ensure_ascii=False,
         separators=(",", ":"),
     ).encode("utf-8")
-    if len(body) > MAX_BODY_BYTES:
+    if len(body) > limits.body_bytes:
         raise AdmissionRefused("request_too_large")
     return body
 

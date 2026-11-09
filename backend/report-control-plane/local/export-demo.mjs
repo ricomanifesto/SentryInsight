@@ -96,7 +96,28 @@ try {
   check("stale publication is refused", () => assert.equal(refusal.body.error, "stale_candidate"));
   check("last-good is not replaced", () => assert.equal(lastGood.last_good_operation, b));
 
-  // 9. Backfill, incremental and replayed exports.
+  // 9. A projected run: the producer already generated and committed it;
+  // its deployment is observed before the run is recorded.
+  await env.call("PUT", "/v1/pipelines/history", "operator", { policy_id: "production", binding_id: sha("projection"), state: "active", mode: "project" });
+  const dated = { ...article(9, "Advisory text with a feed date."), content_kind: "article", source: "Example Vendor", published_at: "2026-11-08T15:43:08Z" };
+  const undated = { ...article(10, "Feed excerpt without a date."), content_kind: "feed", source: "Example Feed" };
+  const snapshot = Buffer.from(JSON.stringify({ schema: "report-control-plane/admission/1", pipeline: "history", policy_id: "production", source_revision: "actions:1001:1", articles: [dated, undated] }));
+  const projectedReport = Buffer.from("# Projected report\n");
+  const reportCommit = sha("projected report commit").slice(0, 40);
+  for (const bytes of [snapshot, projectedReport]) await env.call("PUT", `/v1/projections/blobs/${sha(bytes)}`, "projector", bytes);
+  const observedFirst = await env.call("POST", "/v1/projections/publications", "projector", {
+    schema: "report-control-plane/publication-observation/1", pipeline: "history", source_commit: reportCommit, target: "github-pages", observed_at: "2026-11-08T16:02:00Z",
+  });
+  const projected = await env.call("POST", "/v1/projections", "projector", {
+    schema: "report-control-plane/projection/1", pipeline: "history", policy_id: "production", source_revision: "actions:1001:1", snapshot_sha256: sha(snapshot),
+    run: { execution_id: "actions-run-1001-1", source_commit: reportCommit, outcome: "succeeded", reason: null, executed_links: [dated.link], completed_at: "2026-11-08T16:00:00Z" },
+    artifact: { files: [{ path: "index.md", sha256: sha(projectedReport), bytes: projectedReport.byteLength }] },
+  });
+  check("a deployment observed first waits for its run", () => assert.equal(observedFirst.status, 202));
+  check("the projected run is recorded", () => assert.equal(projected.status, 201));
+  const p = projected.body.operation.operation_id;
+
+  // 10. Backfill, incremental and replayed exports.
   const pages = [];
   let cursor = 0;
   for (;;) {
@@ -117,6 +138,15 @@ try {
   check("failed run is exported as failed", () => assert.deepEqual([run(c).run.outcome, run(c).run.reason], ["failed", "generation_failed"]));
   check("incomplete run is exported as incomplete", () => assert.equal(run(d).run.outcome, "incomplete"));
   check("recovered run succeeded once", () => assert.equal(run(e).run.outcome, "succeeded"));
+  check("the projected run names its origin, commit and observed deployment", () => {
+    assert.deepEqual([run(p).run.origin, run(p).run.source_commit, run(p).report_published], ["project", reportCommit, true]);
+    assert.deepEqual(run(p).publications.map((x) => [x.target, x.observed_at]), [["github-pages", "2026-11-08T16:02:00Z"]]);
+    assert.deepEqual(run(p).sources.map((x) => x.outcome), ["executed", "excluded"]);
+  });
+  check("a producer time is kept and a missing one stays unknown", () => {
+    assert.equal(backfill.get(sourceId(dated.link, dated.content)).times.published_at, "2026-11-08T15:43:08Z");
+    assert.equal(backfill.get(sourceId(undated.link, undated.content)).times.published_at, null);
+  });
   check("conflict is visible on the existing run", () => assert.equal(run(a).identity_conflicts.length, 1));
   check("excluded source is marked", () => assert.deepEqual(run(a).sources.map((s) => s.outcome), ["executed", "excluded"]));
   const revisedRecord = backfill.get(sourceId(revised.link, revised.content));
@@ -130,7 +160,7 @@ try {
     assert.ok(!incremental.records.some((r) => r.record_id === runId(a)));
   });
 
-  // 10. Retained source text, re-verified on read.
+  // 11. Retained source text, re-verified on read.
   const full = backfill.get(sourceId(advisory.link, advisory.content));
   const retained = await env.call("GET", full.evidence.retained.fetch, "exporter");
   check("retained text matches its digest", () => assert.equal(retained.body.content_sha256, full.content_sha256));
@@ -141,7 +171,7 @@ try {
   const summary = {
     schema: "sentryinsight-export-demo/1",
     note: "Synthetic local run: real local D1, R2 and Queue, fake execution service and fake publisher. Not hosted evidence.",
-    runs: { published_then_refused: a, revised_and_published: b, failed: c, incomplete: d, recovered: e },
+    runs: { published_then_refused: a, revised_and_published: b, failed: c, incomplete: d, recovered: e, projected: p },
     records: backfill.size,
     checks,
   };
