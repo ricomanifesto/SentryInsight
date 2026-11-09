@@ -331,15 +331,29 @@ def _git(root: Path, *args: str) -> bytes | None:
     return result.stdout if result.returncode == 0 else None
 
 
-async def _feed_articles(feed_url: str) -> list[dict[str, Any]]:
+def feed_evidence(article: dict[str, Any]) -> dict[str, Any]:
+    """A feed item as feed-level evidence: its content, else its description.
+
+    SentryDigest items carry a description and no content element. The
+    product's own enrichment falls back to that description when it has no
+    article text, so a rebuild keeps it too rather than recording the source
+    as metadata only.
+    """
     from src.services.article_content import normalize_feed_content
+
+    text = normalize_feed_content(article.get("content")) or normalize_feed_content(
+        article.get("summary")
+    )
+    return {**article, "content": text or "", "content_kind": "feed"}
+
+
+async def _feed_articles(feed_url: str) -> list[dict[str, Any]]:
     from src.services.fetch import SentryDigestFeedClient
 
-    articles = await SentryDigestFeedClient(feed_url).fetch_articles()
-    for article in articles:
-        article["content"] = normalize_feed_content(article.get("content")) or ""
-        article["content_kind"] = "feed"
-    return articles
+    return [
+        feed_evidence(a)
+        for a in await SentryDigestFeedClient(feed_url).fetch_articles()
+    ]
 
 
 COMMIT = re.compile(r"[0-9a-f]{7,40}")

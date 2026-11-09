@@ -374,3 +374,24 @@ def test_rebuild_requires_a_retained_commit_addressed_feed():
         "Admission-Feed: https://other.test/feed.xml",
     ):
         assert projection.feed_from_message(message) is None
+
+
+def test_rebuild_keeps_the_feed_description_as_feed_evidence():
+    # SentryDigest items have a description and no content element; the
+    # product falls back to the description, and so does a rebuild.
+    described = projection.feed_evidence(
+        {
+            "link": "https://example.test/1",
+            "summary": "<p>An advisory &amp; fix.</p>",
+            "content": "",
+        }
+    )
+    assert (described["content"], described["content_kind"]) == (
+        "An advisory & fix.",
+        "feed",
+    )
+    with_content = projection.feed_evidence(
+        {"summary": "Short.", "content": [{"value": "Full feed body."}]}
+    )
+    assert with_content["content"] == "Full feed body."
+    assert projection.feed_evidence({"summary": "", "content": ""})["content"] == ""
