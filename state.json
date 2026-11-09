@@ -1961,6 +1961,16 @@
       "run_id": "42700608939",
       "stage": "request_finished",
       "token": "0658cd03406775730469092318da8773"
+    },
+    {
+      "admission_key": "digest:163849a624c63e44396d6989f6fcc94b1b9deff1",
+      "at": "2026-11-09T21:18:12.016Z",
+      "binding": "feed-bytes",
+      "digest_content_digest": "af5472f3e6ccb1d7809a9777b82b6fc03b11f185fefd6c85bb4a38b4443336cb",
+      "outcome": "published",
+      "release_key": "a9ca531e7bcbbad3457a31b028cef634c2ba9339f4c2263cc332a8de1ecb90a8",
+      "run_id": "42700608939",
+      "stage": "completed"
     }
   ],
   "schema_version": 1,
