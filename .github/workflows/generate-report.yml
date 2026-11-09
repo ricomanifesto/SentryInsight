@@ -161,6 +161,9 @@ jobs:
           SENTRYINSIGHT_ADMISSION_KEY: ${{ steps.admission.outputs.admission_key }}
           SENTRYINSIGHT_FAILURE_RECEIPT: ${{ runner.temp }}/sentryinsight-failure.json
           SENTRYINSIGHT_TRIAGE_RECEIPT: ${{ runner.temp }}/sentryinsight-triage.json
+          # Run-local source snapshot for the history projection below. It
+          # holds article text, stays in the runner and is never uploaded.
+          SENTRYINSIGHT_PROJECTION_SNAPSHOT: ${{ runner.temp }}/sentryinsight-run-snapshot.json
           SENTRYINSIGHT_MODEL: ${{ vars.SENTRYINSIGHT_MODEL || 'openrouter/nvidia/nemotron-3.5-super-vl:free' }}
           # Pass VT Intelligence API key under multiple common env names
           VT_API_KEY: ${{ secrets.VT_API_KEY }}
@@ -296,6 +299,7 @@ jobs:
       # is recovered or an operator readmits; a runner lost mid-generation
       # likewise leaves the admission uncertain.
       - name: Record generation outcome
+        id: outcome
         if: always() && steps.invoked.outcome == 'success'
         env:
           ADMISSION_KEY: ${{ steps.admission.outputs.admission_key }}
@@ -312,7 +316,26 @@ jobs:
           elif [ "$REPORT_GENERATED" = "false" ] && [ "$REVIEW_DELIVERED" = "success" ]; then OUTCOME=unchanged
           else OUTCOME=not-published
           fi
+          echo "outcome=$OUTCOME" >> "$GITHUB_OUTPUT"
           node publication/cli.js complete --key "$ADMISSION_KEY" --run-id "$GITHUB_RUN_ID" --outcome "$OUTCOME" --binding "$BINDING"
+
+      # History projection: records the finished run in the report history
+      # store after the fact. The report commit and its deployment stay the
+      # authority; this step never changes the run's outcome (a failure only
+      # annotates the run), and it is skipped until the store's URL and
+      # projection token are configured.
+      - name: Project run into report history
+        if: always() && steps.outcome.outputs.outcome != '' && vars.CONTROL_PLANE_URL != ''
+        env:
+          CONTROL_PLANE_URL: ${{ vars.CONTROL_PLANE_URL }}
+          CONTROL_PLANE_TOKEN: ${{ secrets.CONTROL_PLANE_PROJECT_TOKEN }}
+          OUTCOME: ${{ steps.outcome.outputs.outcome }}
+        run: |
+          .venv/bin/python -B -m src.control_plane.projection run \
+            --snapshot "$RUNNER_TEMP/sentryinsight-run-snapshot.json" --report-root . \
+            --source-commit "$(git rev-parse HEAD)" --run-id "$GITHUB_RUN_ID" \
+            --run-attempt "$GITHUB_RUN_ATTEMPT" --outcome "$OUTCOME" \
+            || echo "::warning::Run was not recorded in report history"
 
   # A pushed report is published after Validate succeeds for it. Otherwise
   # the single publisher resumes the current release (state record, proof),

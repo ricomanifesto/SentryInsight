@@ -1,0 +1,50 @@
+# Staging declaration of the same Worker against the provisioned staging
+# resources. Not applied by anything in this repository. The resource names and
+# the database id were read from the provider's metadata (read-only) before
+# this file was written; re-verify them before use. Secrets (AUTH_PRINCIPALS,
+# EXECUTION_URL, EXECUTION_TOKEN, PUBLISHER_URL, PUBLISHER_TOKEN) are set with
+# `wrangler secret put`, never here.
+name = "sentryinsight-report-control-staging"
+main = "src/index.js"
+compatibility_date = "2025-06-01"
+workers_dev = true
+
+[[d1_databases]]
+binding = "PRODUCT_DB"
+database_name = "sentryinsight-staging"
+database_id = "1019ad06-eb36-43c0-92f2-971c81e18bed"
+migrations_dir = "migrations"
+
+[[r2_buckets]]
+binding = "ARTIFACTS"
+bucket_name = "sentryinsight-staging-artifacts"
+
+[[queues.producers]]
+binding = "ADMISSIONS"
+queue = "sentryinsight-staging-jobs"
+
+[[queues.consumers]]
+queue = "sentryinsight-staging-jobs"
+max_batch_size = 5
+max_batch_timeout = 1
+max_retries = 2
+dead_letter_queue = "sentryinsight-staging-jobs-dead"
+retry_delay = 5
+
+[[queues.consumers]]
+queue = "sentryinsight-staging-jobs-dead"
+max_batch_size = 5
+max_batch_timeout = 1
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+[vars]
+CALL_TIMEOUT_MS = "10000"
+CLAIM_MARGIN_MS = "5000"
+SEND_BACKOFF_BASE_MS = "5000"
+ENQUEUED_STALE_MS = "120000"
+PUBLICATION_CLAIM_MS = "30000"
+QUEUE_RETRY_DELAY_S = "5"
+ADMISSIONS_QUEUE_NAME = "sentryinsight-staging-jobs"
+DEAD_LETTER_QUEUE_NAME = "sentryinsight-staging-jobs-dead"

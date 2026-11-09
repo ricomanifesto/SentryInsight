@@ -1,0 +1,6 @@
+# Local configuration, synthetic secrets and persisted local state stay out of Git.
+.dev.vars
+*.local.json
+local/state/
+node_modules/
+.wrangler/

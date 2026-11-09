@@ -1,0 +1,17 @@
+# Variables for a local stack (JSON object form is used by local/serve.mjs).
+# Inbound callers are verified against SHA-256 digests; outbound values are raw
+# synthetic tokens because a caller must send them. Never commit real values.
+# A downstream export consumer gets only the export role, for example
+# {"principal":"newsletter","roles":["export"],"token_sha256":"<64 hex>"}.
+AUTH_PRINCIPALS=[{"principal":"manual","roles":["admit","read"],"token_sha256":"<64 hex>"}]
+# The execution service and the publisher are optional pairs: leave both
+# variables of a pair unset to run without that dependency.
+EXECUTION_URL=http://127.0.0.1:<port>
+EXECUTION_TOKEN=<synthetic outbound token, at least 16 characters>
+PUBLISHER_URL=http://127.0.0.1:<port>
+PUBLISHER_TOKEN=<synthetic outbound token, at least 16 characters>
+# Optional queue names; when absent these defaults apply. 1 to 63 lowercase
+# letters, digits and hyphens, starting and ending with a letter or digit; the
+# two must differ. The local stack builds its queues from the same values.
+ADMISSIONS_QUEUE_NAME=report-admissions
+DEAD_LETTER_QUEUE_NAME=report-admissions-dead

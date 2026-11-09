@@ -1,0 +1,36 @@
+{
+  "schema": "sentryinsight-export-demo/1",
+  "note": "Synthetic local run: real local D1, R2 and Queue, fake execution service and fake publisher. Not hosted evidence.",
+  "runs": {
+    "published_then_refused": "472d1fe8d88d4dce9c44b960101269b48a37f40664ef130abb2aa3e7c3bb4d0e",
+    "revised_and_published": "d46ba99bd488ab129e535a7f60e82dd2553236639338bdee36ca1d16cd663394",
+    "failed": "1246579e89a121a17e3e114a6793009083d68915504ef68bc1dcf7936e469f6e",
+    "incomplete": "714f3f2f8ee55913eeabc482fbbc7a52c3abee46058d96a30f25bec61048f769",
+    "recovered": "c91ee15419dd483ea0bc2b4b6c4eb590a769dcca251da12b51138f3a30f2f437",
+    "projected": "87ff5827408d72a93f136dc0b7914e587dc7196696a47baa0be13a0f6e5f35da"
+  },
+  "records": 16,
+  "checks": [
+    "replayed admission is the same operation",
+    "conflicting identity is refused",
+    "stale publication is refused",
+    "last-good is not replaced",
+    "a deployment observed first waits for its run",
+    "the projected run is recorded",
+    "a replayed export is identical",
+    "succeeded and published",
+    "a refusal is recorded per target, apart from the earlier publication",
+    "failed run is exported as failed",
+    "incomplete run is exported as incomplete",
+    "recovered run succeeded once",
+    "the projected run names its origin, commit and observed deployment",
+    "a producer time is kept and a missing one stays unknown",
+    "conflict is visible on the existing run",
+    "excluded source is marked",
+    "changed content is revision 2",
+    "syndicated copy is not independent",
+    "empty content is metadata-only",
+    "the incremental page holds the second run and omits the untouched first",
+    "retained text matches its digest"
+  ]
+}

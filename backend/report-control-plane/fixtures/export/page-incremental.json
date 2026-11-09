@@ -1,0 +1,241 @@
+{
+  "schema": "sentryinsight-export-page/1",
+  "product": "sentryinsight",
+  "after": 11,
+  "next_cursor": 27,
+  "has_more": false,
+  "coverage": {
+    "earliest_admitted_at": "2026-11-09T13:49:27.456Z",
+    "gaps": [
+      {
+        "kind": "before_first_admission",
+        "until": "2026-11-09T13:49:27.456Z",
+        "detail": "history before this store's first admission is not captured"
+      }
+    ]
+  },
+  "records": [
+    {
+      "schema": "sentryinsight-export/1",
+      "record_type": "source_revision",
+      "record_id": "sentryinsight:source:f45b56a76ae07145d0d650c251cc5beed674fed6ed411c0400012e61f629c386:b91807151d1006515e8e046e27e825fda377d7e6b70f9c5527c7dd4d224d9265",
+      "product": "sentryinsight",
+      "canonical_url": "https://example.test/articles/1",
+      "article_key_sha256": "f45b56a76ae07145d0d650c251cc5beed674fed6ed411c0400012e61f629c386",
+      "publisher": "Example Vendor",
+      "title": "Synthetic article 1",
+      "content_sha256": "b91807151d1006515e8e046e27e825fda377d7e6b70f9c5527c7dd4d224d9265",
+      "revision": {
+        "index": 2,
+        "previous_content_sha256": "ba900bec87c3872d2903d4a20c3c7b7271040971ee33959cb606b26f90aa5e46"
+      },
+      "evidence": {
+        "kind": "full_text",
+        "content_kind": "article",
+        "content_bytes": 60,
+        "retained": {
+          "snapshot_sha256": "82766026e773188488bb9a5b415b8983c890518c100ca94a7a30cdc533fe2cd7",
+          "position": 0,
+          "fetch": "/v1/export/sources/82766026e773188488bb9a5b415b8983c890518c100ca94a7a30cdc533fe2cd7/0"
+        }
+      },
+      "times": {
+        "published_at": null,
+        "captured_at": "2026-11-09T13:49:28.674Z"
+      },
+      "first_seen_run_id": "sentryinsight:run:d46ba99bd488ab129e535a7f60e82dd2553236639338bdee36ca1d16cd663394",
+      "independence": {
+        "status": "first_seen",
+        "same_content_first_url": null
+      },
+      "record_sha256": "05bb80ac30495523dbfaf150b87b5ff33ca1ca2cbfe3751255140517db16838b"
+    },
+    {
+      "schema": "sentryinsight-export/1",
+      "record_type": "source_revision",
+      "record_id": "sentryinsight:source:043d220b3477008e1ee570a6150e626487f38a943774d673fe0babfafa527cff:b91807151d1006515e8e046e27e825fda377d7e6b70f9c5527c7dd4d224d9265",
+      "product": "sentryinsight",
+      "canonical_url": "https://example.test/articles/3",
+      "article_key_sha256": "043d220b3477008e1ee570a6150e626487f38a943774d673fe0babfafa527cff",
+      "publisher": "Example Syndicator",
+      "title": "Synthetic article 3",
+      "content_sha256": "b91807151d1006515e8e046e27e825fda377d7e6b70f9c5527c7dd4d224d9265",
+      "revision": {
+        "index": 1,
+        "previous_content_sha256": null
+      },
+      "evidence": {
+        "kind": "unspecified",
+        "content_kind": null,
+        "content_bytes": 60,
+        "retained": {
+          "snapshot_sha256": "82766026e773188488bb9a5b415b8983c890518c100ca94a7a30cdc533fe2cd7",
+          "position": 1,
+          "fetch": "/v1/export/sources/82766026e773188488bb9a5b415b8983c890518c100ca94a7a30cdc533fe2cd7/1"
+        }
+      },
+      "times": {
+        "published_at": null,
+        "captured_at": "2026-11-09T13:49:28.674Z"
+      },
+      "first_seen_run_id": "sentryinsight:run:d46ba99bd488ab129e535a7f60e82dd2553236639338bdee36ca1d16cd663394",
+      "independence": {
+        "status": "duplicate_content",
+        "same_content_first_url": "https://example.test/articles/1"
+      },
+      "record_sha256": "c813055cb785d5a3d3604a07e255b7cfdf05667ef6f0583dfe5c935c73b2cec4"
+    },
+    {
+      "schema": "sentryinsight-export/1",
+      "record_type": "source_revision",
+      "record_id": "sentryinsight:source:0c2e7936792a36853bd64ddb2292ecdde4aab7fc6cd95f2362f2c29602ae2b93:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "product": "sentryinsight",
+      "canonical_url": "https://example.test/articles/4",
+      "article_key_sha256": "0c2e7936792a36853bd64ddb2292ecdde4aab7fc6cd95f2362f2c29602ae2b93",
+      "publisher": "Example Index",
+      "title": "Synthetic article 4",
+      "content_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "revision": {
+        "index": 1,
+        "previous_content_sha256": null
+      },
+      "evidence": {
+        "kind": "metadata_only",
+        "content_kind": null,
+        "content_bytes": 0,
+        "retained": null
+      },
+      "times": {
+        "published_at": null,
+        "captured_at": "2026-11-09T13:49:28.674Z"
+      },
+      "first_seen_run_id": "sentryinsight:run:d46ba99bd488ab129e535a7f60e82dd2553236639338bdee36ca1d16cd663394",
+      "independence": {
+        "status": "not_applicable",
+        "same_content_first_url": null
+      },
+      "record_sha256": "ac4e33f2488accf6e17761b2b691b4e1517570ffd2c5e0ed62410d0609b75fbe"
+    },
+    {
+      "schema": "sentryinsight-export/1",
+      "record_type": "source_revision",
+      "record_id": "sentryinsight:source:6cb199494f358ccedb4923a01eb46d842992f78a56251bbec1c28b8e2a9b33ba:94007c81a0e742271202e6f27055ba7bef93dd816c12380d5b731d6688654253",
+      "product": "sentryinsight",
+      "canonical_url": "https://example.test/articles/2",
+      "article_key_sha256": "6cb199494f358ccedb4923a01eb46d842992f78a56251bbec1c28b8e2a9b33ba",
+      "publisher": "Example Feed",
+      "title": "Synthetic article 2",
+      "content_sha256": "94007c81a0e742271202e6f27055ba7bef93dd816c12380d5b731d6688654253",
+      "revision": {
+        "index": 1,
+        "previous_content_sha256": null
+      },
+      "evidence": {
+        "kind": "excerpt",
+        "content_kind": "feed",
+        "content_bytes": 44,
+        "retained": {
+          "snapshot_sha256": "8ceb2420f664fcd4d9b983f09fe8ec12a4cd440aa870ac6b55bb3f1cfecb27eb",
+          "position": 1,
+          "fetch": "/v1/export/sources/8ceb2420f664fcd4d9b983f09fe8ec12a4cd440aa870ac6b55bb3f1cfecb27eb/1"
+        }
+      },
+      "times": {
+        "published_at": null,
+        "captured_at": "2026-11-09T13:49:27.456Z"
+      },
+      "first_seen_run_id": "sentryinsight:run:472d1fe8d88d4dce9c44b960101269b48a37f40664ef130abb2aa3e7c3bb4d0e",
+      "independence": {
+        "status": "first_seen",
+        "same_content_first_url": null
+      },
+      "record_sha256": "3471e66f4ec89d61880417533fb90b51cfba8f81a15745643ef6597e2491dc0d"
+    },
+    {
+      "schema": "sentryinsight-export/1",
+      "record_type": "run",
+      "record_id": "sentryinsight:run:d46ba99bd488ab129e535a7f60e82dd2553236639338bdee36ca1d16cd663394",
+      "record_version": 27,
+      "product": "sentryinsight",
+      "pipeline": "reports",
+      "policy_id": "standard",
+      "run": {
+        "operation_id": "d46ba99bd488ab129e535a7f60e82dd2553236639338bdee36ca1d16cd663394",
+        "origin": "execute",
+        "source_commit": null,
+        "admission_seq": 2,
+        "source_revision": "demo-run-2",
+        "snapshot_sha256": "82766026e773188488bb9a5b415b8983c890518c100ca94a7a30cdc533fe2cd7",
+        "admitted_at": "2026-11-09T13:49:28.674Z",
+        "outcome": "succeeded",
+        "reason": null,
+        "execution": {
+          "execution_id": "exec-e4104de2c0be70ea6e7fa23d",
+          "run_id": "run-95bc808118208d46bd356e0a",
+          "run_state": "succeeded",
+          "run_reason": null,
+          "attempts": {
+            "used": 1,
+            "limit": 3
+          }
+        }
+      },
+      "sources": [
+        {
+          "source_record_id": "sentryinsight:source:f45b56a76ae07145d0d650c251cc5beed674fed6ed411c0400012e61f629c386:b91807151d1006515e8e046e27e825fda377d7e6b70f9c5527c7dd4d224d9265",
+          "position": 0,
+          "outcome": "executed",
+          "exclusion": null
+        },
+        {
+          "source_record_id": "sentryinsight:source:043d220b3477008e1ee570a6150e626487f38a943774d673fe0babfafa527cff:b91807151d1006515e8e046e27e825fda377d7e6b70f9c5527c7dd4d224d9265",
+          "position": 1,
+          "outcome": "executed",
+          "exclusion": null
+        },
+        {
+          "source_record_id": "sentryinsight:source:0c2e7936792a36853bd64ddb2292ecdde4aab7fc6cd95f2362f2c29602ae2b93:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "position": 2,
+          "outcome": "executed",
+          "exclusion": null
+        },
+        {
+          "source_record_id": "sentryinsight:source:6cb199494f358ccedb4923a01eb46d842992f78a56251bbec1c28b8e2a9b33ba:94007c81a0e742271202e6f27055ba7bef93dd816c12380d5b731d6688654253",
+          "position": 3,
+          "outcome": "executed",
+          "exclusion": null
+        }
+      ],
+      "artifact": {
+        "sha256": "2710617f4109dab06bb9ec4c67c10f847c9ed0ec79d704d30800744f4e1cd330",
+        "manifest_sha256": "06e5d502c46d299dbc6b85bd3b0cf80d52052fe1a9642cc11a09cc7d64f2a3d0",
+        "file_count": 1,
+        "total_bytes": 28,
+        "verified_at": "2026-11-09T13:49:29.806Z"
+      },
+      "publications": [
+        {
+          "target": "mirror",
+          "publication_id": "f3c6c5fc0cb1fc2dc6df8d90859b6f2e79ee3ea1eb3cfa213a28bfe0a8d3456b",
+          "state": "published",
+          "reason": null,
+          "observed_at": null
+        },
+        {
+          "target": "site",
+          "publication_id": "c2e77276851437477f0d8b2d7846bb99a8624cff9cd84e546edfad4341507e17",
+          "state": "published",
+          "reason": null,
+          "observed_at": null
+        }
+      ],
+      "report_published": true,
+      "identity_conflicts": [],
+      "derived_claims": {
+        "status": "not_exported",
+        "reason": "artifact_not_interpreted"
+      },
+      "record_sha256": "c98b44a2360dce941b2589562a5f6e373af8ac552cdeda418f4d233538cc5500"
+    }
+  ]
+}
