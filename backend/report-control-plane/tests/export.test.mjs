@@ -315,6 +315,30 @@ test("the export role reads the export only, never writes, and leaks no operatio
   assert.deepEqual(await census(), before);
 });
 
+test("the export role reads an exported run's accepted artifact, verified, and no other artifact", async () => {
+  const files = { "index.md": "# Accepted report\n", "current-findings.json": "{\"finding_count\": 0}\n" };
+  const id = await completed(env, admission("export-artifact-1", [article(9901)]), files);
+  const artifact = (await env.row(id)).artifact_sha256;
+  const before = await census();
+  const manifest = await env.call("GET", `/v1/export/artifacts/${artifact}`, "exporter");
+  assert.equal(manifest.status, 200);
+  assert.equal(manifest.body.artifact_sha256, artifact);
+  assert.deepEqual(manifest.body.files.map((f) => [f.path, f.sha256, f.bytes]).sort(), Object.entries(files).map(([path, text]) => [path, sha(text), Buffer.byteLength(text)]).sort());
+  const file = await env.call("GET", `/v1/export/artifacts/${artifact}/files/index.md`, "exporter");
+  assert.deepEqual([file.status, file.body], [200, "# Accepted report\n"]);
+  // The record the consumer verifies against names the same artifact.
+  const run = (await env.exportAll()).records.find((r) => r.record_type === "run" && r.run.operation_id === id);
+  assert.equal(run.artifact.sha256, artifact);
+  for (const route of [`/v1/export/artifacts/${sha("never accepted")}`, `/v1/export/artifacts/${artifact}/files/missing.md`, `/v1/export/artifacts/${artifact}/files/..%2Findex.md`]) {
+    assert.deepEqual((await env.call("GET", route, "exporter")).status, 404, route);
+  }
+  for (const who of ["reader", "manual", "publisher"]) {
+    assert.equal((await env.call("GET", `/v1/export/artifacts/${artifact}`, who)).status, 403, who);
+  }
+  assert.equal((await env.call("GET", `/v1/export/artifacts/${artifact}`)).status, 401);
+  assert.deepEqual(await census(), before, "reading the artifact writes nothing");
+});
+
 test("a change committed without any audit event still advances the export past the cursor", async () => {
   const id = await completed(env, admission("silent-1", [article(9801)]), { "index.html": "silent\n" });
   assert.equal((await env.publish(id, "site-silent")).status, 200);

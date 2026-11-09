@@ -10,6 +10,7 @@ The export reports history. It is not a publication, and it is not a sent newsle
 |---|---|
 | `GET /v1/export?after=<cursor>&limit=<runs>` | the next page of records after `cursor` |
 | `GET /v1/export/sources/{snapshot_sha256}/{position}` | one retained article's text from an admitted snapshot |
+| `GET /v1/export/artifacts/{artifact_sha256}` and `…/files/{path}` | an accepted artifact's manifest and files, so a consumer can verify report content against a run's `artifact.sha256` (`contracts/findings-export.md`) |
 
 **Query bounds:**
 - `after` is a non-negative integer, `0` by default.

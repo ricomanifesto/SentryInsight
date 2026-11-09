@@ -30,6 +30,8 @@ Every route except `/healthz` takes `Authorization: Bearer <token>`. Callers are
 | `POST /v1/projections/publications` | project | record an observed deployment |
 | `GET /v1/export` | export | a page of the research export, `?after=<cursor>&limit=<1..25>` |
 | `GET /v1/export/sources/{snapshot}/{position}` | export | one retained article's text, re-verified |
+| `GET /v1/export/artifacts/{artifact}` | export | an accepted artifact's manifest (the same bytes as the read role's route) |
+| `GET /v1/export/artifacts/{artifact}/files/{path}` | export | one file of an accepted artifact |
 
 ## Configuration
 

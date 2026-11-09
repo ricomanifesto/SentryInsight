@@ -33,6 +33,10 @@ const ROUTES = [
   ["POST", /^\/v1\/projections\/publications$/, "project", observationRoute],
   ["GET", /^\/v1\/export$/, "export", exportRoute],
   ["GET", /^\/v1\/export\/sources\/([0-9a-f]{64})\/(0|[1-9][0-9]{0,2})$/, "export", exportSourceRoute],
+  // The accepted artifact of an exported run, read-only for the export role,
+  // so a consumer can verify report content against the run's artifact digest.
+  ["GET", /^\/v1\/export\/artifacts\/([0-9a-f]{64})$/, "export", manifestRoute],
+  ["GET", /^\/v1\/export\/artifacts\/([0-9a-f]{64})\/files\/(.+)$/, "export", artifactFileRoute],
 ];
 
 async function blobRoute({ request, env, match }) {
