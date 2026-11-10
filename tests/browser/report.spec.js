@@ -331,6 +331,7 @@ test("uses a disciplined native type system and keeps disclosure controls togeth
       badgeSize: getComputedStyle(document.querySelector(".badge")).fontSize,
       iconBeforeTitle: icon.right <= title.left + 1,
       metadataChildren: document.querySelector(".report-date").children.length,
+      aboutLink: document.querySelector(".report-date > a.report-about")?.getAttribute("href"),
     };
   });
 
@@ -338,7 +339,9 @@ test("uses a disciplined native type system and keeps disclosure controls togeth
   expect(styles.generatedSize).toBe("14px");
   expect(styles.badgeSize).toBe("14px");
   expect(styles.iconBeforeTitle).toBeTruthy();
-  expect(styles.metadataChildren).toBe(2);
+  // Generated time, report shape and the short link to About this report.
+  expect(styles.metadataChildren).toBe(3);
+  expect(styles.aboutLink).toMatch(/^#about-this-report/);
   expect(failures).toEqual([]);
 });
 
@@ -362,11 +365,11 @@ test("aligns the report chrome with the centered reading shell", async ({ page }
       shell: { left: shell.left, right: shell.right },
       header: contentBounds(".site-header"),
       date: contentBounds(".report-date"),
-      method: contentBounds(".report-method"),
     };
   });
 
-  for (const region of [bounds.header, bounds.date, bounds.method]) {
+  // The method statement now sits inside the report's closing section.
+  for (const region of [bounds.header, bounds.date]) {
     expect(region.left).toBeCloseTo(bounds.shell.left, 0);
     expect(region.right).toBeCloseTo(bounds.shell.right, 0);
   }

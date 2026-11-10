@@ -505,7 +505,8 @@ def _without_source_title(tokens: list[Token]) -> list[Token]:
 def _render_markdown(
     artifact: ReportArtifact,
     finding_notes: dict[str, str] | None = None,
-) -> tuple[str, list[tuple[int, str, str]]]:
+    about_items: list[str] | None = None,
+) -> tuple[str, list[tuple[int, str, str]], str]:
     markdown = MarkdownIt("commonmark", {"html": True})
     body = (
         split_source_coverage(artifact.body, artifact.source_coverage)
@@ -548,12 +549,65 @@ def _render_markdown(
 
     rendered = markdown.renderer.render(tokens, markdown.options, {})
     _reject_active_content(rendered)
-    if artifact.source_coverage is not None:
-        rendered += coverage_html(artifact.source_coverage)
+    coverage = (
+        coverage_html(artifact.source_coverage)
+        if artifact.source_coverage is not None
+        else ""
+    )
+    # About this report closes the report, before Source Coverage and Review
+    # where that exists, so the coverage notice sits directly above it.
+    about_id = _unique_id(
+        "about-this-report",
+        set(re.findall(r'id="([^"]+)"', rendered + coverage)) | TEMPLATE_IDS,
+    )
+    about = (
+        f'<section class="about-report" aria-labelledby="{about_id}">'
+        f'<h2 id="{about_id}">About this report</h2>\n'
+        + "\n".join(about_items or [])
+        + "\n</section>\n"
+    )
+    _reject_active_content(about)
+    rendered += about
+    heading_entries.append((2, "About this report", about_id))
+    if coverage:
+        rendered += coverage
         heading_entries.append(
             (2, "Source Coverage and Review", "source-coverage-and-review")
         )
-    return rendered, heading_entries
+    return rendered, heading_entries, about_id
+
+
+# IDs the report page template owns; the About section never reuses them.
+TEMPLATE_IDS = {
+    "exploitation-report",
+    "report-content",
+    "report-age",
+    "handoff-status",
+    "theme-toggle",
+    "copy-toast",
+    "report-metadata",
+}
+
+
+def _unique_id(candidate: str, taken: set[str]) -> str:
+    if candidate not in taken:
+        return candidate
+    index = 2
+    while f"{candidate}-{index}" in taken:
+        index += 1
+    return f"{candidate}-{index}"
+
+
+def _method_html(digest_issue_url: str) -> str:
+    """The method statement, word for word as the page has always carried it."""
+    return (
+        '<aside class="report-method" aria-label="How this report is made">\n'
+        "    <strong>AI-assisted defensive triage.</strong>\n"
+        "    <span>Built from cybersecurity reporting retained in the "
+        f'<a href="{html.escape(digest_issue_url)}">Sentry Digest issue for this report date</a>. '
+        "Verify NVD and vendor guidance before action.</span>\n"
+        "  </aside>"
+    )
 
 
 def _reject_active_content(rendered: str) -> None:
@@ -998,8 +1052,23 @@ def _render_report_page(
     relative_age: bool,
     history: _HistoryView | None = None,
 ) -> str:
-    report_html, headings = _render_markdown(
-        artifact, history.finding_notes if history else None
+    digest_issue_url = artifact.digest_issue_url or emitted_origin("SentryDigest")
+    # Page-level material closes the report instead of preceding it, in order:
+    # the method, the archive comparison, unresolved versions, source coverage.
+    about_items = [_method_html(digest_issue_url)]
+    if history is not None and history.summary_html:
+        about_items.append(history.summary_html)
+    if artifact.unresolved_version_count:
+        count = artifact.unresolved_version_count
+        subject = "1 finding has" if count == 1 else f"{count} findings have"
+        about_items.append(
+            f'<p class="vendor-guidance" role="note"><strong>{subject} unresolved affected-version evidence.</strong> '
+            "Review each finding’s linked reporting before inferring version ranges.</p>"
+        )
+    if artifact.source_coverage is not None:
+        about_items.append(coverage_notice_html(artifact.source_coverage))
+    report_html, headings, about_id = _render_markdown(
+        artifact, history.finding_notes if history else None, about_items
     )
     finding_count, complete_cve_count, report_shape = _report_shape(artifact)
     metadata: dict[str, object] = {
@@ -1015,17 +1084,6 @@ def _render_report_page(
         metadata["unresolved_version_count"] = artifact.unresolved_version_count
     if artifact.source_coverage is not None:
         metadata["source_coverage"] = artifact.source_coverage
-        report_html = coverage_notice_html(artifact.source_coverage) + report_html
-    if artifact.unresolved_version_count:
-        count = artifact.unresolved_version_count
-        subject = "1 finding has" if count == 1 else f"{count} findings have"
-        report_html = (
-            f'<p class="vendor-guidance" role="note"><strong>{subject} unresolved affected-version evidence.</strong> '
-            "Review each finding’s linked reporting before inferring version ranges.</p>"
-            + report_html
-        )
-    if history is not None and history.summary_html:
-        report_html = history.summary_html + report_html
     toc = _toc(headings)
     page_title = f"SentryInsight report for {_date_label(artifact.report_date)}"
     identity = {
@@ -1061,8 +1119,7 @@ def _render_report_page(
                 else '<span class="report-frozen"> · Archived snapshot</span>'
             ),
             "REPORT_SHAPE": report_shape,
-            "DIGEST_ISSUE_URL": artifact.digest_issue_url
-            or emitted_origin("SentryDigest"),
+            "ABOUT_ID": about_id,
             "THEME_BOOTSTRAP": (template_path / "theme-bootstrap.js")
             .read_text()
             .strip(),

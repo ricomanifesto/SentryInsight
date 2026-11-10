@@ -1064,3 +1064,182 @@ def test_sources_are_compared_with_the_first_earlier_finding_not_the_whole_repor
     )
     assert "report did not" not in text and "Reported on 1 earlier report date" in text
     assert notes.count('href="reports/2026-08-19.html#cve-2026-3434"') == 1
+
+
+# Summary first: the report opens on its own first section; the method
+# statement and page-level notices sit, verbatim, in a closing "About this
+# report" section.
+
+METHOD_HTML = (
+    '<aside class="report-method" aria-label="How this report is made">\n'
+    "    <strong>AI-assisted defensive triage.</strong>\n"
+    "    <span>Built from cybersecurity reporting retained in the "
+    '<a href="{url}">Sentry Digest issue for this report date</a>. '
+    "Verify NVD and vendor guidance before action.</span>\n"
+    "  </aside>"
+)
+
+
+def main_content(page: str) -> str:
+    return page.split('<main id="report-content"', 1)[1].split("</main>", 1)[0]
+
+
+def about_section(page: str) -> str:
+    match = re.search(r'<section class="about-report".*?</section>', page, re.S)
+    assert match, "About this report section"
+    return match.group(0)
+
+
+def assert_opens_on_first_section(page: str, first_heading_id: str) -> None:
+    after_title = main_content(page).split("</h1>", 1)[1]
+    assert after_title.startswith(f'<h2 id="{first_heading_id}"'), after_title[:120]
+    before = page.split("<body", 1)[1].split(f'<h2 id="{first_heading_id}"', 1)[0]
+    for moved in (
+        'class="report-method"',
+        'role="note"',
+        "cve-history-summary",
+        "input sources are cited",
+    ):
+        assert moved not in before, moved
+
+
+def toc_targets(page: str, label: str) -> list[str]:
+    nav = page.split(f'<nav aria-label="{label}">', 1)[1].split("</nav>", 1)[0]
+    return re.findall(r'href="#([^"]+)"', nav)
+
+
+def test_a_report_opens_on_its_summary_and_closes_with_about_this_report(tmp_path):
+    site = build_fixture(tmp_path, report_v2())
+    page = (site / "index.html").read_text()
+    assert_opens_on_first_section(page, "executive-summary")
+    about = about_section(page)
+    assert (
+        about.count('class="report-method"') == 1
+        and page.count('class="report-method"') == 1
+    )
+    assert (
+        METHOD_HTML.format(
+            url="https://sentrydigest.ricomanifesto.com/archive/2026-08-13/"
+        )
+        in about
+    )
+    assert '<h2 id="about-this-report">About this report</h2>' in about
+    # Schema 2: About is the last section, after the report's own last one.
+    assert main_content(page).rstrip().endswith("</section>")
+    assert main_content(page).index("threat-actor-activities") < main_content(
+        page
+    ).index("about-this-report")
+    # The metadata line links to it; both section lists end with it.
+    meta = page.split('<div class="report-date"', 1)[1].split("</div>", 1)[0]
+    assert (
+        '<a class="report-about" href="#about-this-report">AI-assisted · About this report</a>'
+        in meta
+    )
+    for label in ("Report sections",):
+        assert page.count(f'<nav aria-label="{label}">') == 2
+    desktop = page.split('class="desktop-toc"', 1)[1]
+    assert toc_targets(desktop, "Report sections")[-1] == "about-this-report"
+    mobile = page.split('class="mobile-toc"', 1)[1]
+    assert toc_targets(mobile, "Report sections")[-1] == "about-this-report"
+    for target in set(toc_targets(desktop, "Report sections")):
+        assert page.count(f'id="{target}"') == 1, target
+
+
+def test_schema_five_moves_each_notice_once_in_order_before_source_coverage(tmp_path):
+    from src.core.source_coverage import coverage_markdown, coverage_notice_html
+    from test_source_coverage import fixture
+
+    _, coverage, body, header = fixture()
+    site = build_fixture(
+        tmp_path, header + body.rstrip() + "\n\n" + coverage_markdown(coverage)
+    )
+    page = (site / "index.html").read_text()
+    assert_opens_on_first_section(page, "executive-summary")
+    about = about_section(page)
+    notice = coverage_notice_html(coverage)
+    assert page.count(notice) == 1 and notice in about, "coverage notice verbatim, once"
+    assert about.index('class="report-method"') < about.index(notice)
+    content = main_content(page)
+    assert content.index("about-this-report") < content.index(
+        'id="source-coverage-and-review"'
+    )
+    targets = toc_targets(page.split('class="desktop-toc"', 1)[1], "Report sections")
+    assert targets[-2:] == ["about-this-report", "source-coverage-and-review"]
+
+
+def test_current_report_moves_the_archive_comparison_after_the_method(tmp_path):
+    finding = ("Flaw (CVE-2026-4545)", ["CVE-2026-4545"], HIGH_POTENTIAL, [SRC_A])
+    site = build_history(
+        tmp_path,
+        history_report("2026-08-20", [finding]),
+        {"2026-08-19": history_report("2026-08-19", [finding])},
+    )
+    page = (site / "index.html").read_text()
+    assert_opens_on_first_section(page, "executive-summary")
+    about = about_section(page)
+    summary = re.search(r'<p id="cve-history-summary".*?</p>', page, re.S).group(0)
+    assert page.count('id="cve-history-summary"') == 1 and summary in about
+    assert about.index('class="report-method"') < about.index(summary)
+    archived = (site / "reports" / "2026-08-19.html").read_text()
+    assert "cve-history-summary" not in archived and about_section(archived)
+
+
+def test_a_report_without_a_summary_leads_with_its_own_first_section(tmp_path):
+    report = report_v2().replace(
+        "## Executive Summary\n\nAttackers are exploiting an exposed service.\n\n", ""
+    )
+    assert "Executive Summary" not in report
+    site = build_fixture(tmp_path, report)
+    page = (site / "index.html").read_text()
+    assert_opens_on_first_section(page, "active-exploitation-details")
+    assert "executive-summary" not in page and about_section(page)
+
+
+def test_a_heading_named_about_this_report_keeps_ids_distinct(tmp_path):
+    report = report_v2() + "\n## About This Report\n\nAuthor-supplied context.\n"
+    site = build_fixture(tmp_path, report)
+    page = (site / "index.html").read_text()
+    assert (
+        page.count('id="about-this-report"') == 1
+    ), "the report's own heading keeps its ID"
+    about = about_section(page)
+    section_id = re.search(r'<h2 id="([^"]+)">About this report</h2>', about).group(1)
+    assert section_id != "about-this-report" and page.count(f'id="{section_id}"') == 1
+    assert f'<a class="report-about" href="#{section_id}">' in page
+    targets = toc_targets(page.split('class="desktop-toc"', 1)[1], "Report sections")
+    assert targets[-2:] == ["about-this-report", section_id]
+
+
+def test_real_archive_pages_open_on_their_first_section_and_keep_notices(tmp_path):
+    from src.core.source_coverage import coverage_notice_html
+
+    site = real_archive_copy(tmp_path)
+    build_site(
+        report_path=ROOT / "index.md", output_path=site, template_path=ROOT / "site"
+    )
+    pages = {
+        site / "index.html": parse_report_artifact((ROOT / "index.md").read_text())
+    }
+    for path in sorted((site / "reports").glob("????-??-??.html")):
+        pages[path] = parse_report_artifact(path.with_suffix(".md").read_text())
+    schema_five = 0
+    for path, artifact in pages.items():
+        page = path.read_text()
+        first = re.search(
+            r'<h2 id="([^"]+)"', main_content(page).split("</h1>", 1)[1]
+        ).group(1)
+        assert_opens_on_first_section(page, first)
+        about = about_section(page)
+        from src.core.public_site import rewrite_public_urls
+
+        url = artifact.digest_issue_url or "https://sentrydigest.ricomanifesto.com/"
+        expected = rewrite_public_urls(METHOD_HTML.format(url=_html.escape(url)))
+        assert expected in about, path.name
+        if artifact.source_coverage is not None:
+            schema_five += 1
+            notice = coverage_notice_html(artifact.source_coverage)
+            assert page.count(notice) == 1 and notice in about, path.name
+        assert ("cve-history-summary" in about) == (
+            path.name == "index.html"
+        ), path.name
+    assert schema_five >= 6

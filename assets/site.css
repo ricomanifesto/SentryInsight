@@ -92,22 +92,20 @@ button { font: inherit; }
 .site-actions button:hover { background: var(--badge-bg); }
 .report-date {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 12px;
+  gap: 4px 12px;
   padding: 12px var(--page-gutter);
   color: var(--muted);
   font-size: var(--text-small);
 }
 .report-shape { color: var(--text); font-weight: 700; white-space: nowrap; }
+.report-about { color: var(--muted); white-space: nowrap; }
+.report-about:hover { color: var(--text); }
 .report-method {
-  display: flex;
-  gap: 8px 12px;
-  align-items: baseline;
-  padding: 12px var(--page-gutter);
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  display: block;
+  margin: 0 0 18px;
   color: var(--muted);
-  font-size: var(--text-small);
 }
 .report-method strong { color: var(--text); white-space: nowrap; }
 .handoff-status {
@@ -309,7 +307,6 @@ button { font: inherit; }
 
 @media (max-width: 900px) {
   .site-header { align-items: flex-start; }
-  .report-method { display: block; }
   .page-shell { display: block; padding-top: 24px; }
   .desktop-toc { display: none; }
   .mobile-toc { display: block; }

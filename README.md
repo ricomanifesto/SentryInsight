@@ -258,8 +258,9 @@ fingerprint stay in place. A valid partial report records every retained source,
 including eligible sources the model did not cite. Those uncited sources are
 labelled **not represented**, not resolved or irrelevant.
 
-Live reports use schema 5 with host-owned `source_coverage` metadata and a
-prominent coverage notice and source disposition table. Review rows are not
+Live reports use schema 5 with host-owned `source_coverage` metadata, a
+coverage notice in the closing About this report section, and a source
+disposition table. Review rows are not
 findings and do not contribute to finding or CVE counts. Historical schemas 1–4
 remain readable; their existing unresolved-version state has not been broadened.
 The finding-only `current-findings.json` contract remains schema 1. Static parsing
