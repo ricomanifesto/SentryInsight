@@ -2068,6 +2068,13 @@
       "run_id": "42769741111",
       "stage": "request_finished",
       "token": "a3a476ac73ac01907626ebc475557700"
+    },
+    {
+      "admission_key": "run:42769741111",
+      "at": "2026-11-10T06:42:19.451Z",
+      "outcome": "failed",
+      "run_id": "42769741111",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
