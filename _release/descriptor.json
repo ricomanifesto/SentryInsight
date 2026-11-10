@@ -7,16 +7,16 @@
   "expected_origin": "https://sentryinsight.ricomanifesto.com/",
   "expected_repository": "ricomanifesto/SentryInsight",
   "kind": "release",
-  "payload_byte_total": 4962202,
-  "payload_digest": "79c48c03544b78dc4caf38208a437da7f846e6ee32e55679cad2ed99d8e0a4e3",
+  "payload_byte_total": 4978254,
+  "payload_digest": "fc2d13483e7d1093e80656413c7a60716a84414f80abd0ec9ff9bd068b8efb41",
   "payload_file_count": 111,
   "publication_mode": {
     "mode": "prepare",
     "proof": "on"
   },
-  "release_key": "8ea484cf3bb279c6ae34e1b8ff3d5f3b8e3dc87bd412b69bad9cbaa75a0d07e5",
+  "release_key": "34d69f58cd855f2e81249de6d6f41e7fc6465c17fbeab2396b0f7f268efe2e54",
   "schema_version": 1,
   "site": "SentryInsight",
-  "source_committed_at": "2026-11-10T18:20:41.000Z",
-  "source_revision": "76bf433e7a747c4ccd23687cd53c2acb7aa92f83"
+  "source_committed_at": "2026-11-10T20:54:47.000Z",
+  "source_revision": "57784b9358291a8f78055a32573d070f808023fe"
 }
