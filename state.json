@@ -2181,6 +2181,13 @@
       "run_id": "42815018079",
       "stage": "request_finished",
       "token": "d6ca48661a0fcba946c23e6b62e7ac07"
+    },
+    {
+      "admission_key": "digest:bf1709a4a2a288053b613e6839ec0d9c97db8d07",
+      "at": "2026-11-10T12:23:51.864Z",
+      "outcome": "failed",
+      "run_id": "42815018079",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
