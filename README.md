@@ -27,6 +27,8 @@ Each published report is available as a web page and Markdown file. Older report
 
 Contents links and direct finding links open collapsed findings and focus their disclosure controls, including when revisiting the same finding.
 
+**CVE reporting history.** Each finding that names a CVE says whether the archive has reported that CVE before, with a link to the earlier finding on each report date, and the archive page lists every CVE reported on more than one date. The archive keeps one report per date, the last one published that day, so counts are report dates, not runs or days of activity. Each date's entry is that report's first finding for the CVE. A finding is compared with that entry on the most recent earlier date: the sources it cites that the earlier finding did not, and the earlier finding's labels, quoted as that finding's. Labels are compared only within one report format; reports before November 5, 2026 used an earlier format. Dates with no report are listed as gaps, and nothing is known about them from the archive. Findings without a CVE are not compared. The history describes what dated reports said, not whether a vulnerability or its risk changed.
+
 ## How It Works
 
 Production publishing: [static release guide](publication/README.md).
@@ -35,7 +37,7 @@ Production publishing: [static release guide](publication/README.md).
 2. It reviews source evidence, holds ambiguous or invalid sources with their related CVE sources, and builds a report from eligible inputs with LangGraph.
 3. It uses OpenRouter when `OPENROUTER_API_KEY` is set. Local development can use an OpenCode server instead.
 4. It writes the canonical report to `index.md`, builds the matching static pages, and archives the previous report when the report date changes.
-5. A successful Validate run for a push to `main` starts the automatic GitHub Pages deployment. A maintainer can also dispatch the Pages workflow for a selected branch or tag; that manual path deploys the selected commit without requiring Validate to pass first.
+5. A successful Validate run for a push to `main` starts Publish Production, which publishes that commit to the production origin through the shared publisher.
 
 Every current finding cites one or more SentryDigest article identities. Those identities follow SentryDigest's [reporting identity contract](https://github.com/ricomanifesto/SentryDigest/blob/main/contracts/README.md), which keeps links stable across all three reporting projects.
 
@@ -216,14 +218,14 @@ claims always require separate source review; regrading is not a model improveme
 
 - `.github/workflows/generate-report.yml` runs after a SentryDigest update, once daily as a backup, or by manual trigger.
 - `.github/workflows/validate.yml` checks pull requests and pushes to `main`.
-- `.github/workflows/deploy-pages.yml` automatically publishes the validated `main` commit. A manual dispatch can publish the selected branch or tag without first checking Validate; it still runs the report content gate (`scripts/validate_report.py`) before packaging, and a failure leaves the deployed site unchanged.
+- `.github/workflows/publish-production.yml` runs after Validate succeeds for a push to `main`. It builds the payload for that exact commit, commits it to the `vercel-production` branch, and, with proof on, verifies that the production origin serves exactly that release ([static release guide](publication/README.md)). A manual dispatch can publish, resume, roll back or resolve a release. The earlier GitHub Pages workflow (`deploy-pages.yml`) is disabled.
 
-- **Report history (inactive until configured):**
+- **Report history:**
   - After the outcome is recorded, `generate-report.yml` also records the finished run in the report history store (`backend/report-control-plane/`, [projection contract](backend/report-control-plane/contracts/projection.md)).
   - `.github/workflows/record-report-history.yml` runs after Publish Production succeeds, and once daily, with read-only repository access. It reads the release descriptor the production origin serves and records that source commit as an observed publication.
   - Both steps are skipped while the `CONTROL_PLANE_URL` repository variable is unset. They never change a run's outcome or a publication; a failure only annotates the run.
 
-The public Pages package contains only the finished report, archive, assets, sitemap, and the versioned reporting contract.
+The public site package (`scripts/package_pages.py`) contains only the finished report, archive, assets, sitemap, and the versioned reporting contract.
 
 ## Static Artifact
 
