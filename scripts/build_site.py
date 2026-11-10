@@ -13,8 +13,8 @@ import re
 import shutil
 import sys
 import tempfile
-from dataclasses import asdict
-from datetime import timezone
+from dataclasses import asdict, dataclass
+from datetime import date, timedelta, timezone
 from pathlib import Path
 from typing import TypedDict
 from urllib.parse import urlsplit
@@ -29,9 +29,11 @@ from src.core.public_site import emitted_origin, rewrite_public_urls
 from src.core.report_artifact import (
     Finding,
     ReportArtifact,
+    ReportingReference,
     parse_report_artifact,
     slugify,
 )
+from src.core.reporting import reporting_key
 from src.core.version_state import VersionEvidenceStatus
 from src.core.source_coverage import (
     coverage_html,
@@ -403,7 +405,10 @@ def _finding_reporting_html(finding: Finding, digest_issue_url: str | None) -> s
 
 
 def _enhance_finding_tokens(
-    tokens: list[Token], findings: dict[str, Finding], digest_issue_url: str | None
+    tokens: list[Token],
+    findings: dict[str, Finding],
+    digest_issue_url: str | None,
+    finding_notes: dict[str, str] | None = None,
 ) -> list[Token]:
     """Build disclosure controls and classification into the initial HTML."""
     enhanced: list[Token] = []
@@ -454,6 +459,9 @@ def _enhance_finding_tokens(
                         ),
                     )
                 )
+                note = (finding_notes or {}).get(finding.slug)
+                if note:
+                    enhanced.append(_controlled_html(note, block=True))
                 finding_body_open = True
                 index += 3
                 continue
@@ -492,6 +500,7 @@ def _without_source_title(tokens: list[Token]) -> list[Token]:
 
 def _render_markdown(
     artifact: ReportArtifact,
+    finding_notes: dict[str, str] | None = None,
 ) -> tuple[str, list[tuple[int, str, str]]]:
     markdown = MarkdownIt("commonmark", {"html": True})
     body = (
@@ -529,21 +538,383 @@ def _render_markdown(
             if finding.cve_ids:
                 token.attrSet("data-cves", ",".join(finding.cve_ids))
 
-    tokens = _enhance_finding_tokens(tokens, findings, artifact.digest_issue_url)
+    tokens = _enhance_finding_tokens(
+        tokens, findings, artifact.digest_issue_url, finding_notes
+    )
 
     rendered = markdown.renderer.render(tokens, markdown.options, {})
-    lowered = rendered.casefold()
-    forbidden = ("<script", "<iframe", "<object", "<embed", "onerror=", "onclick=")
-    if any(value in lowered for value in forbidden) or re.search(
-        r"href\s*=\s*['\"]\s*javascript:", rendered, re.IGNORECASE
-    ):
-        raise SiteBuildError("Rendered report contains active content")
+    _reject_active_content(rendered)
     if artifact.source_coverage is not None:
         rendered += coverage_html(artifact.source_coverage)
         heading_entries.append(
             (2, "Source Coverage and Review", "source-coverage-and-review")
         )
     return rendered, heading_entries
+
+
+def _reject_active_content(rendered: str) -> None:
+    lowered = rendered.casefold()
+    forbidden = ("<script", "<iframe", "<object", "<embed", "onerror=", "onclick=")
+    if any(value in lowered for value in forbidden) or re.search(
+        r"href\s*=\s*['\"]\s*javascript:", rendered, re.IGNORECASE
+    ):
+        raise SiteBuildError("Rendered report contains active content")
+
+
+# CVE reporting history. The corpus is the retained archive plus the current
+# report: one report per date, the last published that day. An observation is
+# the first finding in a report that lists a CVE, which is the finding that
+# owns that report's #cve-<id> anchor. History describes what dated reports
+# said; it never claims that anything about the vulnerability itself changed.
+HISTORY_INLINE_DATES = 5
+LABEL_DIMENSIONS = ("severity", "exploitation_status", "action")
+
+
+@dataclass(frozen=True)
+class _Observation:
+    report_date: date
+    schema_version: int
+    finding: Finding
+
+
+@dataclass(frozen=True)
+class _HistoryView:
+    summary_html: str
+    finding_notes: dict[str, str]
+    archive_html: str
+
+
+def _short_date(value: date, reference: date) -> str:
+    label = f"{value.strftime('%b')} {value.day}"
+    return label if value.year == reference.year else f"{label}, {value.year}"
+
+
+def _long_date(value: date, reference: date) -> str:
+    label = f"{value.strftime('%B')} {value.day}"
+    return label if value.year == reference.year else f"{label}, {value.year}"
+
+
+def _plural(count: int, singular: str, plural: str | None = None) -> str:
+    return singular if count == 1 else (plural or f"{singular}s")
+
+
+def _cve_observations(
+    corpus: list[ReportArtifact],
+) -> dict[str, list[_Observation]]:
+    observations: dict[str, list[_Observation]] = {}
+    for artifact in corpus:
+        seen: set[str] = set()
+        for finding in artifact.findings:
+            for cve in finding.cve_ids:
+                if cve not in seen:
+                    seen.add(cve)
+                    observations.setdefault(cve, []).append(
+                        _Observation(
+                            artifact.report_date, artifact.schema_version, finding
+                        )
+                    )
+    return observations
+
+
+def _gaps(dates: list[date]) -> list[tuple[date, date]]:
+    return [
+        (before + timedelta(days=1), after - timedelta(days=1))
+        for before, after in zip(dates, dates[1:])
+        if (after - before).days > 1
+    ]
+
+
+def _label_text(finding: Finding) -> str:
+    values = (
+        finding.severity.value,
+        finding.exploitation_status.value,
+        finding.action.value,
+    )
+    return " · ".join(
+        BADGE_LABELS[dimension][value]
+        for dimension, value in zip(LABEL_DIMENSIONS, values)
+    )
+
+
+def _same_labels(left: Finding, right: Finding) -> bool:
+    return (left.severity, left.exploitation_status, left.action) == (
+        right.severity,
+        right.exploitation_status,
+        right.action,
+    )
+
+
+def _cve_note(
+    cve: str,
+    current: _Observation,
+    earlier: list[_Observation],
+    reference: date,
+    owner: Finding | None = None,
+) -> str:
+    """One CVE's note in one current finding. ``owner`` is the report's first
+    finding listing the CVE when that is another finding; it holds the CVE's
+    anchor, and the report's history counts the CVE once."""
+    head = f"<b>{html.escape(cve)}.</b> "
+    if owner is not None:
+        head += (
+            f'This report lists it first under <a href="#{html.escape(owner.slug)}">'
+            f"{html.escape(_display_title(owner))}</a>. "
+        )
+    if not earlier:
+        return f"<li>{head}First report of this CVE in the retained archive.</li>"
+    anchor = html.escape(cve.lower())
+    count = len(earlier)
+    shown = earlier[-HISTORY_INLINE_DATES:]
+    links = " · ".join(
+        f'<a href="reports/{item.report_date.isoformat()}.html#{anchor}">'
+        f"{html.escape(_short_date(item.report_date, reference))}</a>"
+        for item in shown
+    )
+    if count > len(shown):
+        links += f' · <a href="reports/#history-{anchor}">all {count} dates</a>'
+    text = (
+        f"Reported on {count} earlier {_plural(count, 'report date')} since "
+        f"{html.escape(_long_date(earlier[0].report_date, reference))}: {links}."
+    )
+    last = earlier[-1]
+    when = html.escape(_long_date(last.report_date, reference))
+    if last.schema_version != current.schema_version:
+        kind = (
+            "an earlier"
+            if last.schema_version < current.schema_version
+            else "a different"
+        )
+        if all(item.schema_version != current.schema_version for item in earlier):
+            text += (
+                f" That report used {kind} report format, so its labels are not compared."
+                if count == 1
+                else f" Those reports used {kind} report format, so their labels are not compared."
+            )
+        else:
+            text += f" The {when} report used {kind} report format, so its labels are not compared."
+        return f"<li>{head}{text}</li>"
+    # The comparison unit is the earlier observation: that report's first
+    # finding listing the CVE, not every finding in that report.
+    earlier_keys = {reporting_key(ref.url) for ref in last.finding.reporting}
+    current_keys: dict[str, ReportingReference] = {}
+    for ref in current.finding.reporting:
+        current_keys.setdefault(reporting_key(ref.url), ref)
+    added = [ref for key, ref in current_keys.items() if key not in earlier_keys]
+    if added:
+        names = "; ".join(
+            f'<a href="{html.escape(ref.url)}" target="_blank" rel="noopener noreferrer">'
+            f"{html.escape(f'{ref.publisher} — {ref.title}')}</a>"
+            for ref in added
+        )
+        noun = "a source" if len(added) == 1 else "sources"
+        text += f" This finding cites {noun} the {when} finding did not: {names}."
+    elif current_keys and set(current_keys) == earlier_keys:
+        text += (
+            f" This finding and the {when} finding cite the same "
+            f"{_plural(len(earlier_keys), 'source')}."
+        )
+    if _same_labels(last.finding, current.finding):
+        text += f" The {when} finding had the same labels."
+    else:
+        text += f" The {when} finding was labelled {html.escape(_label_text(last.finding))}."
+    return f"<li>{head}{text}</li>"
+
+
+def _history_summary(
+    current_cves: list[str],
+    observations: dict[str, list[_Observation]],
+    current_date: date,
+    previous: date,
+) -> str:
+    counts = {"new": 0, "previous": 0, "earlier": 0}
+    for cve in current_cves:
+        earlier = [o for o in observations[cve] if o.report_date < current_date]
+        if not earlier:
+            counts["new"] += 1
+        elif earlier[-1].report_date == previous:
+            counts["previous"] += 1
+        else:
+            counts["earlier"] += 1
+    when = _long_date(previous, current_date)
+    parts = [
+        (counts["new"], "is new to it", "are new to it"),
+        (
+            counts["previous"],
+            f"was also in the {when} report",
+            f"were also in the {when} report",
+        ),
+        (counts["earlier"], "was last reported earlier", "were last reported earlier"),
+    ]
+    phrases = []
+    for count, singular, plural in parts:
+        if count:
+            noun = f" {_plural(count, 'CVE')}" if not phrases else ""
+            phrases.append(f"{count}{noun} {_plural(count, singular, plural)}")
+    if len(phrases) == 1:
+        joined = phrases[0]
+    elif len(phrases) == 2:
+        joined = " and ".join(phrases)
+    else:
+        joined = ", ".join(phrases[:-1]) + ", and " + phrases[-1]
+    return (
+        '<p id="cve-history-summary" class="vendor-guidance" role="note">'
+        f"Compared with the retained archive: {html.escape(joined)}. "
+        '<a href="reports/#cve-history">CVE reporting history</a></p>'
+    )
+
+
+def _date_ranges(gaps: list[tuple[date, date]], reference: date) -> str:
+    return ", ".join(
+        (
+            _short_date(start, reference)
+            if start == end
+            else f"{_short_date(start, reference)}–{_short_date(end, reference)}"
+        )
+        for start, end in gaps
+    )
+
+
+def _archive_history_html(
+    corpus: list[ReportArtifact], observations: dict[str, list[_Observation]]
+) -> str:
+    current = corpus[-1]
+    reference = current.report_date
+    dates = [artifact.report_date for artifact in corpus]
+    first, last = dates[0], dates[-1]
+    if first.year == last.year:
+        span = f"from {_long_date(first, reference)} to {_long_date(last, reference)}, {last.year}"
+    else:
+        span = f"from {_edition_label(first)} to {_edition_label(last)}"
+    sentences = [
+        f"This archive holds {len(dates)} {_plural(len(dates), 'report date')} {span}, "
+        "one report per date."
+    ]
+    gaps = _gaps(dates)
+    if gaps:
+        missing = sum((end - start).days + 1 for start, end in gaps)
+        sentences.append(
+            f"It has no report for {missing} {_plural(missing, 'date')} in that span "
+            f"({_date_ranges(gaps, reference)}); nothing is known about those dates from here."
+        )
+    else:
+        sentences.append("It has a report for every date in that span.")
+    total = sum(len(artifact.findings) for artifact in corpus)
+    named = sum(
+        1 for artifact in corpus for finding in artifact.findings if finding.cve_ids
+    )
+    sentences.append(
+        f"{named} of {total} findings name a CVE; the other {total - named} are not compared."
+    )
+    current_format = [
+        a.report_date for a in corpus if a.schema_version == current.schema_version
+    ]
+    if (
+        any(a.schema_version != current.schema_version for a in corpus)
+        and current_format
+    ):
+        sentences.append(
+            f"Reports before {_edition_label(min(current_format))} used an earlier report "
+            "format, and labels are compared only within one format."
+        )
+    repeated = sorted(
+        ((cve, items) for cve, items in observations.items() if len(items) >= 2),
+        key=lambda pair: (-pair[1][-1].report_date.toordinal(), -len(pair[1]), pair[0]),
+    )
+    single = len(observations) - len(repeated)
+    if repeated:
+        listing = (
+            f"{len(repeated)} {_plural(len(repeated), 'CVE appears', 'CVEs appear')} on more than "
+            f"one report date and {_plural(len(repeated), 'is', 'are')} listed below, most recent "
+            f"first; {single} {_plural(single, 'appears', 'appear')} on one report date only."
+        )
+    else:
+        listing = "No CVE appears on more than one report date."
+    items = []
+    for cve, entries in repeated:
+        anchor = html.escape(cve.lower())
+        links = " · ".join(
+            (
+                f'<a href="../index.html#{anchor}">'
+                f"{html.escape(_short_date(item.report_date, reference))} (current report)</a>"
+                if item.report_date == current.report_date
+                else f'<a href="{item.report_date.isoformat()}.html#{anchor}">'
+                f"{html.escape(_short_date(item.report_date, reference))}</a>"
+            )
+            for item in entries
+        )
+        items.append(
+            f'<li id="history-{anchor}"><article><h3>{html.escape(cve)}</h3>'
+            f"<p>{len(entries)} report dates, {html.escape(_short_date(entries[0].report_date, reference))} "
+            f"to {html.escape(_short_date(entries[-1].report_date, reference))}</p>"
+            f"<p>{links}</p></article></li>"
+        )
+    return (
+        '<section id="cve-history" aria-labelledby="cve-history-heading">'
+        '<h2 id="cve-history-heading">CVE reporting history</h2>'
+        f'<p class="archive-context">{html.escape(" ".join(sentences))}</p>'
+        f'<p class="archive-context">{html.escape(listing)}</p>'
+        + (f'<ol class="archive-list">{"".join(items)}</ol>' if items else "")
+        + "</section>"
+    )
+
+
+def _history_view(
+    current: ReportArtifact, archived: list[ReportArtifact]
+) -> _HistoryView | None:
+    """Both history surfaces, or None when the archive cannot anchor them."""
+    if not archived or any(a.report_date >= current.report_date for a in archived):
+        return None
+    corpus = sorted([*archived, current], key=lambda artifact: artifact.report_date)
+    observations = _cve_observations(corpus)
+    previous = corpus[-2].report_date
+    reference = current.report_date
+    current_cves: list[str] = []
+    notes: dict[str, list[str]] = {}
+    for cve, items in observations.items():
+        if items[-1].report_date != current.report_date:
+            continue
+        current_cves.append(cve)
+    current_cves.sort(
+        key=lambda cve: next(
+            index
+            for index, finding in enumerate(current.findings)
+            if cve in finding.cve_ids
+        )
+    )
+    # Every current finding listing a CVE gets its own note, compared on its
+    # own labels and sources; dates, counts and anchors stay one per report.
+    for finding in current.findings:
+        for cve in dict.fromkeys(finding.cve_ids):
+            items = observations[cve]
+            first = items[-1].finding
+            notes.setdefault(finding.slug, []).append(
+                _cve_note(
+                    cve,
+                    _Observation(current.report_date, current.schema_version, finding),
+                    items[:-1],
+                    reference,
+                    owner=None if first is finding else first,
+                )
+            )
+    finding_notes = {
+        finding.slug: (
+            f'<aside class="finding-reporting finding-history" '
+            f'aria-label="Earlier reporting for {html.escape(finding.title)}">'
+            f"<strong>Earlier reporting</strong><ul>{''.join(notes[finding.slug])}</ul>"
+            "</aside>\n"
+        )
+        for finding in current.findings
+        if finding.slug in notes
+    }
+    summary = (
+        _history_summary(current_cves, observations, reference, previous)
+        if current_cves
+        else ""
+    )
+    archive = _archive_history_html(corpus, observations)
+    for fragment in (summary, archive, *finding_notes.values()):
+        _reject_active_content(fragment)
+    return _HistoryView(summary, finding_notes, archive)
 
 
 def _toc(entries: list[tuple[int, str, str]]) -> str:
@@ -619,8 +990,11 @@ def _render_report_page(
     markdown_path: str,
     canonical_url: str,
     relative_age: bool,
+    history: _HistoryView | None = None,
 ) -> str:
-    report_html, headings = _render_markdown(artifact)
+    report_html, headings = _render_markdown(
+        artifact, history.finding_notes if history else None
+    )
     finding_count, complete_cve_count, report_shape = _report_shape(artifact)
     metadata: dict[str, object] = {
         "schema_version": artifact.schema_version,
@@ -644,6 +1018,8 @@ def _render_report_page(
             "Review each finding’s linked reporting before inferring version ranges.</p>"
             + report_html
         )
+    if history is not None and history.summary_html:
+        report_html = history.summary_html + report_html
     toc = _toc(headings)
     page_title = f"SentryInsight report for {_date_label(artifact.report_date)}"
     identity = {
@@ -792,6 +1168,16 @@ def build_site(*, report_path: Path, output_path: Path, template_path: Path) -> 
     for archived_path in sorted(reports_path.glob("????-??-??.md"), reverse=True):
         archived_artifacts.append(parse_report_artifact(archived_path.read_text()))
 
+    # History is optional: a failure here never holds back the report.
+    try:
+        history = _history_view(artifact, archived_artifacts)
+    except Exception as error:  # noqa: BLE001
+        print(
+            f"Warning: CVE reporting history omitted ({type(error).__name__})",
+            file=sys.stderr,
+        )
+        history = None
+
     for archived in archived_artifacts:
         dated_html = _render_report_page(
             archived,
@@ -814,6 +1200,7 @@ def build_site(*, report_path: Path, output_path: Path, template_path: Path) -> 
         markdown_path="index.md",
         canonical_url=PUBLIC_ROOT,
         relative_age=True,
+        history=history,
     )
     (output_path / "index.html").write_text(latest_html)
     (output_path / "current-findings.json").write_text(
@@ -846,6 +1233,7 @@ def build_site(*, report_path: Path, output_path: Path, template_path: Path) -> 
             "REPORT_COUNT": count_label,
             "ARCHIVE_CONTEXT": archive_context,
             "ARCHIVE_ITEMS": _archive_items(entries),
+            "CVE_HISTORY": history.archive_html if history is not None else "",
             "THEME_BOOTSTRAP": theme_bootstrap.strip(),
             "ARCHIVE_IDENTITY_JSON": json.dumps(
                 {

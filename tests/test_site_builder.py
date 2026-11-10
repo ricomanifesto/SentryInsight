@@ -1,12 +1,16 @@
 from __future__ import annotations
 
+import html as _html
 import json
 import re
+import shutil
+from datetime import date as _date
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
 import pytest
 
+import scripts.build_site as site_builder
 from src.core.report_artifact import parse_report_artifact
 from scripts.build_site import (
     ArchiveConflictError,
@@ -533,3 +537,534 @@ def test_vendor_links_are_labelled_by_host():
             "https://www.zyxel.com/advisory-2",
         ]
     ) == ["zyxel.com", "nvd.nist.gov", "zyxel.com (2)"]
+
+
+# CVE reporting history: computed from the retained archive for the current
+# report only. Dated pages never change.
+
+
+def history_report(report_date: str, findings, schema: int = 2) -> str:
+    """A minimal valid report; findings are (title, cves, labels, sources)."""
+    blocks = []
+    for title, cves, labels, sources in findings:
+        severity, status, action = labels
+        lines = [
+            f"### {title}",
+            "- **Description**: A described vulnerability.",
+            f"- **Severity**: {severity}",
+            f"- **Exploitation Status**: {status}",
+            f"- **Action**: {action}",
+        ]
+        if cves:
+            lines.append(f"- **CVE IDs**: {', '.join(cves)}")
+        if schema >= 2:
+            lines.append(
+                "- **Reporting**: "
+                + ", ".join(
+                    f"[{publisher} — {headline}]({url})"
+                    for publisher, headline, url in sources
+                )
+            )
+        blocks.append("\n".join(lines))
+    header = f"---\nschema_version: {schema}\nreport_date: {report_date}\ngenerated_at: {report_date}T12:00:00Z\n"
+    if schema >= 2:
+        header += f"digest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/{report_date}/\n"
+    return (
+        header
+        + "---\n# Exploitation Report\n\n## Executive Summary\n\nSummary.\n\n"
+        + "## Active Exploitation Details\n\n"
+        + "\n\n".join(blocks)
+        + "\n"
+    )
+
+
+SRC_A = ("Example News", "Flaw exploited", "https://news.example.com/a")
+SRC_B = ("Other Desk", "CISA warns", "https://desk.example.org/b")
+HIGH_POTENTIAL = ("high", "potential", "patch")
+HIGH_UNKNOWN = ("high", "unknown", "patch")
+
+
+def build_history(tmp_path: Path, current: str, archived: dict[str, str]) -> Path:
+    output = tmp_path / "site"
+    reports = output / "reports"
+    reports.mkdir(parents=True)
+    for day, text in archived.items():
+        (reports / f"{day}.md").write_text(text)
+    (tmp_path / "index.md").write_text(current)
+    build_site(
+        report_path=tmp_path / "index.md",
+        output_path=output,
+        template_path=ROOT / "site",
+    )
+    return output
+
+
+def history_notes(page: str) -> str:
+    match = re.findall(
+        r'<aside class="finding-reporting finding-history".*?</aside>', page, re.S
+    )
+    return "\n".join(match)
+
+
+def text_of(fragment: str) -> str:
+    return _html.unescape(re.sub(r"<[^>]+>", "", fragment))
+
+
+def test_history_counts_earlier_report_dates_and_links_each_in_date_order(tmp_path):
+    finding = ("Flaw (CVE-2026-1111)", ["CVE-2026-1111"], HIGH_POTENTIAL, [SRC_A])
+    archived = {
+        d: history_report(d, [finding])
+        for d in ("2026-08-14", "2026-08-15", "2026-08-17")
+    }
+    site = build_history(tmp_path, history_report("2026-08-18", [finding]), archived)
+    notes = history_notes((site / "index.html").read_text())
+    assert "Reported on 3 earlier report dates since August 14" in text_of(notes)
+    links = re.findall(r'href="(reports/[^"]+)"', notes)
+    assert links == [
+        f"reports/{d}.html#cve-2026-1111"
+        for d in ("2026-08-14", "2026-08-15", "2026-08-17")
+    ]
+
+
+def test_a_cve_listed_twice_in_one_report_is_one_observation_on_its_first_finding(
+    tmp_path,
+):
+    first = ("First flaw", ["CVE-2026-2222"], HIGH_POTENTIAL, [SRC_A])
+    second = ("Second flaw", ["CVE-2026-2222"], HIGH_UNKNOWN, [SRC_B])
+    site = build_history(
+        tmp_path,
+        history_report("2026-08-20", [first]),
+        {"2026-08-19": history_report("2026-08-19", [first, second])},
+    )
+    notes = text_of(history_notes((site / "index.html").read_text()))
+    assert "Reported on 1 earlier report date since August 19" in notes
+    archived_page = (site / "reports" / "2026-08-19.html").read_text()
+    anchor = archived_page.index('id="cve-2026-2222"')
+    assert (
+        archived_page.index('id="first-flaw"')
+        < anchor
+        < archived_page.index('id="second-flaw"')
+    )
+    assert archived_page.count('id="cve-2026-2222"') == 1
+    # The earlier observation is the first finding, so its sources are compared.
+    assert "This finding and the August 19 finding cite the same source." in notes
+
+
+def test_classification_names_the_previous_retained_report_even_days_back(tmp_path):
+    keep = ("Kept", ["CVE-2026-3001"], HIGH_POTENTIAL, [SRC_A])
+    older = ("Older", ["CVE-2026-3002"], HIGH_POTENTIAL, [SRC_A])
+    fresh = ("Fresh", ["CVE-2026-3003"], HIGH_POTENTIAL, [SRC_A])
+    archived = {
+        "2026-08-10": history_report("2026-08-10", [older]),
+        "2026-08-14": history_report("2026-08-14", [keep]),
+    }
+    site = build_history(
+        tmp_path, history_report("2026-08-21", [keep, older, fresh]), archived
+    )
+    page = (site / "index.html").read_text()
+    summary = text_of(
+        re.search(r'<p id="cve-history-summary".*?</p>', page, re.S).group(0)
+    )
+    assert summary == (
+        "Compared with the retained archive: 1 CVE is new to it, 1 was also in the "
+        "August 14 report, and 1 was last reported earlier. CVE reporting history"
+    )
+    assert 'href="reports/#cve-history"' in page
+    notes = text_of(history_notes(page))
+    assert "CVE-2026-3003. First report of this CVE in the retained archive." in notes
+
+
+def test_an_earlier_report_format_gives_dates_and_links_but_no_label_comparison(
+    tmp_path,
+):
+    finding = (
+        "Flaw (CVE-2026-4444)",
+        ["CVE-2026-4444"],
+        ("critical", "active", "patch"),
+        [SRC_A],
+    )
+    site = build_history(
+        tmp_path,
+        history_report("2026-08-20", [finding]),
+        {"2026-08-13": history_report("2026-08-13", [finding], schema=1)},
+    )
+    notes = history_notes((site / "index.html").read_text())
+    text = text_of(notes)
+    assert (
+        "That report used an earlier report format, so its labels are not compared."
+        in text
+    )
+    assert 'href="reports/2026-08-13.html#cve-2026-4444"' in notes
+    for label in ("labelled", "Critical", "Exploited", "cite"):
+        assert label not in text
+
+
+def test_same_format_names_sources_and_quotes_dated_labels(tmp_path):
+    before = ("Flaw (CVE-2026-5555)", ["CVE-2026-5555"], HIGH_POTENTIAL, [SRC_A])
+    same_sources = ("Flaw (CVE-2026-5555)", ["CVE-2026-5555"], HIGH_UNKNOWN, [SRC_A])
+    site = build_history(
+        tmp_path,
+        history_report("2026-08-20", [same_sources]),
+        {"2026-08-19": history_report("2026-08-19", [before])},
+    )
+    text = text_of(history_notes((site / "index.html").read_text()))
+    assert (
+        "The August 19 finding was labelled High · Exploitable, no attacks seen · Patch."
+        in text
+    )
+    assert "This finding and the August 19 finding cite the same source." in text
+    assert "cites a source" not in text
+
+    new_source = (
+        "Flaw (CVE-2026-5555)",
+        ["CVE-2026-5555"],
+        HIGH_POTENTIAL,
+        [SRC_A, SRC_B],
+    )
+    site = build_history(
+        tmp_path / "b",
+        history_report("2026-08-20", [new_source]),
+        {"2026-08-19": history_report("2026-08-19", [before])},
+    )
+    notes = history_notes((site / "index.html").read_text())
+    text = text_of(notes)
+    assert (
+        "This finding cites a source the August 19 finding did not: Other Desk — CISA warns."
+        in text
+    )
+    assert 'href="https://desk.example.org/b"' in notes
+    assert "The August 19 finding had the same labels." in text
+    for banned in (
+        "changed",
+        "rose",
+        "fell",
+        "escalat",
+        "downgrad",
+        " now ",
+        "no longer",
+        "confirmed",
+        "first seen",
+        "times",
+        " days",
+    ):
+        assert banned not in text.lower(), banned
+
+
+def test_no_archive_and_no_cve_findings_render_no_history_markup(tmp_path):
+    no_cve = ("Unnumbered flaw", [], HIGH_POTENTIAL, [SRC_A])
+    site = build_history(tmp_path, history_report("2026-08-20", [no_cve]), {})
+    page = (site / "index.html").read_text()
+    assert "cve-history" not in page and "finding-history" not in page
+    assert 'id="cve-history"' not in (site / "reports" / "index.html").read_text()
+
+    site = build_history(
+        tmp_path / "b",
+        history_report("2026-08-20", [no_cve]),
+        {"2026-08-19": history_report("2026-08-19", [no_cve])},
+    )
+    page = (site / "index.html").read_text()
+    assert "cve-history-summary" not in page and "finding-history" not in page
+    archive = (site / "reports" / "index.html").read_text()
+    assert (
+        "<ol" not in archive.split('id="cve-history"')[1].split("</section>")[0]
+    ), "no empty list"
+
+
+def test_history_text_is_escaped_and_links_are_http_or_relative(tmp_path):
+    # The report parser already refuses tags in reporting labels; these are
+    # the characters it accepts that still need escaping.
+    hostile = (
+        'Pub & "Co" <x',
+        '5 < 6 & "quoted" > 4',
+        "https://news.example.com/x?a=1&b='2'",
+    )
+    before = ("Flaw (CVE-2026-6666)", ["CVE-2026-6666"], HIGH_POTENTIAL, [SRC_A])
+    after = (
+        "Flaw (CVE-2026-6666)",
+        ["CVE-2026-6666"],
+        HIGH_POTENTIAL,
+        [SRC_A, hostile],
+    )
+    site = build_history(
+        tmp_path,
+        history_report("2026-08-20", [after]),
+        {"2026-08-19": history_report("2026-08-19", [before])},
+    )
+    notes = history_notes((site / "index.html").read_text())
+    assert "Pub &amp; &quot;Co&quot; &lt;x" in notes
+    assert "5 &lt; 6 &amp; &quot;quoted&quot; &gt; 4" in notes
+    assert 'href="https://news.example.com/x?a=1&amp;b=&#x27;2&#x27;"' in notes
+    for href in re.findall(r'href="([^"]*)"', notes):
+        assert href.startswith(("https://", "http://", "reports/")), href
+
+
+def test_every_history_link_lands_on_an_existing_id(tmp_path):
+    finding = ("Flaw (CVE-2026-7777)", ["CVE-2026-7777"], HIGH_POTENTIAL, [SRC_A])
+    other = ("Other (CVE-2026-7778)", ["CVE-2026-7778"], HIGH_POTENTIAL, [SRC_A])
+    archived = {
+        d: history_report(d, [other, finding]) for d in ("2026-08-14", "2026-08-15")
+    }
+    site = build_history(tmp_path, history_report("2026-08-20", [finding]), archived)
+    assert_history_links_resolve(site)
+
+
+def assert_history_links_resolve(site: Path) -> int:
+    checked = 0
+    pages = {
+        site / "index.html": history_notes((site / "index.html").read_text())
+        + (
+            re.search(
+                r'<p id="cve-history-summary".*?</p>',
+                (site / "index.html").read_text(),
+                re.S,
+            )
+            or [""]
+        )[0],
+        site
+        / "reports"
+        / "index.html": (site / "reports" / "index.html")
+        .read_text()
+        .split('id="cve-history"', 1)[-1],
+    }
+    for page, fragment in pages.items():
+        for href in re.findall(r'href="([^"#]*\.html|[^"#]*/)?#([^"]+)"', fragment):
+            target_path, anchor = href
+            target = (page.parent / target_path) if target_path else page
+            if target.is_dir():
+                target = target / "index.html"
+            assert f'id="{anchor}"' in target.read_text(), (page.name, href)
+            checked += 1
+    return checked
+
+
+def test_a_failing_projection_publishes_the_report_without_history(
+    tmp_path, monkeypatch, capsys
+):
+    finding = ("Flaw (CVE-2026-8888)", ["CVE-2026-8888"], HIGH_POTENTIAL, [SRC_A])
+    archived = {"2026-08-19": history_report("2026-08-19", [finding])}
+    monkeypatch.setattr(site_builder, "_history_view", lambda *a: None)
+    plain = build_history(
+        tmp_path / "plain", history_report("2026-08-20", [finding]), archived
+    )
+
+    def broken(*args):
+        raise RuntimeError("history projection failure")
+
+    monkeypatch.setattr(site_builder, "_history_view", broken)
+    capsys.readouterr()
+    failed = build_history(
+        tmp_path / "failed", history_report("2026-08-20", [finding]), archived
+    )
+    warning = capsys.readouterr().err
+    assert warning.count("\n") == 1 and "CVE reporting history omitted" in warning
+    for name in ("index.html", "reports/index.html", "reports/2026-08-19.html"):
+        assert (failed / name).read_bytes() == (plain / name).read_bytes(), name
+    assert "finding-history" not in (failed / "index.html").read_text()
+
+
+@pytest.mark.parametrize(
+    "days, gaps",
+    [
+        (["2026-08-10", "2026-08-12", "2026-08-13"], "(Aug 11)"),
+        (["2026-08-10", "2026-08-11", "2026-08-14"], "(Aug 12–Aug 13)"),
+        (["2026-08-10", "2026-08-11", "2026-08-12"], None),
+    ],
+)
+def test_coverage_names_gap_ranges_exactly_at_the_edges(tmp_path, days, gaps):
+    finding = ("Flaw (CVE-2026-9999)", ["CVE-2026-9999"], HIGH_POTENTIAL, [SRC_A])
+    *older, current = days
+    site = build_history(
+        tmp_path,
+        history_report(current, [finding]),
+        {d: history_report(d, [finding]) for d in older},
+    )
+    archive = text_of(
+        (site / "reports" / "index.html")
+        .read_text()
+        .split('id="cve-history"', 1)[1]
+        .split("</section>")[0]
+    )
+    assert (
+        f"This archive holds 3 report dates from August 10 to August {current[-2:].lstrip('0')}, 2026, one report per date."
+        in archive
+    )
+    if gaps is None:
+        assert "It has a report for every date in that span." in archive
+    else:
+        missing = 1 if "–" not in gaps else 2
+        assert (
+            f"It has no report for {missing} date{'s' if missing > 1 else ''} in that span {gaps}"
+            in archive
+        )
+
+
+def test_history_build_is_deterministic_and_check_is_clean(tmp_path):
+    finding = ("Flaw (CVE-2026-1212)", ["CVE-2026-1212"], HIGH_POTENTIAL, [SRC_A])
+    archived = {d: history_report(d, [finding]) for d in ("2026-08-14", "2026-08-15")}
+    first = build_history(
+        tmp_path / "one", history_report("2026-08-20", [finding]), archived
+    )
+    second = build_history(
+        tmp_path / "two", history_report("2026-08-20", [finding]), archived
+    )
+    for path in sorted(p.relative_to(first) for p in first.rglob("*") if p.is_file()):
+        assert (first / path).read_bytes() == (second / path).read_bytes(), path
+    assert (
+        check_site(
+            report_path=tmp_path / "one" / "index.md",
+            output_path=first,
+            template_path=ROOT / "site",
+        )
+        == []
+    )
+
+
+def real_archive_copy(tmp_path: Path) -> Path:
+    site = tmp_path / "real"
+    shutil.copytree(ROOT / "reports", site / "reports")
+    for relative in ("index.html", "assets/site.css", "assets/report.js"):
+        (site / relative).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(ROOT / relative, site / relative)
+    return site
+
+
+def test_real_archive_dated_pages_and_markdown_are_unchanged(tmp_path):
+    site = real_archive_copy(tmp_path)
+    before = {p.name: p.read_bytes() for p in (site / "reports").glob("????-??-??.*")}
+    build_site(
+        report_path=ROOT / "index.md", output_path=site, template_path=ROOT / "site"
+    )
+    after = {p.name: p.read_bytes() for p in (site / "reports").glob("????-??-??.*")}
+    assert before.keys() == after.keys()
+    version = re.compile(rb"\?v=[0-9a-f]{12}")
+    for name in sorted(before):
+        if name.endswith(".md"):
+            assert after[name] == before[name], name
+        else:
+            assert version.sub(b"", after[name]) == version.sub(b"", before[name]), name
+
+
+def test_real_archive_history_matches_a_recount_from_parsed_artifacts(tmp_path):
+    site = real_archive_copy(tmp_path)
+    build_site(
+        report_path=ROOT / "index.md", output_path=site, template_path=ROOT / "site"
+    )
+    current = parse_report_artifact((ROOT / "index.md").read_text())
+    archived = [
+        parse_report_artifact(p.read_text())
+        for p in sorted((ROOT / "reports").glob("????-??-??.md"))
+    ]
+    earlier_by_cve: dict[str, set[_date]] = {}
+    for artifact in archived:
+        for finding in artifact.findings:
+            for cve in finding.cve_ids:
+                earlier_by_cve.setdefault(cve, set()).add(artifact.report_date)
+    previous = max(a.report_date for a in archived)
+    current_cves = list(dict.fromkeys(c for f in current.findings for c in f.cve_ids))
+    new = sum(1 for c in current_cves if c not in earlier_by_cve)
+    also = sum(1 for c in current_cves if previous in earlier_by_cve.get(c, ()))
+    earlier = len(current_cves) - new - also
+    page = (site / "index.html").read_text()
+    summary = text_of(
+        re.search(r'<p id="cve-history-summary".*?</p>', page, re.S).group(0)
+    )
+    assert summary.startswith("Compared with the retained archive:")
+    numbers = [
+        int(n) for n in re.findall(r"(\d+) (?:CVEs? )?(?:is|are|was|were)", summary)
+    ]
+    assert numbers == [n for n in (new, also, earlier) if n], summary
+    all_dates = {a.report_date for a in archived} | {current.report_date}
+    by_cve = {c: set(d) for c, d in earlier_by_cve.items()}
+    for finding in current.findings:
+        for cve in finding.cve_ids:
+            by_cve.setdefault(cve, set()).add(current.report_date)
+    repeated = sum(1 for dates in by_cve.values() if len(dates) >= 2)
+    archive = text_of(
+        (site / "reports" / "index.html")
+        .read_text()
+        .split('id="cve-history"', 1)[1]
+        .split("</section>")[0]
+    )
+    assert f"This archive holds {len(all_dates)} report dates" in archive
+    total = sum(len(a.findings) for a in [*archived, current])
+    with_cve = sum(1 for a in [*archived, current] for f in a.findings if f.cve_ids)
+    assert (
+        f"{with_cve} of {total} findings name a CVE; the other {total - with_cve} are not compared."
+        in archive
+    )
+    assert f"{repeated} CVEs appear on more than one report date" in archive
+    assert (
+        len(
+            re.findall(
+                r'<li id="history-cve-', (site / "reports" / "index.html").read_text()
+            )
+        )
+        == repeated
+    )
+    assert assert_history_links_resolve(site) > repeated
+
+
+def test_every_current_finding_listing_a_cve_gets_its_own_note_counted_once(tmp_path):
+    earlier = ("Flaw (CVE-2026-2323)", ["CVE-2026-2323"], HIGH_POTENTIAL, [SRC_A])
+    first = ("First flaw", ["CVE-2026-2323"], HIGH_POTENTIAL, [SRC_A])
+    second = ("Second flaw", ["CVE-2026-2323"], HIGH_UNKNOWN, [SRC_B])
+    site = build_history(
+        tmp_path,
+        history_report("2026-08-20", [first, second]),
+        {"2026-08-19": history_report("2026-08-19", [earlier])},
+    )
+    page = (site / "index.html").read_text()
+    asides = re.findall(
+        r'<aside class="finding-reporting finding-history".*?</aside>', page, re.S
+    )
+    assert len(asides) == 2, "one note in each finding"
+    one, two = (text_of(a) for a in asides)
+    for aside, note in zip(asides, (one, two)):
+        assert "Reported on 1 earlier report date since August 19" in note
+        assert 'href="reports/2026-08-19.html#cve-2026-2323"' in aside
+    # Each note compares its own finding.
+    assert "This finding and the August 19 finding cite the same source." in one
+    assert "had the same labels" in one and "lists it first" not in one
+    assert (
+        "This finding cites a source the August 19 finding did not: Other Desk — CISA warns."
+        in two
+    )
+    assert (
+        "The August 19 finding was labelled High · Exploitable, no attacks seen · Patch."
+        in two
+    )
+    assert "This report lists it first under First flaw." in two
+    assert 'href="#first-flaw"' in asides[1]
+    # One anchor, one count.
+    assert page.count('id="cve-2026-2323"') == 1
+    summary = text_of(
+        re.search(r'<p id="cve-history-summary".*?</p>', page, re.S).group(0)
+    )
+    assert summary.startswith(
+        "Compared with the retained archive: 1 CVE was also in the August 19 report."
+    )
+    assert_history_links_resolve(site)
+
+
+def test_sources_are_compared_with_the_first_earlier_finding_not_the_whole_report(
+    tmp_path,
+):
+    # The earlier report lists the CVE in two findings with different sources.
+    # Its observation is the first one, so a source only the second cited is
+    # still new relative to the compared finding, and the note says so.
+    first = ("Flaw (CVE-2026-3434)", ["CVE-2026-3434"], HIGH_POTENTIAL, [SRC_A])
+    second = ("Follow-up (CVE-2026-3434)", ["CVE-2026-3434"], HIGH_POTENTIAL, [SRC_B])
+    current = ("Flaw (CVE-2026-3434)", ["CVE-2026-3434"], HIGH_POTENTIAL, [SRC_B])
+    site = build_history(
+        tmp_path,
+        history_report("2026-08-20", [current]),
+        {"2026-08-19": history_report("2026-08-19", [first, second])},
+    )
+    notes = history_notes((site / "index.html").read_text())
+    text = text_of(notes)
+    assert (
+        "This finding cites a source the August 19 finding did not: Other Desk — CISA warns."
+        in text
+    )
+    assert "report did not" not in text and "Reported on 1 earlier report date" in text
+    assert notes.count('href="reports/2026-08-19.html#cve-2026-3434"') == 1
