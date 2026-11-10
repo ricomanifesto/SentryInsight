@@ -1992,6 +1992,17 @@
       "at": "2026-11-10T00:31:54.496Z",
       "run_id": "42728916389",
       "stage": "invoked"
+    },
+    {
+      "admission_key": "digest:589665821e115f70c9e7a3b1ffe63b7c0c073e23",
+      "at": "2026-11-10T00:32:02.997Z",
+      "attempt": 1,
+      "limit": 3,
+      "request_sha256": "789db3a4d52f78302f0e32a16940d84ca40eb6d57e31f1856450a5e713aa53ea",
+      "revision": "b00d2d8c42190e249e6abab754820920a2eb3497",
+      "run_id": "42728916389",
+      "stage": "request_reserved",
+      "token": "8782385c439d2225e74ac4aba8df6574"
     }
   ],
   "schema_version": 1,
