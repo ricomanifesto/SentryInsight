@@ -2023,6 +2023,12 @@
       "outcome": "failed",
       "run_id": "42728916389",
       "stage": "unresolved"
+    },
+    {
+      "admission_key": "digest:589665821e115f70c9e7a3b1ffe63b7c0c073e23",
+      "at": "2026-11-10T06:39:14.696Z",
+      "run_id": "42769741111",
+      "stage": "readmitted"
     }
   ],
   "schema_version": 1,
