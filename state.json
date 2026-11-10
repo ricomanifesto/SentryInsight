@@ -1986,6 +1986,12 @@
       "run_id": "42728916389",
       "source_revision": "589665821e115f70c9e7a3b1ffe63b7c0c073e23",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "digest:589665821e115f70c9e7a3b1ffe63b7c0c073e23",
+      "at": "2026-11-10T00:31:54.496Z",
+      "run_id": "42728916389",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
