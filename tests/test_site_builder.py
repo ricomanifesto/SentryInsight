@@ -600,9 +600,7 @@ def build_history(tmp_path: Path, current: str, archived: dict[str, str]) -> Pat
 
 
 def history_notes(page: str) -> str:
-    match = re.findall(
-        r'<aside class="finding-reporting finding-history".*?</aside>', page, re.S
-    )
+    match = re.findall(r'<div class="finding-history".*?</div>', page, re.S)
     return "\n".join(match)
 
 
@@ -1014,9 +1012,7 @@ def test_every_current_finding_listing_a_cve_gets_its_own_note_counted_once(tmp_
         {"2026-08-19": history_report("2026-08-19", [earlier])},
     )
     page = (site / "index.html").read_text()
-    asides = re.findall(
-        r'<aside class="finding-reporting finding-history".*?</aside>', page, re.S
-    )
+    asides = re.findall(r'<div class="finding-history".*?</div>', page, re.S)
     assert len(asides) == 2, "one note in each finding"
     one, two = (text_of(a) for a in asides)
     for aside, note in zip(asides, (one, two)):

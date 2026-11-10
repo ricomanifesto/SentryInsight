@@ -357,7 +357,9 @@ def _finding_heading_html(
     )
 
 
-def _finding_reporting_html(finding: Finding, digest_issue_url: str | None) -> str:
+def _finding_reporting_html(
+    finding: Finding, digest_issue_url: str | None, history: str = ""
+) -> str:
     version_notice = (
         '<p class="vendor-guidance"><strong>Affected versions unresolved.</strong> '
         "Review the linked reporting before inferring an affected version range.</p>"
@@ -379,7 +381,7 @@ def _finding_reporting_html(finding: Finding, digest_issue_url: str | None) -> s
     elif finding.affected_versions is not None:
         vendor = '<p class="vendor-guidance"><strong>Vendor guidance:</strong> Not stated in supplied sources.</p>'
     if not finding.reporting or not digest_issue_url:
-        return version_notice + vendor
+        return version_notice + vendor + history
     items = []
     for reference in finding.reporting:
         label = f"{reference.publisher} — {reference.title}"
@@ -400,6 +402,7 @@ def _finding_reporting_html(finding: Finding, digest_issue_url: str | None) -> s
         + "</ul>"
         + version_notice
         + vendor
+        + history
         + "</aside>\n"
     )
 
@@ -454,14 +457,15 @@ def _enhance_finding_tokens(
                             block=True,
                         ),
                         _controlled_html(
-                            _finding_reporting_html(finding, digest_issue_url),
+                            _finding_reporting_html(
+                                finding,
+                                digest_issue_url,
+                                (finding_notes or {}).get(finding.slug, ""),
+                            ),
                             block=True,
                         ),
                     )
                 )
-                note = (finding_notes or {}).get(finding.slug)
-                if note:
-                    enhanced.append(_controlled_html(note, block=True))
                 finding_body_open = True
                 index += 3
                 continue
@@ -843,17 +847,18 @@ def _archive_history_html(
             for item in entries
         )
         items.append(
-            f'<li id="history-{anchor}"><article><h3>{html.escape(cve)}</h3>'
-            f"<p>{len(entries)} report dates, {html.escape(_short_date(entries[0].report_date, reference))} "
-            f"to {html.escape(_short_date(entries[-1].report_date, reference))}</p>"
-            f"<p>{links}</p></article></li>"
+            f'<li id="history-{anchor}"><b>{html.escape(cve)}</b>: '
+            f"{len(entries)} report dates, "
+            f"{html.escape(_short_date(entries[0].report_date, reference))} to "
+            f"{html.escape(_short_date(entries[-1].report_date, reference))}. {links}</li>"
         )
+    # Own plain markup: the report list's classes carry that list's contracts.
     return (
         '<section id="cve-history" aria-labelledby="cve-history-heading">'
         '<h2 id="cve-history-heading">CVE reporting history</h2>'
-        f'<p class="archive-context">{html.escape(" ".join(sentences))}</p>'
-        f'<p class="archive-context">{html.escape(listing)}</p>'
-        + (f'<ol class="archive-list">{"".join(items)}</ol>' if items else "")
+        f"<p>{html.escape(' '.join(sentences))}</p>"
+        f"<p>{html.escape(listing)}</p>"
+        + (f'<ul class="cve-history-list">{"".join(items)}</ul>' if items else "")
         + "</section>"
     )
 
@@ -898,10 +903,11 @@ def _history_view(
             )
     finding_notes = {
         finding.slug: (
-            f'<aside class="finding-reporting finding-history" '
+            # Inside the finding's existing Reporting block: one per finding.
+            f'<div class="finding-history" role="group" '
             f'aria-label="Earlier reporting for {html.escape(finding.title)}">'
             f"<strong>Earlier reporting</strong><ul>{''.join(notes[finding.slug])}</ul>"
-            "</aside>\n"
+            "</div>"
         )
         for finding in current.findings
         if finding.slug in notes
