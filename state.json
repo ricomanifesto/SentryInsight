@@ -2016,6 +2016,13 @@
       "run_id": "42728916389",
       "stage": "request_finished",
       "token": "8782385c439d2225e74ac4aba8df6574"
+    },
+    {
+      "admission_key": "digest:589665821e115f70c9e7a3b1ffe63b7c0c073e23",
+      "at": "2026-11-10T00:34:49.697Z",
+      "outcome": "failed",
+      "run_id": "42728916389",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
