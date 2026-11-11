@@ -6,7 +6,6 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
-import sys
 
 import httpx
 import pytest
@@ -124,19 +123,27 @@ def guarded_bridge(budget_factory, tmp_path, monkeypatch):
     """Real Node CLI/CAS, with ownership checks forced only on its initial Git probe."""
     budget = budget_factory()
     real_git = shutil.which("git")
-    assert real_git
+    node = shutil.which("node")
+    assert real_git and node
     shim_dir = tmp_path / "bin"
     shim_dir.mkdir()
     captured = tmp_path / "child-environments.jsonl"
     shim = shim_dir / "git"
+    # Use the same standalone Node runtime as the production CLI. A Python
+    # shebang can need setup-python's LD_LIBRARY_PATH, which the bridge excludes.
     shim.write_text(
-        f"#!{sys.executable}\n"
-        "import json, os, sys\n"
-        f"with open({str(captured)!r}, 'a') as out:\n"
-        "    out.write(json.dumps(dict(os.environ)) + '\\n')\n"
-        "if sys.argv[1:2] == ['rev-parse']:\n"
-        "    os.environ['GIT_TEST_ASSUME_DIFFERENT_OWNER'] = '1'\n"
-        f"os.execv({real_git!r}, [{real_git!r}, *sys.argv[1:]])\n"
+        f"#!{node}\n"
+        "const fs = require('node:fs');\n"
+        "const { spawnSync } = require('node:child_process');\n"
+        f"fs.appendFileSync({json.dumps(str(captured))}, "
+        "JSON.stringify(process.env) + '\\n');\n"
+        "if (process.argv[2] === 'rev-parse') {\n"
+        "  process.env.GIT_TEST_ASSUME_DIFFERENT_OWNER = '1';\n"
+        "}\n"
+        f"const result = spawnSync({json.dumps(real_git)}, process.argv.slice(2), "
+        "{ env: process.env, stdio: 'inherit' });\n"
+        "if (result.error) console.error(result.error.message);\n"
+        "process.exit(result.status ?? 1);\n"
     )
     shim.chmod(0o700)
     home = tmp_path / "isolated-home"
@@ -168,6 +175,7 @@ def test_container_bridge_preserves_only_exact_workspace_trust(
         "GIT_CONFIG_PARAMETERS": "synthetic-arbitrary-git-config",
         "GIT_DIR": "/synthetic-unrelated-repository",
         "GIT_TRACE": "synthetic-trace-destination",
+        "LD_LIBRARY_PATH": "/synthetic-loader-path-not-forwarded",
     }
     for key, value in excluded.items():
         monkeypatch.setenv(key, value)
