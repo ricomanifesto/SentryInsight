@@ -112,6 +112,7 @@ ACTIVE_CONTENT_PATTERNS = (
 class ReportValidationIssue:
     code: str
     message: str
+    markdown_reason: str | None = None
 
 
 # Report-quality checks that advisory grounding logs instead of blocking.
@@ -529,6 +530,11 @@ def normalize_markdown_escapes(markdown: str) -> str:
 
 def has_malformed_bold_list_item(markdown: str) -> bool:
     """Return True for list items that are only a broken or empty bold label."""
+    return malformed_bold_list_reason(markdown) is not None
+
+
+def malformed_bold_list_reason(markdown: str) -> str | None:
+    """Return a fixed category for the first failure, never candidate text."""
     tokens = MARKDOWN_PARSER.parse(markdown)
     for index, token in enumerate(tokens):
         if token.type != "inline" or not token.content.lstrip().startswith(
@@ -540,26 +546,45 @@ def has_malformed_bold_list_item(markdown: str) -> bool:
             continue
 
         if not inline_token_starts_with_strong(token):
-            return True
+            return "invalid_bold_label"
 
         remaining_text = text_after_first_strong_token(token)
         if not has_meaningful_list_suffix(
             remaining_text
         ) and not list_item_has_following_content(tokens, index):
-            return True
+            return "missing_bold_label_description"
 
-    return False
+    return None
 
 
 def is_list_item_inline_token(tokens: list, inline_index: int) -> bool:
-    parent_stack: list[str] = []
-    for token in tokens[:inline_index]:
-        if token.type == "list_item_open":
-            parent_stack.append(token.type)
-        elif token.type == "list_item_close" and parent_stack:
-            parent_stack.pop()
+    """Only the first paragraph directly owned by a list item is its label.
 
-    return bool(parent_stack)
+    Later paragraphs and quoted source prose may be fully emphasized without
+    becoming new labels. Nested list items still have their own first paragraph.
+    """
+    # Track ownership rather than adjacency: comments, code, or other blocks
+    # before the first direct paragraph must not let a broken label bypass us.
+    parents: list[tuple[str, int]] = []
+    first_paragraphs: dict[int, int] = {}
+    for index, token in enumerate(tokens[:inline_index]):
+        if token.nesting == 1:
+            if (
+                token.type == "paragraph_open"
+                and parents
+                and parents[-1][0] == "list_item_open"
+            ):
+                first_paragraphs.setdefault(parents[-1][1], index)
+            parents.append((token.type, index))
+        elif token.nesting == -1 and parents:
+            parents.pop()
+
+    return (
+        len(parents) >= 2
+        and parents[-1][0] == "paragraph_open"
+        and parents[-2][0] == "list_item_open"
+        and first_paragraphs.get(parents[-2][1]) == parents[-1][1]
+    )
 
 
 def inline_token_starts_with_strong(token) -> bool:
@@ -1087,10 +1112,11 @@ def validate_report_content(
             )
         )
 
-    if has_malformed_bold_list_item(content):
+    if markdown_reason := malformed_bold_list_reason(content):
         issues.append(
             ReportValidationIssue(
                 code="malformed_markdown",
+                markdown_reason=markdown_reason,
                 message=(
                     "Report contains a malformed bold list item without a "
                     "description."

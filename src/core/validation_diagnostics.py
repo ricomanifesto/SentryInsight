@@ -83,6 +83,7 @@ CONTENT_CODES = frozenset("""
     underpopulated_threat_actor_activities virtual_event_promotion
     missing_descriptive_finding_title
     """.split())
+MARKDOWN_REASONS = frozenset({"invalid_bold_label", "missing_bold_label_description"})
 MAX_ISSUES = 8
 MAX_FINDING_INDEX = 1_000_000
 UNKNOWN_CODE = "unclassified_validation_failure"
@@ -118,6 +119,7 @@ def validation_diagnostic(stage: str, error: Exception) -> dict:
     finding_index = None
     truncated = False
     expected = observed = None
+    markdown_reason = None
     if isinstance(error, EvidenceError):
         codes = [_known(error.code, EVIDENCE_CODES, UNKNOWN_CODE)]
         field = _known(error.field, FIELDS, "") or None
@@ -149,11 +151,22 @@ def validation_diagnostic(stage: str, error: Exception) -> dict:
                     for issue in issues[:MAX_ISSUES]
                 )
             )
+            for issue in issues[:MAX_ISSUES]:
+                if (
+                    type(issue) is ReportValidationIssue
+                    and issue.code == "malformed_markdown"
+                ):
+                    markdown_reason = (
+                        _known(issue.markdown_reason, MARKDOWN_REASONS, "") or None
+                    )
+                    if markdown_reason:
+                        break
     elif isinstance(error, ReportingGroundingError):
         codes = ["reporting_identity_rejected"]
     elif isinstance(error, ReportArtifactError):
         codes = ["artifact_rejected"]
     return {
+        **({"markdown_reason": markdown_reason} if markdown_reason else {}),
         "schema_version": 1,
         "stage": _known(stage, STAGES, "unknown_validation_stage"),
         "codes": codes,
@@ -214,7 +227,13 @@ def sanitize_diagnostic(value: object) -> dict:
     raw_codes = value.get("codes")
     codes = raw_codes if type(raw_codes) is list else []
     index = value.get("finding_index")
+    markdown_reason = (
+        _known(value.get("markdown_reason"), MARKDOWN_REASONS, "")
+        if "malformed_markdown" in codes[:MAX_ISSUES]
+        else ""
+    )
     return {
+        **({"markdown_reason": markdown_reason} if markdown_reason else {}),
         "schema_version": 1,
         "stage": _known(
             value.get("stage"), WORKFLOW_STAGES, "unknown_validation_stage"

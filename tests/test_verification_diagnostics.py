@@ -49,6 +49,10 @@ def mutate(result, change):
             )
         elif change == "content":
             text = text.replace("## Threat Actor Activities", "## Other")
+        elif change == "unclosed_label":
+            text += "\n\n- **" + PRIVATE
+        elif change == "empty_label_description":
+            text += "\n\n- **" + PRIVATE + "**: &mdash;"
         elif change == "artifact":
             text = text.replace("**Severity**: unknown", "**Severity**: urgent")
         result["exploitation_report"] = text
@@ -64,6 +68,8 @@ CASES = [
     ("recommendation", "finding_evidence", "recommendation_not_grounded"),
     ("content", "report_content", "missing_section"),
     ("artifact", "report_artifact", "artifact_rejected"),
+    ("unclosed_label", "report_content", "malformed_markdown"),
+    ("empty_label_description", "report_content", "malformed_markdown"),
 ]
 
 
@@ -175,6 +181,17 @@ def test_real_prompt_receipt_exports_diagnostic_without_answer_or_publication(
     assert receipt["provider"]["finish_reason"] == "stop"
     assert receipt["validation_diagnostic"]["stage"] == stage
     assert receipt["validation_diagnostic"]["codes"] == [code]
+    if code == "malformed_markdown":
+        from src.core.validation_diagnostics import sanitize_diagnostic
+
+        reason = (
+            "invalid_bold_label"
+            if change == "unclosed_label"
+            else "missing_bold_label_description"
+        )
+        round_trip = json.loads(json.dumps(receipt))["validation_diagnostic"]
+        assert round_trip["markdown_reason"] == reason
+        assert sanitize_diagnostic(round_trip)["markdown_reason"] == reason
     assert receipt["published"] is receipt["production_ready"] is False
     output = json.dumps(receipt) + caplog.text + str(capsys.readouterr())
     assert PRIVATE not in output

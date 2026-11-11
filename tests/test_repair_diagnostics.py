@@ -92,3 +92,43 @@ def test_sanitizer_reapplies_the_same_bounds_to_untrusted_input():
     }
     assert clean["expected"] == "invalid" and clean["observed"] == "invalid"
     assert PRIVATE not in json.dumps(clean)
+
+
+@pytest.mark.parametrize(
+    ("markdown", "reason"),
+    [
+        ("- **Unclosed PRIVATE-MARKER", "invalid_bold_label"),
+        ("- ** **:", "invalid_bold_label"),
+        ("- **PRIVATE-MARKER**", "missing_bold_label_description"),
+        ("- **PRIVATE-MARKER**: &mdash;", "missing_bold_label_description"),
+    ],
+)
+def test_markdown_rejection_keeps_only_fixed_reason(markdown, reason):
+    from src.core.report_validation import validate_report_content
+    from src.core.reviewed_report import ReviewedReportValidationError
+
+    error = ReviewedReportValidationError(validate_report_content(markdown))
+    diagnostic = validation_diagnostic("report_content", error)
+    assert diagnostic["markdown_reason"] == reason
+    assert sanitize_diagnostic(diagnostic)["markdown_reason"] == reason
+    assert "PRIVATE-MARKER" not in json.dumps(diagnostic)
+
+
+@pytest.mark.parametrize("reason", [PRIVATE, {"text": PRIVATE}, 1, None])
+def test_untrusted_markdown_reason_is_omitted(reason):
+    from src.core.report_validation import ReportValidationIssue
+    from src.core.reviewed_report import ReviewedReportValidationError
+
+    error = ReviewedReportValidationError(
+        [ReportValidationIssue("malformed_markdown", PRIVATE, reason)]
+    )
+    assert "markdown_reason" not in validation_diagnostic("report_content", error)
+    assert "markdown_reason" not in sanitize_diagnostic(
+        {"codes": ["malformed_markdown"], "markdown_reason": reason}
+    )
+
+
+def test_markdown_reason_requires_matching_content_code():
+    assert "markdown_reason" not in sanitize_diagnostic(
+        {"codes": ["active_content"], "markdown_reason": "invalid_bold_label"}
+    )

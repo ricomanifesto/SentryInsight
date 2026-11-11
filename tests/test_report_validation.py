@@ -555,6 +555,80 @@ class ReportValidationTests(unittest.TestCase):
 
         self.assertEqual(validate_report_content(report), [])
 
+    def test_bold_continuation_paragraph_is_not_a_new_list_label(self):
+        report = VALID_REPORT.replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- **Unknown actor**: Opportunistic exploitation.\n\n"
+            "  **A reboot is required after applying the update.**",
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
+    def test_bold_quoted_paragraph_is_not_a_new_list_label(self):
+        report = VALID_REPORT.replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- **Unknown actor**: Opportunistic exploitation.\n\n"
+            "  > **The vendor recommends a reboot.**",
+        )
+
+        self.assertEqual(validate_report_content(report), [])
+
+    def test_nested_label_after_bold_continuation_still_requires_description(self):
+        report = VALID_REPORT.replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- **Unknown actor**: Opportunistic exploitation.\n\n"
+            "  **A reboot is required.**\n\n"
+            "  - **Incomplete label**",
+        )
+
+        self.assertTrue(
+            any(
+                issue.code == "malformed_markdown"
+                for issue in validate_report_content(report)
+            )
+        )
+
+    def test_malformed_labels_remain_blocked_in_nested_and_quoted_lists(self):
+        for prefix in ("- ", "1. ", "> - ", "> 1. "):
+            for label in (
+                "**Incomplete label**",
+                "**Unclosed label",
+                "**Label**: &mdash;",
+            ):
+                with self.subTest(prefix=prefix, label=label):
+                    report = VALID_REPORT.replace(
+                        "- **Unknown actor**: Opportunistic exploitation.",
+                        "- **Unknown actor**: Opportunistic exploitation.\n\n"
+                        "  **A reboot is required.**\n\n"
+                        f"  {prefix}{label}",
+                    )
+                    self.assertTrue(
+                        any(
+                            issue.code == "malformed_markdown"
+                            for issue in validate_report_content(report)
+                        )
+                    )
+
+    def test_blocks_before_first_direct_label_do_not_bypass_validation(self):
+        for block in (
+            "<!-- source note -->",
+            "> Quoted source prose.",
+            "### Context",
+            "```text\n  source detail\n  ```",
+        ):
+            for label in ("**Incomplete label**", "**Unclosed label"):
+                with self.subTest(block=block, label=label):
+                    report = VALID_REPORT.replace(
+                        "- **Unknown actor**: Opportunistic exploitation.",
+                        f"- {block}\n\n  {label}",
+                    )
+                    self.assertTrue(
+                        any(
+                            issue.code == "malformed_markdown"
+                            for issue in validate_report_content(report)
+                        )
+                    )
+
     def test_bold_heading_with_fenced_code_details_passes(self):
         report = VALID_REPORT.replace(
             "- **Unknown actor**: Opportunistic exploitation.",
