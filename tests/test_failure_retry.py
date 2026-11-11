@@ -326,7 +326,16 @@ def test_workflow_uses_same_admission_and_separate_seven_day_artifact():
     artifact = workflow.split(
         "- name: Retain bounded generation diagnostics for seven days", 1
     )[1].split("- name:", 1)[0]
-    assert "retention-days: 7" in artifact and "outcome.json" in artifact
+    assert "retention-days: 7" in artifact
+    assert "          path: ${{ runner.temp }}/failure-diagnostics\n" in artifact
+    assert "path: |" not in artifact
+    assert "if-no-files-found: error" in artifact
+    exporter = workflow.split(
+        "- name: Export bounded failure or completion metadata", 1
+    )[1].split("- name:", 1)[0]
+    assert '--output "$RUNNER_TEMP/failure-diagnostics/outcome.json"' in exporter
+    assert '--triage-output "$RUNNER_TEMP/failure-diagnostics/triage.json"' in exporter
+    assert "steps.failure-receipt.outcome == 'success'" in artifact
     assert "retention-days: 90" in workflow
     assert "readmit" not in artifact
 

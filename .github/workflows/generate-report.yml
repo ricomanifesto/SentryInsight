@@ -209,9 +209,8 @@ jobs:
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: generation-diagnostics-${{ github.run_id }}
-          path: |
-            ${{ runner.temp }}/failure-diagnostics/outcome.json
-            ${{ runner.temp }}/failure-diagnostics/triage.json
+          # One path lets the runner translate the entire input for the job container.
+          path: ${{ runner.temp }}/failure-diagnostics
           retention-days: 7
           if-no-files-found: error
 
