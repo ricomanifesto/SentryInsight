@@ -8018,6 +8018,17 @@
       "release_key": "aabaa834f90450f3ebea6628104b951f76fa69f85410a7bc777d616658e50d08",
       "release_ref": "d93f8da7d32b2d0acffec2078045ec5cc728ed4f",
       "stage": "serving"
+    },
+    {
+      "at": "2026-11-11T17:46:50.886Z",
+      "kind": "release",
+      "payload_digest": "fc2d13483e7d1093e80656413c7a60716a84414f80abd0ec9ff9bd068b8efb41",
+      "proof": "on",
+      "release_key": "7474eea922d856bd9742508fce4b7cbc81aa7d58ed0b6bab51f1a0b1e62c9240",
+      "release_ref": "f9c3f4ff77af17aa3eaf81432e0eea13ed655a2c",
+      "source_revision": "1a4f6248f61ccf02da41d936fc2c313e3689bed7",
+      "stage": "released",
+      "tree_digest": "3422de393df6d9eca2784c46a385f1687ec499bf3a1e2b2ec336be649b60efc4"
     }
   ],
   "schema_version": 1,
