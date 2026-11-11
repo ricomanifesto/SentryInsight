@@ -2703,6 +2703,13 @@
       "run_id": "43081201701",
       "stage": "request_finished",
       "token": "7beab364b89922930be5079c36f44b2a"
+    },
+    {
+      "admission_key": "run:43081201701",
+      "at": "2026-11-11T18:55:57.384Z",
+      "outcome": "failed",
+      "run_id": "43081201701",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
