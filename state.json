@@ -2449,6 +2449,12 @@
       "run_id": "42993629530",
       "source_revision": "83facca293cf3f0cbbbb64850fa4d20b6d60efd9",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "digest:83facca293cf3f0cbbbb64850fa4d20b6d60efd9",
+      "at": "2026-11-11T09:16:00.383Z",
+      "run_id": "42993629530",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
