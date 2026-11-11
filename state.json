@@ -2593,6 +2593,13 @@
       "run_id": "43071471828",
       "stage": "request_finished",
       "token": "d434ebc4dda30ef1d37f98983aaef67f"
+    },
+    {
+      "admission_key": "run:43071471828",
+      "at": "2026-11-11T17:54:25.611Z",
+      "outcome": "failed",
+      "run_id": "43071471828",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
