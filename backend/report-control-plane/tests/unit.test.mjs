@@ -4,7 +4,8 @@ import { createHash } from "node:crypto";
 import test from "node:test";
 import { comparePaths, operationId, pathSegments, publicationId, artifactDigest } from "../src/identity.js";
 import { JsonRefused, decodeStrictJson, parseStrictJson } from "../src/strict-json.js";
-import { parseAdmission, RequestRefused } from "../src/request.js";
+import { parseAdmission, parseBundle, RequestRefused } from "../src/request.js";
+import { LIMITS, PROJECTION_LIMITS, SCHEMAS } from "../src/config.js";
 import { splitSql } from "../local/stack.mjs";
 
 const sha = (s) => createHash("sha256").update(s).digest("hex");
@@ -64,6 +65,53 @@ test("admission requests are refused on unknown fields, duplicates and bounds", 
   }
   const duplicateKey = `{"schema":"report-control-plane/admission/1","pipeline":"reports","pipeline":"x","policy_id":"standard","source_revision":"r","articles":[]}`;
   await assert.rejects(parseAdmission(enc(duplicateKey)), (e) => e.reason === "request_malformed");
+});
+
+test("projection lists retain all items within byte bounds; execution admissions and bundles keep their 64-item limit", async () => {
+  const base = { schema: SCHEMAS.admission, pipeline: "reports", policy_id: "standard", source_revision: "list-bounds" };
+  const article = { title: "T", link: "https://example.test/a", content: "Complete article text." };
+  const body = (record) => enc(JSON.stringify({ ...base, articles: [record] }));
+  const bundle = (record) => enc(JSON.stringify({ schema: SCHEMAS.bundle, articles: [record] }));
+  for (const field of ["source_links", "cves"]) {
+    const values = Array.from({ length: 1366 }, (_, i) => field === "source_links" ? `https://example.test/advisory/${i}` : `CVE-2026-${10000 + i}`);
+    const atAdmissionLimit = { ...article, [field]: values.slice(0, 64) };
+    assert.equal((await parseAdmission(body(atAdmissionLimit))).articles.length, 1, field);
+    assert.equal((await parseBundle(bundle(atAdmissionLimit))).articles.length, 1, field);
+    for (const count of [65, 513, 1366]) {
+      const record = { ...article, [field]: values.slice(0, count) };
+      await assert.rejects(parseAdmission(body(record)), (e) => e instanceof RequestRefused && e.reason === "article_invalid", `${field}: execution ${count}`);
+      await assert.rejects(parseBundle(bundle(record)), (e) => e instanceof RequestRefused && e.reason === "article_invalid", `${field}: bundle ${count}`);
+      const accepted = await parseAdmission(body(record), PROJECTION_LIMITS);
+      assert.equal(accepted.articles[0].content_sha256, sha(article.content), `${field}: projection ${count}`);
+    }
+  }
+});
+
+test("projection list expansion preserves item, Unicode, content, record and body bounds", async () => {
+  const base = { schema: SCHEMAS.admission, pipeline: "reports", policy_id: "standard", source_revision: "projection-bounds" };
+  const article = { title: "T", link: "https://example.test/a", content: "c" };
+  const body = (record) => enc(JSON.stringify({ ...base, articles: [record] }));
+  const rejected = (record, reason) => assert.rejects(parseAdmission(body(record), PROJECTION_LIMITS), (e) => e instanceof RequestRefused && e.reason === reason, reason);
+  for (const field of ["source_links", "cves"]) {
+    const prefix = Array.from({ length: 1366 }, (_, i) => `https://example.test/${i}`);
+    const atItemLimit = { ...article, [field]: [...prefix, "\u{1f512}".repeat(1024)] };
+    assert.equal((await parseAdmission(body(atItemLimit), PROJECTION_LIMITS)).articles.length, 1, field);
+    for (const last of ["x".repeat(2049), "\u{1f512}".repeat(1024) + "x", 7, null]) {
+      await rejected({ ...article, [field]: [...prefix, last] }, "article_invalid");
+    }
+    await rejected({ ...article, [field]: [...prefix, "\ud800"] }, "request_malformed");
+    await rejected({ ...article, [field]: "not a list" }, "article_invalid");
+  }
+  await rejected({ ...article, content: "x".repeat(PROJECTION_LIMITS.contentBytes + 1) }, "article_invalid");
+  await rejected({ ...article, content: "é".repeat(60000) }, "article_too_large");
+  const large = { ...article, source_links: Array.from({ length: 1366 }, (_, i) => `https://example.test/${i}`), summary: "" };
+  large.summary = "x".repeat(PROJECTION_LIMITS.recordBytes - JSON.stringify(large).length);
+  assert.equal((await parseAdmission(body(large), PROJECTION_LIMITS)).articles.length, 1, "the exact ASCII-escaped record bound is accepted");
+  await rejected({ ...large, summary: large.summary + "x" }, "article_too_large");
+  await assert.rejects(parseAdmission(new Uint8Array(PROJECTION_LIMITS.bodyBytes + 1), PROJECTION_LIMITS), (e) => e instanceof RequestRefused && e.reason === "request_too_large");
+  assert.equal(LIMITS.recordBytes, 64 * 1024, "execution byte bounds are unchanged");
+  assert.equal(PROJECTION_LIMITS.recordBytes, 320 * 1024);
+  assert.equal(PROJECTION_LIMITS.bodyBytes, 8 * 1024 * 1024);
 });
 
 test("migration SQL splits into whole statements", () => {

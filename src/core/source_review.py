@@ -170,7 +170,10 @@ def validate_review_packet(packet: Any) -> dict[str, Any]:
     _require(
         isinstance(packet["scopes"], list) and len(packet["scopes"]) <= MAX_SOURCES * 16
     )
-    _require(len(canonical_json(packet).encode()) <= MAX_PACKET_BYTES)
+    _require(
+        len(canonical_json(packet).encode()) <= MAX_PACKET_BYTES,
+        "review_packet_size_limit_exceeded",
+    )
     source_fields = {
         "key",
         "publisher",
@@ -215,7 +218,10 @@ def validate_review_packet(packet: Any) -> dict[str, Any]:
         try:
             _require(row["url"] == normalize_reporting_url(row["url"]))
             _require(row["key"] == reporting_key(row["url"]))
-            _require(isinstance(row["links"], list) and len(row["links"]) <= 512)
+            # Large advisories can legitimately carry thousands of links. Keep
+            # every evidence link; the whole-packet byte bound above limits
+            # storage and validation work without a smaller per-source cap.
+            _require(isinstance(row["links"], list))
             _require(
                 all(
                     isinstance(link, str) and link == normalize_reporting_url(link)

@@ -43,12 +43,17 @@ class Limits:
     content_bytes: int
     record_bytes: int
     body_bytes: int
+    list_items: int | None = MAX_LIST_ITEMS
 
 
 # An admission's bounds, and a projection's larger ones for the producer's full
-# article text (the Worker's LIMITS and PROJECTION_LIMITS).
+# article text (the Worker's LIMITS and PROJECTION_LIMITS). Projection metadata
+# lists use the existing per-item, record and body byte bounds, not admission's
+# smaller count limit: large advisories can legitimately have thousands of links.
 ADMISSION_LIMITS = Limits(100, 64 * 1024, 64 * 1024, 1024 * 1024)
-PROJECTION_LIMITS = Limits(100, 256 * 1024, 320 * 1024, 8 * 1024 * 1024)
+PROJECTION_LIMITS = Limits(
+    100, 256 * 1024, 320 * 1024, 8 * 1024 * 1024, list_items=None
+)
 
 TOKEN = re.compile(r"[a-z0-9][a-z0-9._-]{0,63}")
 SOURCE_REVISION = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:@+/-]{0,199}")
@@ -125,7 +130,7 @@ def checked_record(article: Mapping[str, Any], limits: Limits) -> dict[str, Any]
             continue
         if (
             not isinstance(value, list)
-            or len(value) > MAX_LIST_ITEMS
+            or (limits.list_items is not None and len(value) > limits.list_items)
             or not all(
                 isinstance(item, str)
                 and _encodable(item)

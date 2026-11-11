@@ -7,7 +7,13 @@ import httpx
 import pytest
 
 from src.control_plane import projection, run_snapshot
-from src.control_plane.admission import PROJECTION_LIMITS, admission_body
+from src.control_plane.admission import (
+    ADMISSION_LIMITS,
+    PROJECTION_LIMITS,
+    AdmissionRefused,
+    admission_body,
+    checked_record,
+)
 from src.core.source_review import PLAN_KEY, prepare_source_review
 
 
@@ -175,6 +181,24 @@ def test_snapshot_drops_unrecordable_or_duplicate_sources_and_counts_them():
     assert snapshot["source_outcomes"] is None
 
 
+def test_snapshot_omission_warning_exposes_only_fixed_categories_and_counts(caplog):
+    snapshot = run_snapshot.build_run_snapshot(
+        state(
+            articles=[
+                article(1),
+                article(1),
+                article(2, link="private invalid URL"),
+                article(3, source_links=["é" * 1000] * 60),
+            ]
+        )
+    )
+    assert snapshot["dropped_articles"] == 3
+    assert caplog.messages == [
+        "Run snapshot omitted 3 article(s): invalid=1, too_large=1, "
+        "duplicate=1, count_limit=0"
+    ]
+
+
 def test_writing_the_snapshot_never_raises(tmp_path, monkeypatch):
     monkeypatch.delenv(run_snapshot.ENV_PATH, raising=False)
     assert run_snapshot.write_run_snapshot(state()) is False
@@ -253,6 +277,73 @@ def test_projection_bounds_admit_full_article_text():
         limits=PROJECTION_LIMITS,
     )
     assert long_text in body.decode()
+
+
+@pytest.mark.parametrize("field", ["source_links", "cves"])
+@pytest.mark.parametrize("count", [64, 65, 1366])
+def test_projection_metadata_lists_are_byte_bounded_without_changing_admission(
+    field, count
+):
+    values = (
+        [f"https://example.test/advisory/{n}" for n in range(count)]
+        if field == "source_links"
+        else [f"CVE-2026-{1000 + n}" for n in range(count)]
+    )
+    value = article(1, **{field: values})
+    assert checked_record(value, PROJECTION_LIMITS)[field] == values
+    if count <= 64:
+        assert checked_record(value, ADMISSION_LIMITS)[field] == values
+    else:
+        with pytest.raises(AdmissionRefused, match="article_invalid"):
+            checked_record(value, ADMISSION_LIMITS)
+
+
+def test_large_advisory_is_retained_in_snapshot_and_projection_without_drops():
+    links = [f"https://example.test/advisory/{n}" for n in range(1366)]
+    content = "Full source evidence. " * 7500
+    value = article(1, source_links=links, content=content)
+    snapshot = run_snapshot.build_run_snapshot(state(articles=[value]))
+    assert snapshot["dropped_articles"] == 0
+    assert snapshot["articles"][0]["source_links"] == links
+    assert snapshot["articles"][0]["content"] == content
+    body, files, request = projection.plan_run(
+        snapshot,
+        workflow_outcome="failed",
+        run_id="123",
+        run_attempt="1",
+        source_commit=None,
+        files=None,
+    )
+    assert json.loads(body)["articles"] == snapshot["articles"]
+    assert files is None and request["snapshot_sha256"] == sha(body)
+
+
+@pytest.mark.parametrize(
+    "overrides,reason",
+    [
+        ({"source_links": ["x" * 2049]}, "article_invalid"),
+        ({"source_links": ["🔒" * 1025]}, "article_invalid"),
+        ({"source_links": ["x" * 2048] * 160}, "article_too_large"),
+        ({"source_links": ["é" * 1000] * 60}, "article_too_large"),
+        ({"content": "x" * (256 * 1024 + 1)}, "article_invalid"),
+    ],
+)
+def test_projection_still_rejects_oversized_items_content_and_escaped_records(
+    overrides, reason
+):
+    with pytest.raises(AdmissionRefused, match=reason):
+        checked_record(article(1, **overrides), PROJECTION_LIMITS)
+
+
+def test_projection_retains_its_aggregate_body_bound():
+    with pytest.raises(AdmissionRefused, match="request_too_large"):
+        admission_body(
+            [article(n, content="x" * (100 * 1024)) for n in range(100)],
+            pipeline="reports",
+            policy_id="production",
+            source_revision="actions:1:1",
+            limits=PROJECTION_LIMITS,
+        )
 
 
 class Recorder:

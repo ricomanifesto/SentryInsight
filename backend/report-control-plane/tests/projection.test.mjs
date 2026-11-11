@@ -94,6 +94,44 @@ test("a succeeded run is recorded once from verified uploads, replays as the sam
   assert.equal(retained.body.content, withTime.content);
 });
 
+test("a large advisory projects every link and CVE with its full content, while execution keeps its list limit", async () => {
+  const qualification = " Final qualification: exploitation has not been observed.";
+  const content = "Synthetic advisory text. ".repeat(6200) + qualification;
+  const source = {
+    ...article(8003, content),
+    content_kind: "article",
+    source_links: Array.from({ length: 1366 }, (_, i) => `https://vendor.example.test/advisories/${i}`),
+    cves: Array.from({ length: 65 }, (_, i) => `CVE-2026-${20000 + i}`),
+  };
+  const request = { revision: "actions:large-advisory:1", articles: [source], files: REPORT, outcomes: { [source.link]: "executed" } };
+  const { response, snapshot } = await projectRun(request);
+  assert.equal(response.status, 201, JSON.stringify(response.body));
+  const id = response.body.operation.operation_id;
+  const stored = await env.stack.bucket.get(`snapshots/${sha(snapshot)}`);
+  assert.ok(stored);
+  const retainedBytes = Buffer.from(await stored.arrayBuffer());
+  assert.deepEqual(retainedBytes, snapshot, "immutable snapshot retains the exact bytes");
+  const retainedSnapshot = JSON.parse(retainedBytes);
+  assert.deepEqual(retainedSnapshot.articles, [source], "all links, CVEs and the final qualification survive");
+  const records = await latest();
+  const retained = await env.call("GET", records.get(sourceId(source.link, content)).evidence.retained.fetch, "exporter");
+  assert.equal(retained.status, 200);
+  assert.equal(retained.body.content, content);
+  assert.deepEqual(records.get(runId(id)).sources.map((s) => s.outcome), ["executed"]);
+  const before = await census();
+  const replay = await projectRun({ ...request, upload: false });
+  assert.equal(replay.response.status, 200);
+  assert.equal(replay.response.body.operation.operation_id, id);
+  assert.deepEqual(await census(), before, "replay does not rewrite or duplicate the complete evidence");
+
+  // Keep content small so these refusals specifically exercise list bounds.
+  for (const field of ["source_links", "cves"]) {
+    const refused = await env.admit(admission(`large-list-${field}`, [{ ...article(8004), [field]: source[field] }]));
+    assert.deepEqual([refused.status, refused.body.error], [422, "article_invalid"], field);
+  }
+  assert.deepEqual(await census(), before, "oversized execution lists create no rows");
+});
+
 test("an observed deployment attaches whether it arrives before or after the run, once", async () => {
   const early = commit("observed-early");
   const pending = await observe(early, "github-pages", "2026-11-08T13:00:00Z");

@@ -47,7 +47,8 @@ The body is strict JSON, at most 64 KiB:
 
 **The snapshot:**
 - It is an admission body (`report-control-plane/admission/1`) naming the same pipeline, policy and source revision.
-- It is parsed with projection bounds: 1 to 100 articles, at most 256 KiB of content each, at most 8 MiB in total.
+- It is parsed with projection bounds: 1 to 100 articles, at most 256 KiB of UTF-8 content each, at most 320 KiB per record's ASCII-escaped JSON encoding, and at most 8 MiB in total.
+- `source_links` and `cves` keep every supplied item, in order. Projection has no separate list-count ceiling: the record and request byte bounds apply, and every item must remain a string of at most 2,048 UTF-16 code units. Oversized records are refused, never truncated. Ordinary execution admissions and scheduled source bundles retain their 64-item list limit.
 - Articles may carry `published_at`, the producer's own publication time in UTC RFC 3339.
 - As with an admission, `operation_id = sha256("report-control-plane/1\n" + pipeline + "\n" + policy_id + "\n" + snapshot_sha256)`.
 

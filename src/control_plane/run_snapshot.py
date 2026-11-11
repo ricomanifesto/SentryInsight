@@ -128,21 +128,39 @@ def build_run_snapshot(state: Mapping[str, Any] | None) -> dict[str, Any]:
     articles: list[dict[str, Any]] = []
     seen: set[str] = set()
     dropped = 0
+    invalid = too_large = duplicate = count_limit = 0
     for article in state.get("articles") or []:
         record = source_record(article)
         try:
             checked_record(record, PROJECTION_LIMITS)
-        except AdmissionRefused:
+        except AdmissionRefused as error:
             dropped += 1
+            if error.reason == "article_too_large":
+                too_large += 1
+            else:
+                invalid += 1
             continue
         if record["link"] in seen:
             dropped += 1
+            duplicate += 1
             continue
         seen.add(record["link"])
         articles.append(record)
     if len(articles) > PROJECTION_LIMITS.articles:
-        dropped += len(articles) - PROJECTION_LIMITS.articles
+        count_limit = len(articles) - PROJECTION_LIMITS.articles
+        dropped += count_limit
         articles = articles[: PROJECTION_LIMITS.articles]
+    if dropped:
+        # Fixed categories and counts only: never log source text or identifiers.
+        logger.warning(
+            "Run snapshot omitted %d article(s): invalid=%d, too_large=%d, "
+            "duplicate=%d, count_limit=%d",
+            dropped,
+            invalid,
+            too_large,
+            duplicate,
+            count_limit,
+        )
     failure = state.get("failure") or {}
     return {
         "schema": SCHEMA,

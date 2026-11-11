@@ -63,6 +63,7 @@ At most 1 MiB, strict JSON. Duplicate keys and unknown fields are refused, and s
 - `source`: at most 256 characters;
 - `content`: at most 64 KiB;
 - each record's ASCII-escaped JSON encoding: at most 64 KiB;
+- `source_links` and `cves`: each list has at most 64 items, each a string of at most 2,048 UTF-16 code units; these bounds also apply to scheduled source bundles. Completed-run projections use the separate byte-bounded list policy in `contracts/projection.md`;
 - optional fields: `summary`, `content_kind`, `source_links`, `cves` and `published_at` (the producer's publication time, RFC 3339 UTC, for example `2026-11-08T15:43:08Z`).
 
 **Identities:**

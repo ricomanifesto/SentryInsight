@@ -44,6 +44,7 @@ SOURCE_CODES = frozenset("""
     missing_review_scope missing_source_content review_cohort_incomplete
     review_input_limit_exceeded review_packet_conflict review_packet_path_invalid
     review_packet_permissions_invalid review_packet_persistence_failed
+    review_packet_size_limit_exceeded
     review_selection_changed_evidence unknown_review_reason invalid_source_coverage
     model_supplied_coverage invalid_review_candidate out_of_scope_candidate_cve
     quarantined_or_unknown_reporting_source review_candidate_missing_findings

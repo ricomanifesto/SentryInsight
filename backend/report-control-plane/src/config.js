@@ -34,6 +34,7 @@ export const LIMITS = Object.freeze({
   sourceChars: 256,
   contentBytes: 64 * 1024,
   recordBytes: 64 * 1024,
+  listItems: 64,
   receiptBytes: 256 * 1024,
   artifactFiles: 64,
   artifactFileBytes: 4 * 1024 * 1024,
@@ -44,12 +45,15 @@ export const LIMITS = Object.freeze({
 });
 
 // A projection records a run the producer already completed, so its snapshot
-// carries the producer's full article text: larger records, the same count.
+// carries the producer's full article text: larger records, the same article count.
 export const PROJECTION_LIMITS = Object.freeze({
   ...LIMITS,
   bodyBytes: 8 * 1024 * 1024,
   contentBytes: 256 * 1024,
   recordBytes: 320 * 1024,
+  // Preserve every source link and CVE from a completed run. Record and body
+  // byte limits bound these lists without a separate item-count ceiling.
+  listItems: null,
   blobBytes: 8 * 1024 * 1024,
   projectionBytes: 64 * 1024,
 });

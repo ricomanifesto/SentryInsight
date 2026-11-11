@@ -59,7 +59,7 @@ function validateArticle(record, limits) {
     if (STRING_FIELDS.has(key)) {
       if (typeof value !== "string") throw new RequestRefused("article_invalid");
     } else if (LIST_FIELDS.has(key)) {
-      if (!Array.isArray(value) || value.length > 64 || !value.every((v) => typeof v === "string" && v.length <= 2048)) {
+      if (!Array.isArray(value) || (limits.listItems !== null && value.length > limits.listItems) || !value.every((v) => typeof v === "string" && v.length <= 2048)) {
         throw new RequestRefused("article_invalid");
       }
     } else {

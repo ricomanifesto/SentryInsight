@@ -66,3 +66,25 @@ separate operational decisions.
 validation rejection does not silently become a conclusive publication success;
 the admission workflow retains its conservative failure mapping. No output is
 published merely because a receipt exists or a provider returned HTTP 200.
+
+## Large source metadata
+
+Source-review packets preserve every source link, including links after the
+former 512-item per-source limit. The existing 1 MiB canonical-JSON packet bound
+still applies. URLs, evidence identities, CVE cohorts and source dispositions
+are validated without truncation or weakened grounding. A real packet overflow
+fails before generation with `review_packet_size_limit_exceeded`, which the
+bounded diagnostic receipt preserves.
+
+Completed-run history projections likewise preserve full metadata lists within
+their existing per-item, 320 KiB escaped-record and 8 MiB request limits.
+Ordinary admissions and scheduled bundles retain their 64-item list cap. Update
+the existing history Worker's projection validator before the Python producer:
+both sides must use the same bounds. Snapshot omissions now log only fixed
+reason categories and counts, never source content or URLs.
+
+Validate large-input repairs offline with saved triage decisions before an
+authorized fresh run. A passing preflight is not proof of report generation or
+publication; verify the resulting diagnostic receipt, history projection and
+served release separately. Existing request budgets and uncertain-run holds
+remain unchanged.
