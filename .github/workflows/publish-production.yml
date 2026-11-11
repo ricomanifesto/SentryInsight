@@ -76,6 +76,7 @@ jobs:
         if: github.event_name != 'workflow_run' && (inputs.invocation || 'publish') == 'publish'
         run: |
           npm ci
+          sudo python3 scripts/prepare_ubuntu_mirror.py
           npx playwright install --with-deps chromium
           bash scripts/local_validation.sh
 
