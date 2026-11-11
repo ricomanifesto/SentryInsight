@@ -8280,6 +8280,17 @@
       "release_key": "50a3966471864f4fb485bf40e3d9b0faf0238c662da13a1420d36f721209d9b3",
       "release_ref": "7876f6400ded7f1a18bee373938bbfbaf8909c9f",
       "stage": "serving"
+    },
+    {
+      "at": "2026-11-11T21:35:44.971Z",
+      "kind": "release",
+      "payload_digest": "8b038b72345b09b340c2f1090f62d88640634018345c5f2d74aa879eca36bd09",
+      "proof": "on",
+      "release_key": "59d47a383a726e154f0bdf0c855ae50689210d1ce7ce42a88a6dbf2de184bbdf",
+      "release_ref": "ee495ff619ad26c2147998619ca251dcc4103712",
+      "source_revision": "baec5caba1b22fc158876dbc787f6504855602d7",
+      "stage": "released",
+      "tree_digest": "b12afd4ccf6372c207f357c48d68a7eb923eb183ad1b25a71186023b218f00d6"
     }
   ],
   "schema_version": 1,
