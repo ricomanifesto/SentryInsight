@@ -2489,6 +2489,13 @@
       "at": "2026-11-11T12:20:43.342Z",
       "run_id": "43019389428",
       "stage": "invoked"
+    },
+    {
+      "admission_key": "digest:e131d59e5c2a1851be61925fa6f966a5a7b51c36",
+      "at": "2026-11-11T12:20:59.325Z",
+      "outcome": "failed",
+      "run_id": "43019389428",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
