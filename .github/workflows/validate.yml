@@ -17,9 +17,20 @@ jobs:
     defaults:
       run:
         shell: bash
+    # Checkout's temporary HOME does not carry its Git trust into later steps.
+    # Trust only this job's checkout, including Git subprocesses in evaluations.
+    env:
+      GIT_CONFIG_COUNT: '1'
+      GIT_CONFIG_KEY_0: safe.directory
+      GIT_CONFIG_VALUE_0: ${{ github.workspace }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+
+      - name: Verify checkout Git access
+        run: |
+          git rev-parse --verify HEAD
+          git status --porcelain
 
       - name: Set up Python
         uses: actions/setup-python@v6
