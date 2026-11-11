@@ -2353,6 +2353,12 @@
       "run_id": "42932118496",
       "source_revision": "187dbcc218da892da6c8241dd5483e8f930f3d8b",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "digest:187dbcc218da892da6c8241dd5483e8f930f3d8b",
+      "at": "2026-11-11T00:32:56.411Z",
+      "run_id": "42932118496",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
