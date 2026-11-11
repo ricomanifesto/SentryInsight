@@ -76,7 +76,7 @@ def reviewed_analysis(result):
             replace, result["exploitation_report"]
         )
         result[PROTOCOL_KEY] = PROTOCOL_VERSION
-    return result, plan
+    return vendor_analysis(result), plan
 
 
 def reviewed_state(state):
@@ -94,3 +94,50 @@ def reviewed_state(state):
         ),
     )
     return state
+
+
+def vendor_analysis(result):
+    """Convert exact fixture URLs to host-issued references, never repair claims."""
+    from src.core.vendor_references import (
+        PROTOCOL_KEY as VENDOR_KEY,
+        PROTOCOL_VERSION as VENDOR_VERSION,
+        build_vendor_reference_context,
+    )
+    from src.core.report_findings import report_findings
+    from src.core.reporting import split_vendor_urls
+
+    if VENDOR_KEY in result:
+        return result
+    catalog = deserialize_reporting_catalog(result["reporting_sources"])
+    refs = build_vendor_reference_context(catalog)
+    table = report_findings(result["exploitation_report"])
+    replacements = []
+    for row in table.rows:
+        field = re.search(r"(\*\*Vendor Links\*\*: )([^\n]+)", row.body)
+        if not field:
+            continue
+        values = split_vendor_urls(field[2])
+        selected = []
+        for value in values:
+            ref = next(
+                (
+                    r
+                    for r in refs
+                    if r["url"] == value and r["source_key"] in row.cited_keys
+                ),
+                None,
+            )
+            if ref is None:
+                break
+            selected.append(ref["id"])
+        else:
+            replacements.append(
+                (
+                    row.body_start + field.start(2),
+                    row.body_start + field.end(2),
+                    "; ".join(selected),
+                )
+            )
+    result["exploitation_report"] = table.render(replacements)
+    result[VENDOR_KEY] = VENDOR_VERSION
+    return result

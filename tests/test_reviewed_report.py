@@ -1,6 +1,7 @@
 """Only a fully validated candidate can receive host-owned partial coverage."""
 
 import copy
+from review_fixtures import vendor_analysis
 
 import pytest
 
@@ -22,17 +23,19 @@ def prepared_result(articles=None):
         source(AMBIGUOUS, "held"),
     ]
     plan = prepare_source_review(articles)
-    return {
-        PLAN_KEY: plan.packet,
-        "reporting_sources": serialize_reporting_catalog(plan.catalog),
-        "reporting_metadata_cves": {
-            row["key"]: row["metadata_cves"] for row in plan.packet["sources"]
-        },
-        PROTOCOL_KEY: PROTOCOL_VERSION,
-        "exploitation_report": raw_report(plan.eligible_keys, ABSENT),
-        "date": "2026-11-02",
-        "generated_at": "2026-11-02T12:00:00Z",
-    }
+    return vendor_analysis(
+        {
+            PLAN_KEY: plan.packet,
+            "reporting_sources": serialize_reporting_catalog(plan.catalog),
+            "reporting_metadata_cves": {
+                row["key"]: row["metadata_cves"] for row in plan.packet["sources"]
+            },
+            PROTOCOL_KEY: PROTOCOL_VERSION,
+            "exploitation_report": raw_report(plan.eligible_keys, ABSENT),
+            "date": "2026-11-02",
+            "generated_at": "2026-11-02T12:00:00Z",
+        }
+    )
 
 
 def test_valid_independent_candidate_progresses_with_visible_held_source():

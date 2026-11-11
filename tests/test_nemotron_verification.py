@@ -240,3 +240,40 @@ def test_request_policy_cannot_gain_paid_or_other_model_fallbacks():
     with pytest.raises(ValueError, match="policy"):
         asyncio.run(transport.handle_async_request(request))
     assert not calls
+
+
+def test_calibration_vendor_selection_is_source_bound_not_a_runtime_rewrite():
+    from src.core.source_review import prepare_source_review
+    from src.core.vendor_references import build_vendor_reference_context
+
+    case = trial.load_case()
+    [reference] = build_vendor_reference_context(
+        prepare_source_review(case["articles"]).eligible_catalog
+    )
+    assert f"**Vendor Links**: {reference['id']}\n" in case["calibration_response"]
+    assert reference["url"] not in case["calibration_response"]
+
+
+def test_trial_rejects_free_text_vendor_url_without_rewriting_it():
+    from src.core.source_review import prepare_source_review
+    from src.core.vendor_references import build_vendor_reference_context
+
+    calibration = asyncio.run(trial.calibrate())
+    case = trial.load_case()
+    [reference] = build_vendor_reference_context(
+        prepare_source_review(case["articles"]).eligible_catalog
+    )
+    content = case["calibration_response"].replace(reference["id"], reference["url"])
+    receipt = asyncio.run(
+        trial.run_trial(
+            calibration,
+            "test-secret",
+            inner=httpx.MockTransport(lambda request: reply(content)),
+        )
+    )
+    assert receipt["result"]["outcome"] == "validation_failed"
+    assert receipt["result"]["validation_diagnostic"]["codes"] == [
+        "invalid_vendor_reference"
+    ]
+    assert receipt["live_attempted"] == 1
+    assert receipt["published"] is False
