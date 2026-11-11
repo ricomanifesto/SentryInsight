@@ -122,6 +122,19 @@ class AdmissionAttemptBudget:
             for k in ("PATH", "HOME", "TMPDIR", "SYSTEMROOT")
             if k in os.environ
         }
+        # Container checkout trust is process-scoped. Reconstruct only the
+        # exact workspace exception; never forward arbitrary Git configuration.
+        root = str(self.root.resolve())
+        if (
+            os.environ.get("GIT_CONFIG_COUNT") == "1"
+            and os.environ.get("GIT_CONFIG_KEY_0") == "safe.directory"
+            and os.environ.get("GIT_CONFIG_VALUE_0") == root
+        ):
+            env.update(
+                GIT_CONFIG_COUNT="1",
+                GIT_CONFIG_KEY_0="safe.directory",
+                GIT_CONFIG_VALUE_0=root,
+            )
         try:
             completed = subprocess.run(
                 argv,
