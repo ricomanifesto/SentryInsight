@@ -1,22 +1,22 @@
 {
   "content_identity": {
-    "generated_at": "2026-11-10T18:20:14Z",
-    "report_date": "2026-11-10"
+    "generated_at": "2026-11-11T21:29:24Z",
+    "report_date": "2026-11-11"
   },
   "descriptor_path": "_release/descriptor.json",
   "expected_origin": "https://sentryinsight.ricomanifesto.com/",
   "expected_repository": "ricomanifesto/SentryInsight",
   "kind": "release",
-  "payload_byte_total": 4978254,
-  "payload_digest": "fc2d13483e7d1093e80656413c7a60716a84414f80abd0ec9ff9bd068b8efb41",
-  "payload_file_count": 111,
+  "payload_byte_total": 5291464,
+  "payload_digest": "8b038b72345b09b340c2f1090f62d88640634018345c5f2d74aa879eca36bd09",
+  "payload_file_count": 113,
   "publication_mode": {
     "mode": "prepare",
     "proof": "on"
   },
-  "release_key": "50a3966471864f4fb485bf40e3d9b0faf0238c662da13a1420d36f721209d9b3",
+  "release_key": "59d47a383a726e154f0bdf0c855ae50689210d1ce7ce42a88a6dbf2de184bbdf",
   "schema_version": 1,
   "site": "SentryInsight",
-  "source_committed_at": "2026-11-11T18:07:17.000Z",
-  "source_revision": "24cf78d97d64b8dab28b69abff89e67c2e9d03d0"
+  "source_committed_at": "2026-11-11T21:30:01.000Z",
+  "source_revision": "baec5caba1b22fc158876dbc787f6504855602d7"
 }
