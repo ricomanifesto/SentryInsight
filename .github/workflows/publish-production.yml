@@ -48,6 +48,12 @@ jobs:
   publish:
     if: inputs.invocation != '' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
+    container:
+      # Matches the locked Playwright package; browsers and OS libraries are baked in.
+      image: mcr.microsoft.com/playwright:v1.62.1-noble@sha256:dcc5531e97840b9b5e794f2814476b21571c5124a3fca2267d73041f56e7580e
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout source
         uses: actions/checkout@v5
@@ -76,8 +82,8 @@ jobs:
         if: github.event_name != 'workflow_run' && (inputs.invocation || 'publish') == 'publish'
         run: |
           npm ci
-          sudo python3 scripts/prepare_ubuntu_mirror.py
-          npx playwright install --with-deps chromium
+          # Fail before validation if the bundled browser or its libraries are unusable.
+          node -e 'require("@playwright/test").chromium.launch().then(browser => browser.close()).catch(error => { console.error(error); process.exit(1); })'
           bash scripts/local_validation.sh
 
       - name: Configure Git
