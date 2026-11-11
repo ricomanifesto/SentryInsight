@@ -2690,6 +2690,19 @@
       "run_id": "43081201701",
       "stage": "request_reserved",
       "token": "7beab364b89922930be5079c36f44b2a"
+    },
+    {
+      "admission_key": "run:43081201701",
+      "at": "2026-11-11T18:55:51.107Z",
+      "attempt": 1,
+      "disposition": "response_received",
+      "limit": 3,
+      "request_sha256": "328f20f3a9ec96b27b1a75a2a8e9b5ce9004b243ecdccee561434b3a93032e25",
+      "retry_after": 0,
+      "revision": "24cf78d97d64b8dab28b69abff89e67c2e9d03d0",
+      "run_id": "43081201701",
+      "stage": "request_finished",
+      "token": "7beab364b89922930be5079c36f44b2a"
     }
   ],
   "schema_version": 1,
