@@ -2524,6 +2524,12 @@
       "outcome": "failed",
       "run_id": "43050447866",
       "stage": "unresolved"
+    },
+    {
+      "admission_key": "run:43050447866",
+      "at": "2026-11-11T17:50:18.348Z",
+      "run_id": "43071471828",
+      "stage": "readmitted"
     }
   ],
   "schema_version": 1,
