@@ -2530,6 +2530,15 @@
       "at": "2026-11-11T17:50:18.348Z",
       "run_id": "43071471828",
       "stage": "readmitted"
+    },
+    {
+      "admission_key": "run:43071471828",
+      "at": "2026-11-11T17:50:20.432Z",
+      "binding": "none",
+      "event": "workflow_dispatch",
+      "run_attempt": "1",
+      "run_id": "43071471828",
+      "stage": "admitted"
     }
   ],
   "schema_version": 1,
