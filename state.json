@@ -2971,6 +2971,19 @@
       "run_id": "43189937912",
       "stage": "request_reserved",
       "token": "a9ec0fade8bea148f705cef420a9d008"
+    },
+    {
+      "admission_key": "digest:684fd1354951ca97c776118add0a67650fa7b59b",
+      "at": "2026-11-12T09:23:34.322Z",
+      "attempt": 1,
+      "disposition": "response_received",
+      "limit": 3,
+      "request_sha256": "17b17aa9a603dbc92c9f98ffe387e69ded7176ea14c5cc57e4d15704dbb8a70b",
+      "retry_after": 0,
+      "revision": "baec5caba1b22fc158876dbc787f6504855602d7",
+      "run_id": "43189937912",
+      "stage": "request_finished",
+      "token": "a9ec0fade8bea148f705cef420a9d008"
     }
   ],
   "schema_version": 1,
