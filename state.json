@@ -3042,6 +3042,13 @@
       "run_id": "43217055003",
       "stage": "request_finished",
       "token": "b0e1111b2be341511665b7af9ce87f4a"
+    },
+    {
+      "admission_key": "digest:c07ed4eff56c71dea7be3870dc1fa5b15b4150a5",
+      "at": "2026-11-12T12:29:25.526Z",
+      "outcome": "failed",
+      "run_id": "43217055003",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
