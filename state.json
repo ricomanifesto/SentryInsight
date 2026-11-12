@@ -3158,6 +3158,13 @@
       "run_id": "43278396016",
       "stage": "request_finished",
       "token": "bd4537beab2531c7ad21f278e144060f"
+    },
+    {
+      "admission_key": "digest:693a30df4803b052623c68a27e74e91d41536f49",
+      "at": "2026-11-12T18:26:45.643Z",
+      "outcome": "failed",
+      "run_id": "43278396016",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
