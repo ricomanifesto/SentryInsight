@@ -209,6 +209,14 @@ def test_container_runtime_preserves_full_validation_and_publisher_bash_semantic
     generation = (
         REPO_ROOT / ".github" / "workflows" / "generate-report.yml"
     ).read_text()
-    assert "2>/dev/null || true" in generation
-    assert "case \"$count\" in ''|*[!0-9]*) count=0 ;; esac" in generation
+    assert "if: steps.validated.outputs.passed != 'true'" in generation
+
+
+def test_generation_lookup_uses_existing_python_and_fail_closed_output():
+    generation = (REPO_ROOT / ".github/workflows/generate-report.yml").read_text()
+    assert "run: python3 -B scripts/find_validated_commit.py" in generation
+    helper = (REPO_ROOT / "scripts/find_validated_commit.py").read_text()
+    assert "except Exception:" in helper
+    assert "return False" in helper.split("except Exception:")[1]
+    assert "passed={str(passed).lower()}" in helper
     assert "if: steps.validated.outputs.passed != 'true'" in generation

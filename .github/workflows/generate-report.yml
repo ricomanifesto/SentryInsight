@@ -108,21 +108,21 @@ jobs:
         id: validated
         env:
           GH_TOKEN: ${{ secrets.PAT_GITHUB }}
-        run: |
-          passed=false
-          if [ "$(git rev-parse HEAD)" = "$GITHUB_SHA" ]; then
-            count=$(gh api \
-              "repos/$GITHUB_REPOSITORY/actions/workflows/validate.yml/runs?head_sha=$GITHUB_SHA&event=push&branch=main&status=success&per_page=1" \
-              --jq '.total_count' 2>/dev/null || true)
-            case "$count" in ''|*[!0-9]*) count=0 ;; esac
-            if [ "$count" -gt 0 ]; then passed=true; fi
-          fi
-          echo "passed=$passed" >> "$GITHUB_OUTPUT"
-          echo "Validate succeeded for $GITHUB_SHA: $passed"
+        run: python3 -B scripts/find_validated_commit.py
 
       - name: Run local validation
+        id: local-validation
         if: steps.validated.outputs.passed != 'true'
         run: bash scripts/local_validation.sh
+
+      - name: Retain failed validation browser diagnostics
+        if: always() && steps.local-validation.outcome == 'failure'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: browser-failure-${{ github.run_id }}-${{ github.run_attempt }}
+          path: test-results/playwright
+          retention-days: 7
+          if-no-files-found: ignore
 
       - name: Smoke-check committed report and site
         if: steps.validated.outputs.passed == 'true'

@@ -79,7 +79,17 @@ jobs:
           node -e 'require("@playwright/test").chromium.launch().then(browser => browser.close()).catch(error => { console.error(error); process.exit(1); })'
 
       - name: Run validation
+        id: local-validation
         run: bash scripts/local_validation.sh
+
+      - name: Retain failed validation browser diagnostics
+        if: always() && steps.local-validation.outcome == 'failure'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: browser-failure-${{ github.run_id }}-${{ github.run_attempt }}
+          path: test-results/playwright
+          retention-days: 7
+          if-no-files-found: ignore
 
       - name: Upload rendered report evidence
         id: report-evidence

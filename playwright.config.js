@@ -7,6 +7,8 @@ export default defineConfig({
   outputDir: "test-results/playwright",
   reporter: [["line"]],
   use: {
+    trace: "retain-on-failure",
+    screenshot: "only-on-failure",
     baseURL: `http://127.0.0.1:${port}`,
     browserName: "chromium",
     colorScheme: "light",
