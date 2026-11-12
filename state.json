@@ -3128,6 +3128,12 @@
       "run_id": "43278396016",
       "source_revision": "693a30df4803b052623c68a27e74e91d41536f49",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "digest:693a30df4803b052623c68a27e74e91d41536f49",
+      "at": "2026-11-12T18:21:43.332Z",
+      "run_id": "43278396016",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
