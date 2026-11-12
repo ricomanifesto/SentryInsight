@@ -3012,6 +3012,12 @@
       "run_id": "43217055003",
       "source_revision": "c07ed4eff56c71dea7be3870dc1fa5b15b4150a5",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "digest:c07ed4eff56c71dea7be3870dc1fa5b15b4150a5",
+      "at": "2026-11-12T12:25:50.250Z",
+      "run_id": "43217055003",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
