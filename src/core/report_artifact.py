@@ -18,6 +18,7 @@ from .source_coverage import (
     split_source_coverage,
 )
 from .source_review import SourceReviewError
+from .reporting import split_vendor_urls
 from .reporting import (
     ReportingGroundingError,
     normalize_reporting_url,
@@ -321,7 +322,7 @@ def _parse_findings(
             try:
                 vendor_links = tuple(
                     normalize_reporting_url(link.strip())
-                    for link in fields["Vendor Links"].split(";")
+                    for link in split_vendor_urls(fields["Vendor Links"])
                 )
             except ReportingGroundingError as exc:
                 raise ReportArtifactError(str(exc)) from exc

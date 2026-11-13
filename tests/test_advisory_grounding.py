@@ -120,7 +120,7 @@ def test_invented_vendor_link_still_blocks_in_advisory_mode():
     )
     with pytest.raises(EvidenceError) as raised:
         resolve_reviewed_analysis(result, advisory=True)
-    assert raised.value.code == "unsupported_vendor_link"
+    assert raised.value.code == "invalid_vendor_reference"
 
 
 def test_supplied_vendor_link_is_accepted_in_advisory_mode():
@@ -137,6 +137,15 @@ def test_supplied_vendor_link_is_accepted_in_advisory_mode():
         .replace(
             "- **Vendor Links**: " + ABSENT, "- **Vendor Links**: " + advisory_link
         )
+    )
+    from src.core.vendor_references import build_vendor_reference_context
+    from src.core.reporting import build_reporting_catalog
+
+    reference = build_vendor_reference_context(build_reporting_catalog([article]))[0][
+        "id"
+    ]
+    result["exploitation_report"] = result["exploitation_report"].replace(
+        advisory_link, reference
     )
     candidate = resolve_reviewed_analysis(result, advisory=True)
     assert advisory_link in candidate.report

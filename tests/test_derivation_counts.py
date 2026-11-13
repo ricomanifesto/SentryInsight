@@ -43,6 +43,12 @@ def _report(articles: list[dict]) -> str:
         tuple(scope["cves"]): scope
         for scope in build_version_reference_context(build_reporting_catalog(articles))
     }
+    from src.core.vendor_references import build_vendor_reference_context
+
+    vendor_refs = {
+        r["url"]: r["id"]
+        for r in build_vendor_reference_context(build_reporting_catalog(articles))
+    }
     blocks = [
         "# Exploitation Report\n\n## Executive Summary\n\n"
         "The supplied advisories describe the findings below.\n\n"
@@ -63,7 +69,7 @@ def _report(articles: list[dict]) -> str:
             f"- **Affected Versions**: {references}\n"
             f"- **Exceptions**: {ABSENT}\n"
             "- **Recommended Actions**: Customers should install the patch.\n"
-            f"- **Vendor Links**: {article['source_links'][0]}\n"
+            f"- **Vendor Links**: {vendor_refs[article['source_links'][0]]}\n"
         )
     blocks.extend(
         f"## {title}\n\n{ABSENT}\n"

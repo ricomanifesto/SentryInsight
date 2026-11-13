@@ -163,10 +163,18 @@ def test_model_task_sends_only_neutral_sources_and_enforces_call_budget(
             "; ".join(item["id"] for item in selected)
             or "Not stated in supplied sources."
         )
-        return case.reference_report.replace(
+        raw = case.reference_report.replace(
             "**Affected Versions**: " + case.expected.findings[0].affected_versions,
             "**Affected Versions**: " + versions,
         )
+        vendor_refs = json.loads(
+            kwargs["user_prompt"]
+            .split("BEGIN VENDOR LINK REFERENCES\n", 1)[1]
+            .split("\nEND VENDOR LINK REFERENCES", 1)[0]
+        )
+        for reference in vendor_refs:
+            raw = raw.replace(reference["url"], reference["id"])
+        return raw
 
     monkeypatch.setattr(FreeModelClient, "generate", generate)
     task = ModelTask(

@@ -44,6 +44,7 @@ from .source_review import (
     validate_review_packet,
 )
 from .version_references import resolve_analysis_version_references
+from .vendor_references import resolve_analysis_vendor_references
 
 
 class ReviewedReportValidationError(ValueError):
@@ -234,6 +235,7 @@ def _resolve_reviewed_analysis(
         on_reject=advise if advisory else None,
     )
     stage("finding_evidence")
+    canonical = resolve_analysis_vendor_references(result, canonical, catalog)
     if advisory:
         # Source identity stays blocking even when grounding is advisory.
         validate_vendor_links(canonical, catalog)

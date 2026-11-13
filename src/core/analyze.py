@@ -19,6 +19,10 @@ from .article_prompt import (
 )
 from .exploitation_prompt import build_exploitation_prompt
 from .version_references import PROTOCOL_KEY, PROTOCOL_VERSION
+from .vendor_references import (
+    PROTOCOL_KEY as VENDOR_PROTOCOL_KEY,
+    PROTOCOL_VERSION as VENDOR_PROTOCOL_VERSION,
+)
 from .reporting import serialize_reporting_catalog
 from .source_review import (
     PLAN_KEY,
@@ -344,6 +348,7 @@ async def _analyze_exploitation(
             "exploitation_report": exploitation_report,
             "request_metadata": getattr(client, "last_request", None),
             PROTOCOL_KEY: PROTOCOL_VERSION,
+            VENDOR_PROTOCOL_KEY: VENDOR_PROTOCOL_VERSION,
             "date": datetime.now(timezone.utc).date().isoformat(),
             "analyzed_article_count": len(articles),
             "cves_identified": list(all_cves),

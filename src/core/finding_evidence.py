@@ -20,6 +20,7 @@ from markdown_it.token import Token
 from .derivations import derivation_scope, memoized
 from .cve import CVE_ID_PATTERN, extract_cve_ids
 from .version_state import ABSENT, STATE_FIELD, VersionEvidenceStatus
+from .reporting import split_vendor_urls
 from .report_findings import FIELD, FindingRow, report_findings
 from .reporting import (
     ReportingGroundingError,
@@ -1916,7 +1917,9 @@ def _validate_finding(
         if name == "Vendor Links":
             links = {link for source in sources for link in source.links}
             try:
-                normalized = [normalize_reporting_url(entry) for entry in entries]
+                normalized = [
+                    normalize_reporting_url(entry) for entry in split_vendor_urls(value)
+                ]
             except ReportingGroundingError as exc:
                 raise EvidenceError(
                     f"{title}: unsupported vendor link",
@@ -2018,7 +2021,7 @@ def validate_vendor_links(report: str, catalog: Mapping[str, ReportingSource]) -
         code = None
         try:
             normalized = [
-                normalize_reporting_url(entry.strip()) for entry in value.split(";")
+                normalize_reporting_url(entry) for entry in split_vendor_urls(value)
             ]
         except ReportingGroundingError:
             code = "invalid_vendor_link"

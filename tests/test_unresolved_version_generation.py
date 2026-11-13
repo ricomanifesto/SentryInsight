@@ -50,6 +50,7 @@ def test_production_and_eval_apply_the_same_uncertainty_contract(
     raw = raw_report(catalog, value)
     result = {
         PROTOCOL_KEY: PROTOCOL_VERSION,
+        "vendor_reference_protocol": 1,
         "exploitation_report": raw,
         "reporting_sources": serialize_reporting_catalog(catalog),
         "date": "2026-11-02",

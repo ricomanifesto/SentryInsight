@@ -88,3 +88,29 @@ authorized fresh run. A passing preflight is not proof of report generation or
 publication; verify the resulting diagnostic receipt, history projection and
 served release separately. Existing request budgets and uncertain-run holds
 remain unchanged.
+
+## Source-owned vendor selections
+
+Fresh generation uses `vendor_reference_protocol: 1`, stamped by the host, and
+selects source-owned IDs instead of writing advisory URLs. Each ID binds the
+cited article identity, exact normalized source-content digest and normalized
+supplied URL. Production and evaluation resolve these IDs through the shared
+reviewed-analysis gate before the existing cited-source URL checks. Missing or
+invalid protocol markers, raw URLs, unknown/stale/uncited IDs, duplicate IDs or
+selections resolving to duplicate URLs fail closed. No rejected selection is
+silently removed or replaced with absence.
+
+A supplied URL is not necessarily a relevant advisory. The prompt distinguishes
+promotional/signup links from guidance and permits the model to explicitly select
+`Not stated in supplied sources.` when no relevant advisory is supplied. This
+preserves the finding and does not invent a destination. Public and archived
+reports still contain ordinary URLs, with no artifact schema change. Their list
+delimiter is semicolon followed by whitespace; literal URL semicolons are retained,
+including those preceding URL-shaped query text. Ambiguous compact lists are not
+guessed. Existing archived URL fields retain their interpretation.
+
+Advisory source-review policy 2 deliberately retains scopes blocked only by soft
+version-evidence reasons. Its prompt now explicitly permits the existing canonical
+unresolved version text for those scopes; strict policy still holds them. This
+changes prompt/protocol coherence, not grounding severity or review disposition.
+Offline fixtures exercise these contracts without spending a model request.

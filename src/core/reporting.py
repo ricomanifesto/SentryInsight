@@ -239,3 +239,13 @@ def resolve_reporting_keys(report: str, catalog: Mapping[str, ReportingSource]) 
     return table.render(
         [(row.start, row.end, _resolve_finding(row, catalog)) for row in table.rows]
     )
+
+
+def split_vendor_urls(value: str) -> list[str]:
+    """Split URL lists without splitting legal semicolons inside a URL.
+
+    Canonical URLs encode whitespace. Published lists use semicolon-space;
+    compact legacy lists are deliberately not guessed. Membership is still checked
+    against the exact cited-source allowlist by the grounding gate.
+    """
+    return [part.strip() for part in re.split(r";\s+", value)]

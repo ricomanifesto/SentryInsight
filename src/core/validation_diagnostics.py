@@ -54,6 +54,9 @@ SOURCE_CODES = frozenset("""
     unknown_reporting_source quarantined_reporting_source duplicate_reporting_source
     """.split())
 EVIDENCE_CODES = frozenset("""
+    invalid_vendor_reference invalid_vendor_reference_field
+    duplicate_vendor_reference unsupported_vendor_reference
+    invalid_vendor_reference_protocol misplaced_vendor_reference vendor_reference_collision
     finding_evidence_rejected duplicate_version_reference
     invalid_version_evidence_state invalid_version_reference
     invalid_version_reference_field invalid_version_reference_protocol

@@ -28,7 +28,7 @@ from scripts.verify_report_generation import (
 )
 
 CASE = ROOT / "evals/nemotron_verification/case.json"
-CASE_SHA256 = "2d8c314d1a5c5b6234ad8a0f7be2bb4c93668385c8135381d7c9aded83b02040"
+CASE_SHA256 = "b7fb4441ba6b5fddc5261f50b63f2fdb6330f124d646c17d4dc31ee5944a5047"
 TOKENIZER_URL = (
     "https://openaipublic.blob.core.windows.net/encodings/cl100k_base.tiktoken"
 )
