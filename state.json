@@ -3400,6 +3400,15 @@
       "release_key": "d036eda1782d17d46de3d652ab0484ce7e9de541818315da7dbfbffcc203228c",
       "run_id": "43378274592",
       "stage": "completed"
+    },
+    {
+      "admission_key": "run:43380158800",
+      "at": "2026-11-13T06:43:24.323Z",
+      "binding": "none",
+      "event": "schedule",
+      "run_attempt": "1",
+      "run_id": "43380158800",
+      "stage": "admitted"
     }
   ],
   "schema_version": 1,
