@@ -3497,6 +3497,13 @@
       "run_id": "43400107476",
       "stage": "request_finished",
       "token": "8722581048d2e4f37e23800f3e11ca9b"
+    },
+    {
+      "admission_key": "digest:50769796df6da8f09e444d52fb21469f34d1916a",
+      "at": "2026-11-13T09:25:42.157Z",
+      "outcome": "failed",
+      "run_id": "43400107476",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
