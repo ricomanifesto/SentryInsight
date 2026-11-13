@@ -8542,6 +8542,17 @@
       "release_key": "adbc14d4657a0cd052403820668650f02889105a2ead31201d10e395f01f90f2",
       "release_ref": "f5eb9b4dc6d2ebab9c86e7f91a4f2467fd8911d0",
       "stage": "serving"
+    },
+    {
+      "at": "2026-11-13T15:31:00.840Z",
+      "kind": "release",
+      "payload_digest": "0da8105017fb00d6df4dc2ce58a0007fb8bd4b5cbffdec3972c9a8f2fa419b21",
+      "proof": "on",
+      "release_key": "a5583ff69c3d934ac4a4167e6279c7a84453f7f3addb166545c3a8864e685353",
+      "release_ref": "8649653954752b08db1044f2bb3c54454b192a57",
+      "source_revision": "f00a40b0f9e13f1b28945e8844f9c78118893aec",
+      "stage": "released",
+      "tree_digest": "1261ef1e66953ccec1dbb1cc7e0298e8f00fbc4552be9c469fd41d5bd5c852fe"
     }
   ],
   "schema_version": 1,
