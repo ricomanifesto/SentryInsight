@@ -3655,6 +3655,19 @@
       "run_id": "43480896476",
       "stage": "request_reserved",
       "token": "4440899324ab997010a0f2d5c2dd3749"
+    },
+    {
+      "admission_key": "digest:897aa1d9dbaed3ea2cdad95bf450a055a157f5b4",
+      "at": "2026-11-13T18:21:53.034Z",
+      "attempt": 1,
+      "disposition": "response_received",
+      "limit": 3,
+      "request_sha256": "bbef6225012c27c7fcaec1aeff27c00fd044f56f7578d0c4b3b96dfa3248bf11",
+      "retry_after": 0,
+      "revision": "f00a40b0f9e13f1b28945e8844f9c78118893aec",
+      "run_id": "43480896476",
+      "stage": "request_finished",
+      "token": "4440899324ab997010a0f2d5c2dd3749"
     }
   ],
   "schema_version": 1,
