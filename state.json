@@ -3439,6 +3439,13 @@
       "run_id": "43380158800",
       "stage": "request_finished",
       "token": "cadd2c3730a83f70fb0f7ae01cebf708"
+    },
+    {
+      "admission_key": "run:43380158800",
+      "at": "2026-11-13T06:45:20.028Z",
+      "outcome": "failed",
+      "run_id": "43380158800",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
