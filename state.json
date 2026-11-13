@@ -3555,6 +3555,13 @@
       "run_id": "43424263424",
       "stage": "request_finished",
       "token": "a8c1433c881c94c0948d276279609c11"
+    },
+    {
+      "admission_key": "digest:a7810c540ab004a1539b4f74700e9dbb9f4ff290",
+      "at": "2026-11-13T12:27:53.074Z",
+      "outcome": "failed",
+      "run_id": "43424263424",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
