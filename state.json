@@ -3668,6 +3668,13 @@
       "run_id": "43480896476",
       "stage": "request_finished",
       "token": "4440899324ab997010a0f2d5c2dd3749"
+    },
+    {
+      "admission_key": "digest:897aa1d9dbaed3ea2cdad95bf450a055a157f5b4",
+      "at": "2026-11-13T18:21:59.326Z",
+      "outcome": "failed",
+      "run_id": "43480896476",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
