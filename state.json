@@ -3308,6 +3308,17 @@
       "at": "2026-11-13T03:21:27.727Z",
       "run_id": "43357932281",
       "stage": "invoked"
+    },
+    {
+      "admission_key": "digest:1d5891c6d9f41d9cc0a078c74828b33a87b0d6c4",
+      "at": "2026-11-13T03:21:36.613Z",
+      "attempt": 1,
+      "limit": 3,
+      "request_sha256": "97578caf4238e5c65fffec84145a93c32e130569d522e987ad684dd57d2c89ac",
+      "revision": "baec5caba1b22fc158876dbc787f6504855602d7",
+      "run_id": "43357932281",
+      "stage": "request_reserved",
+      "token": "8e46c40de0f20841f95c9a5aadfba2c7"
     }
   ],
   "schema_version": 1,
