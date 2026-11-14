@@ -3751,6 +3751,12 @@
       "run_id": "43534824365",
       "source_revision": "ce825b4792da01b557a2af2c364959526cb47d90",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "digest:ce825b4792da01b557a2af2c364959526cb47d90",
+      "at": "2026-11-14T00:35:44.353Z",
+      "run_id": "43534824365",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
