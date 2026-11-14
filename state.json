@@ -3891,6 +3891,13 @@
       "run_id": "43609016490",
       "stage": "request_finished",
       "token": "df759f9c1cf4d54791044d53124e861a"
+    },
+    {
+      "admission_key": "digest:f4c53c9671b53a537c972931170150148145be11",
+      "at": "2026-11-14T15:20:05.308Z",
+      "outcome": "failed",
+      "run_id": "43609016490",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
