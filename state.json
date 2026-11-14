@@ -3833,6 +3833,13 @@
       "run_id": "43567098662",
       "stage": "request_finished",
       "token": "29dbd8f216fa7cec03c466c402ac8405"
+    },
+    {
+      "admission_key": "run:43567098662",
+      "at": "2026-11-14T06:43:52.516Z",
+      "outcome": "failed",
+      "run_id": "43567098662",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
