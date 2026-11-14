@@ -3840,6 +3840,12 @@
       "outcome": "failed",
       "run_id": "43567098662",
       "stage": "unresolved"
+    },
+    {
+      "admission_key": "run:43567098662",
+      "at": "2026-11-14T15:16:49.481Z",
+      "run_id": "43609016490",
+      "stage": "readmitted"
     }
   ],
   "schema_version": 1,
