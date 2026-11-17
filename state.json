@@ -9721,6 +9721,17 @@
       "release_key": "e7ad3d8c2d19e1e43a53d27f9734c32da597f117367aa5269d9d6283bc81e77f",
       "release_ref": "7b8e8512b8a13c90acdb86bc89c6be2790a4520b",
       "stage": "serving"
+    },
+    {
+      "at": "2026-11-17T16:58:06.554Z",
+      "kind": "release",
+      "payload_digest": "98b872bd213397599cf6fffa627cc9a9713df52c7ddb20270acb3ff0fcc64f10",
+      "proof": "on",
+      "release_key": "f14d4818db4a7cd8d97d705a564ce7b522b67e1fe972fbfde8ac7f773da3f649",
+      "release_ref": "5a0fec7ec8c1d3ca90bac0bc88e5569de7e41f11",
+      "source_revision": "e67f76e71c31d88f2e01ae164ce08c60cb509abb",
+      "stage": "released",
+      "tree_digest": "39c7c11aa5e11f5e7e07bd99ff040e117e96a4dfba381f27d1e1181253d5a80c"
     }
   ],
   "schema_version": 1,
