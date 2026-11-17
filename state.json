@@ -9328,6 +9328,17 @@
       "release_key": "01aa2c06f1fb6a801c46546c055e729cf26972e0758c20c14bed0ad98611032b",
       "release_ref": "cf65b5fef9b253747ace1671e9edaca42162862e",
       "stage": "serving"
+    },
+    {
+      "at": "2026-11-17T13:34:30.413Z",
+      "kind": "release",
+      "payload_digest": "a1ca166a54a042497b0202ae8ec2c87c8a10378b3d11ef4b32730db03d72476b",
+      "proof": "on",
+      "release_key": "719128e6916e699bbec77981c7a0046fb5ef1de5e2f6fdff4e6bd3948f8581fa",
+      "release_ref": "79e600217d0daf28a01bb48d5e6a51b5fc545892",
+      "source_revision": "e214c251d1eebca7bc9289ea0c595c7d9f73beed",
+      "stage": "released",
+      "tree_digest": "ff5bd758fd4739c105e9c046bbad7ad7419df20dd2ef0fc2c42193b219cd08e5"
     }
   ],
   "schema_version": 1,
