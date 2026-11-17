@@ -7,7 +7,7 @@ Unrecognized constructions remain unknown and can block publication; genuine
 source confirmations are not guaranteed to be recognized in every phrasing.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import copy
 from functools import cached_property, lru_cache
 import hashlib
@@ -16,6 +16,8 @@ from typing import Any, Literal, Mapping, Sequence
 
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
+
+from ..services.source_tables import SourceTable, source_tables
 
 from .derivations import derivation_scope, memoized
 from .cve import CVE_ID_PATTERN, extract_cve_ids
@@ -281,6 +283,7 @@ class DetailSpan:
     fields: tuple[str, ...] = ()
     source_block: str = ""
     version_context: str = ""
+    explicit_version_scope: bool = False
 
 
 def _recommendation_text(text: str) -> str:
@@ -364,6 +367,62 @@ class DetailScope:
 
 
 @dataclass(frozen=True)
+class TableRowScope:
+    """An explicit row identity, distinct from an absent enclosing owner."""
+
+    table_line: int
+    row: int
+    product: str
+    cves: frozenset[str]
+    kind: Literal["cves", "separate", "opaque"]
+
+
+def _table_row_scope(table: SourceTable, index: int) -> TableRowScope:
+    headers = (
+        tuple(cell.casefold().strip() for cell in table.rows[0]) if table.rows else ()
+    )
+    row = table.rows[index]
+    product = row[0] if row else ""
+    opaque = TableRowScope(table.start, index, product, frozenset(), "opaque")
+    if table.opaque or headers != ("product", "flaw", "status") or len(row) != 3:
+        return opaque
+    product, identity, _ = row
+    if not product.strip() or not identity.strip():
+        return opaque
+    complete = r"CVE-\d{4}-\d{4,}"
+    leading = re.match(
+        rf"^({complete}(?:\s*(?:,|and|/)\s*{complete})*)(?=$|[\s,;:(])", identity, re.I
+    )
+    if leading:
+        if re.search(r"\bCVE", identity[leading.end() :], re.I):
+            return opaque
+        return TableRowScope(
+            table.start, index, product, frozenset(extract_cve_ids(leading[1])), "cves"
+        )
+    if re.search(
+        r"\b(?:CVE|same|above|below|previous|ditto|aforementioned|see)\b",
+        identity,
+        re.I,
+    ):
+        return opaque
+    separate = re.fullmatch(
+        r"(?:a |an )?(?:separate|different) (?:authentication|authorization) bypass(?: without an assigned identifier)?[.]?",
+        identity,
+        re.I,
+    )
+    # These are explicit flaw descriptions in a designated identity cell, not
+    # a blank/continued row. Unknown or referential wording stays opaque.
+    described = re.fullmatch(
+        r"(?:authentication|authorization) bypass (?:without an assigned identifier|(?:through|via) (?:the )?[a-z_][a-z0-9_]* header)[.]?",
+        identity,
+        re.I,
+    )
+    if separate or described:
+        return TableRowScope(table.start, index, product, frozenset(), "separate")
+    return opaque
+
+
+@dataclass(frozen=True)
 class SpanRow:
     """A heading or body sentence with every scope-independent column.
 
@@ -380,13 +439,19 @@ class SpanRow:
     block_cves: frozenset[str] = frozenset()
     foreign_assertion: frozenset[str] | None = None
     role_error: EvidenceError | None = None
+    table_scope: TableRowScope | None = None
 
 
 class SourceEvidence:
     """Evidence table of one source body; each column is derived at most once."""
 
-    def __init__(self, content: str):
+    def __init__(self, content: str, *, decode_tables: bool = True):
         self.content = content
+        self.decode_tables = decode_tables
+
+    @cached_property
+    def tables(self) -> tuple[SourceTable, ...]:
+        return source_tables(self.content) if self.decode_tables else ()
 
     @cached_property
     def cves(self) -> tuple[str, ...]:
@@ -437,11 +502,22 @@ class SourceEvidence:
         as well as each sentence in it.
         """
         joint: dict[tuple[str, ...], None] = {}
-        for block in dict.fromkeys(self.blocks):
+        table_lines = {
+            index for table in self.tables for index in range(table.start, table.end)
+        }
+        blocks = dict.fromkeys(
+            block for index, block in enumerate(self.blocks) if index not in table_lines
+        )
+        for block in blocks:
             for text in [block, *_sentences(block)]:
                 cves = tuple(sorted(extract_cve_ids(text)))
                 if len(cves) > 1:
                     joint[cves] = None
+        for table in self.tables:
+            for index in range(1, len(table.rows)):
+                scope = _table_row_scope(table, index)
+                if scope.kind == "cves" and len(scope.cves) > 1:
+                    joint[tuple(sorted(scope.cves))] = None
         return tuple(joint)
 
     @cached_property
@@ -461,7 +537,20 @@ class SourceEvidence:
         preceding: list[str] = []
         block_has_recommendation = False
         block_cves: frozenset[str] = frozenset()
-        for line, source_block in zip(self.content.splitlines(), self.blocks):
+        tables = {table.start: table for table in self.tables}
+        skip_until = 0
+        for line_index, (line, source_block) in enumerate(
+            zip(self.content.splitlines(), self.blocks)
+        ):
+            if line_index < skip_until:
+                continue
+            if table := tables.get(line_index):
+                owner = sections[-1][1] if sections else frozenset()
+                rows.extend(self._table_spans(table, owner))
+                skip_until = table.end
+                previous_block = None
+                preceding = []
+                continue
             if source_block != previous_block:
                 preceding = []
                 previous_block = source_block
@@ -512,7 +601,12 @@ class SourceEvidence:
                     # Every scan of this body stops here, so later rows are
                     # never read; keep the rejection for the filter to raise.
                     span = DetailSpan(
-                        sentence, "body", (), source_block, version_context
+                        sentence,
+                        "body",
+                        (),
+                        source_block,
+                        version_context,
+                        bool(owner or mentioned),
                     )
                     # The table outlives this frame and any exception being
                     # handled by the caller; keep none of their frames alive.
@@ -528,7 +622,12 @@ class SourceEvidence:
                         dict.fromkeys((*body_fields, "Recommended Actions"))
                     )
                 span = DetailSpan(
-                    sentence, "body", body_fields, source_block, version_context
+                    sentence,
+                    "body",
+                    body_fields,
+                    source_block,
+                    version_context,
+                    bool(owner or mentioned),
                 )
                 foreign = (
                     _foreign_version_assertion(span)
@@ -537,6 +636,59 @@ class SourceEvidence:
                 )
                 rows.append(SpanRow(span, owner, mentioned, block_cves, foreign))
         return tuple(rows)
+
+    def _table_spans(
+        self, table: SourceTable, enclosing: frozenset[str]
+    ) -> list[SpanRow]:
+        rows = [SpanRow(BOUNDARY, frozenset())]
+        recognized = not table.opaque and tuple(
+            cell.casefold().strip() for cell in table.rows[0]
+        ) == ("product", "flaw", "status")
+        start = 1 if recognized else 0
+        for index in range(start, len(table.rows)):
+            scope = _table_row_scope(table, index)
+            if enclosing and (
+                scope.kind == "separate" or scope.cves and not scope.cves <= enclosing
+            ):
+                scope = TableRowScope(
+                    scope.table_line, scope.row, scope.product, scope.cves, "opaque"
+                )
+            for cell in table.rows[index]:
+                rows.append(SpanRow(BOUNDARY, frozenset()))
+                # A decoded cell is parsed for its own paragraphs/lists only;
+                # its text can never recursively declare another carrier.
+                evidence = SourceEvidence(cell, decode_tables=False)
+                foreign_cell = not evidence.cve_set <= scope.cves
+                cell_scope = (
+                    TableRowScope(
+                        scope.table_line, scope.row, scope.product, scope.cves, "opaque"
+                    )
+                    if foreign_cell
+                    else scope
+                )
+                for child in evidence.spans:
+                    role_error = child.role_error
+                    if foreign_cell and "Recommended Actions" in child.span.fields:
+                        role_error = EvidenceError(
+                            "ambiguous recommendation block CVE scope",
+                            code="ambiguous_recommendation_scope",
+                            field="Recommended Actions",
+                        )
+                    rows.append(
+                        SpanRow(
+                            replace(
+                                child.span,
+                                explicit_version_scope=cell_scope.kind == "cves",
+                            ),
+                            cell_scope.cves,
+                            child.cves,
+                            child.block_cves,
+                            role_error=role_error,
+                            table_scope=cell_scope,
+                        )
+                    )
+            rows.append(SpanRow(BOUNDARY, frozenset()))
+        return rows
 
 
 @lru_cache(maxsize=256)
@@ -585,6 +737,7 @@ def _partition_content_spans(content: str, cves: tuple[str, ...]) -> DetailScope
     wanted = set(cves)
     source_owned = bool(
         not evidence.has_cve_sections
+        and not evidence.tables
         and evidence.cve_set
         and evidence.cve_set <= wanted
     )
@@ -593,6 +746,40 @@ def _partition_content_spans(content: str, cves: tuple[str, ...]) -> DetailScope
     unaccounted = [BOUNDARY]
     for row in evidence.spans:
         span, owner = row.span, row.owner
+        if span.role == "boundary":
+            result.append(BOUNDARY)
+            unaccounted.append(BOUNDARY)
+            continue
+        if row.table_scope is not None:
+            scope = row.table_scope
+            conflict = bool(row.cves and not row.cves <= scope.cves)
+            selected = (
+                scope.kind == "cves"
+                and bool(wanted)
+                and scope.cves <= wanted
+                and not conflict
+            )
+            foreign = (
+                bool(wanted)
+                and scope.kind in {"cves", "separate"}
+                and not scope.cves & wanted
+                and not row.cves & wanted
+            )
+            if row.role_error is not None and not foreign:
+                raise copy.copy(row.role_error)
+            if (
+                selected
+                and "Recommended Actions" in span.fields
+                and not row.block_cves <= wanted
+            ):
+                raise EvidenceError(
+                    "ambiguous recommendation block CVE scope",
+                    code="ambiguous_recommendation_scope",
+                    field="Recommended Actions",
+                )
+            result.append(span if selected else BOUNDARY)
+            unaccounted.append(span if not selected and not foreign else BOUNDARY)
+            continue
         owned = not wanted or bool(
             owner and owner <= wanted or not owner and source_owned
         )
@@ -1019,6 +1206,7 @@ class VersionClause:
         "list",
     ]
     text: str
+    requires_explicit_owner: bool = False
 
 
 VERSION_AUDIENCE = r"customers|users|admins|administrators|operators|owners|vendors|maintainers|organizations|you"
@@ -1039,6 +1227,21 @@ VERSION_AFFECTED_CLAUSE = re.compile(
     rf"\b(?:{VERSION_AUDIENCE}) of (?P<versions>.+?) "
     r"(?:are|were|remain) (?P<qualifiers>(?:(?:also|still|not|no longer) )*)"
     r"(?P<state>affected|impacted|vulnerable|unaffected)\b",
+    re.I,
+)
+VERSION_DIRECT_AFFECTED_CLAUSE = re.compile(
+    r"(?P<versions>(?:(?:all|the|these|those) )?(?:versions?|releases?|builds?)\b.+?) "
+    r"(?:are|were|remain) (?P<qualifiers>(?:(?:also|still|not|no longer) )*)"
+    r"(?P<state>affected|impacted|vulnerable|unaffected)",
+    re.I,
+)
+VERSION_AUTHORITY_AFFECTED_CLAUSE = re.compile(
+    r"NVD lists (?P<versions>.+?) as (?P<qualifiers>)(?P<state>affected)",
+    re.I,
+)
+VERSION_FIXED_INFORMATION_CLAUSE = re.compile(
+    r"v?\d+(?:\.[a-z0-9]+)+ (?:is|was) the (?:fixed|patched) (?:version|release)"
+    r"(?: \(\s*(?:release notes|advisory)\s*\))?",
     re.I,
 )
 VERSION_RECOMMENDATION_CLAUSE = re.compile(
@@ -1071,6 +1274,7 @@ VERSION_DESCRIPTIVE_STATE = re.compile(
 class VersionListCue:
     end: int
     kind: Literal["explicit", "pending"]
+    requires_explicit_owner: bool = False
 
 
 def _version_list_cue(text: str) -> VersionListCue | None:
@@ -1088,6 +1292,13 @@ def _version_list_cue(text: str) -> VersionListCue | None:
             pending = VersionListCue(cue.end(), "pending")
             continue
         return VersionListCue(cue.end(), "explicit")
+    if pending is None and (
+        VERSION_DIRECT_AFFECTED_CLAUSE.match(text)
+        or VERSION_AUTHORITY_AFFECTED_CLAUSE.match(text)
+    ):
+        clauses = _version_clauses(text)
+        if any(clause.requires_explicit_owner for _, clause in clauses):
+            return VersionListCue(0, "explicit", True)
     return pending
 
 
@@ -1104,6 +1315,27 @@ def _version_assertion_is_negative(match: re.Match[str]) -> bool:
 
 def _version_clause(text: str) -> VersionClause:
     """Classify complete clauses before interpreting their version constraints."""
+    direct = VERSION_DIRECT_AFFECTED_CLAUSE.fullmatch(
+        text
+    ) or VERSION_AUTHORITY_AFFECTED_CLAUSE.fullmatch(text)
+    if direct:
+        if re.search(
+            rf"{VERSION_FINITE_PREDICATE}|\b(?:{VERSION_STATE})\b",
+            direct["versions"],
+            re.I,
+        ):
+            raise EvidenceError(
+                "ambiguous affected-version predicate",
+                code="ambiguous_affected_version_clause",
+                field="Affected Versions",
+            )
+        return VersionClause(
+            "unaffected" if _version_assertion_is_negative(direct) else "affected",
+            direct["versions"],
+            True,
+        )
+    if VERSION_FIXED_INFORMATION_CLAUSE.fullmatch(text):
+        return VersionClause("information", text)
     affected = VERSION_AFFECTED_CLAUSE.fullmatch(text)
     if affected:
         return VersionClause(
@@ -1427,7 +1659,7 @@ def _version_clauses(text: str) -> list[tuple[str, VersionClause]]:
         return []
     parts = re.split(
         r"((?:[,;—–]|\s+-\s+)\s*(?:(?:and|or|but)\s+)?|\s+(?:and|or|but)\s+)"
-        rf"(?=(?:{VERSION_AUDIENCE}|(?:(?:further|more) )?(?:details|information))\b)",
+        rf"(?=(?:{VERSION_AUDIENCE}|(?:(?:further|more) )?(?:details|information)|versions?|releases?|builds?|NVD|v?\d)\b)",
         text.strip().rstrip("."),
         flags=re.I,
     )
@@ -1441,6 +1673,9 @@ def _version_clauses(text: str) -> list[tuple[str, VersionClause]]:
                 VERSION_AUDIENCE_ASSERTION,
                 VERSION_RECOMMENDATION_CLAUSE,
                 VERSION_INFORMATION_CLAUSE,
+                VERSION_DIRECT_AFFECTED_CLAUSE,
+                VERSION_AUTHORITY_AFFECTED_CLAUSE,
+                VERSION_FIXED_INFORMATION_CLAUSE,
             )
         ):
             clauses.append((separator, candidate))
@@ -1456,12 +1691,18 @@ def _version_clauses(text: str) -> list[tuple[str, VersionClause]]:
 
 
 def _version_constraints(
-    text: str, *, require_affected: bool = False
+    text: str, *, require_affected: bool = False, explicit_owner: bool = True
 ) -> tuple[list[str], list[str]]:
     """Retain separate affected and explicitly excluded constraint sets."""
     entries: list[str] = []
     exclusions: list[str] = []
     for separator, clause in _version_clauses(text):
+        if clause.requires_explicit_owner and not explicit_owner:
+            raise EvidenceError(
+                "version predicate lacks explicit subject ownership",
+                code="unowned_version_evidence",
+                field="Affected Versions",
+            )
         if require_affected and clause.kind not in {"affected", "audience", "list"}:
             raise EvidenceError(
                 "Affected Versions contains a non-affected clause",
@@ -1488,6 +1729,22 @@ def _version_constraints(
 def _version_entries(text: str) -> list[str]:
     """Validate the report field without dropping any non-affected clauses."""
     return _version_constraints(text, require_affected=True)[0]
+
+
+def _complete_version_predicate(text: str) -> bool:
+    """A finite assertion is complete; it does not introduce an open list."""
+    cue = _version_list_cue(text)
+    if not cue:
+        return False
+    remainder = re.sub(
+        r"^\s*(?:(?:are|is|include|includes)\b)?\s*[:=-]?\s*",
+        "",
+        text[cue.end :],
+        flags=re.I,
+    ).rstrip(". ")
+    return any(
+        clause.requires_explicit_owner for _, clause in _version_clauses(remainder)
+    )
 
 
 def _version_group_members(text: str) -> str:
@@ -1623,7 +1880,7 @@ def collect_affected_version_constraints(
     # Version lists are easy to lose even when one supported version remains.
     version_lines = []
     excluded_version_lines = []
-    list_state: Literal["none", "pending", "active"] = "none"
+    list_state: Literal["none", "pending", "active", "asserted"] = "none"
     known_version_list = False
     range_target: list[str] | None = None
     for span in detail_spans:
@@ -1634,6 +1891,12 @@ def collect_affected_version_constraints(
             list_state = "none"
             range_target = None
         cue = _version_list_cue(line)
+        if cue and cue.requires_explicit_owner and not span.explicit_version_scope:
+            raise EvidenceError(
+                "version predicate lacks explicit subject ownership",
+                code="unowned_version_evidence",
+                field="Affected Versions",
+            )
         if cue and cue.kind == "pending":
             list_state = "pending"
             range_target = None
@@ -1670,7 +1933,11 @@ def collect_affected_version_constraints(
                 line[cue.end :] if cue else line,
                 flags=re.I,
             ).rstrip(". ")
-            included, excluded = _version_constraints(remainder)
+            included, excluded = _version_constraints(
+                remainder, explicit_owner=span.explicit_version_scope
+            )
+            if _complete_version_predicate(line):
+                list_state = "asserted"
             excluded_version_lines.extend(excluded)
             version_lines.extend(
                 entry for entry in included if re.search(r"\d|\bRTM\b", entry)
@@ -1680,6 +1947,12 @@ def collect_affected_version_constraints(
                 if excluded and not included
                 else version_lines if included and not excluded else None
             )
+            continue
+        if list_state == "asserted":
+            # A finite assertion cannot lend an owner to a dangling fragment.
+            # The scope validator retains every unconsumed follow-up instead.
+            list_state = "none"
+            range_target = None
             continue
         if list_state == "active":
             continuation = re.sub(r"^(?:and|or)\s+", "", line, flags=re.I)
@@ -1695,7 +1968,9 @@ def collect_affected_version_constraints(
                 )
                 continue
             if re.search(r"\d|\bRTM\b", line):
-                included, excluded = _version_constraints(line)
+                included, excluded = _version_constraints(
+                    line, explicit_owner=span.explicit_version_scope
+                )
                 # Advice/information can contain a product version before
                 # its wrapped target. End the list at that typed clause.
                 list_state = "active" if included or excluded else "none"

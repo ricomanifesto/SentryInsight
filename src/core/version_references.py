@@ -28,6 +28,7 @@ from .finding_evidence import (
     _version_source_text,
     build_finding_detail_context,
     collect_affected_version_constraints,
+    _complete_version_predicate,
 )
 from .report_findings import FindingRow, report_findings
 from .reporting import (
@@ -166,11 +167,43 @@ def _is_event_count_narrative(text: str) -> bool:
     )
 
 
-def _version_span_reason(span: DetailSpan, constraints: Sequence[str]) -> str | None:
+def _catalog_addition_event(text: str) -> bool:
+    """One complete independent event form; unknown suffixes are not ignored."""
+    normalized = re.sub(r"\s+([,.)])", r"\1", " ".join(text.split()))
+    normalized = re.sub(r"\(\s+", "(", normalized)
+    return bool(
+        re.fullmatch(
+            r"(?:CISA|The agency) added the (?:flaw|vulnerability) to its "
+            r"(?:Known Exploited Vulnerabilities \(KEV\) )?catalog on "
+            r"(?:January|February|March|April|May|June|July|August|September|October|November|December) \d{1,2}, \d{4}"
+            r"(?:, after earlier [a-z][a-z0-9_-]* exploitation, and the KEV entry marks it as known to be used in ransomware campaigns)?[.]?",
+            normalized,
+            re.I,
+        )
+    )
+
+
+def _version_span_reason(
+    span: DetailSpan,
+    constraints: Sequence[str],
+    *,
+    after_complete_assertion: bool = False,
+) -> str | None:
     if span.role != "body":
         return None
     text = _version_source_text(span.text)
     text = CVSS_SCORE.sub("", text)
+    if after_complete_assertion and text.strip():
+        if not _catalog_addition_event(text):
+            try:
+                clauses = _version_clauses(text.strip().rstrip("."))
+            except EvidenceError:
+                return "version_clause_error"
+            if not clauses or not all(
+                clause.kind in {"recommendation", "information"}
+                for _, clause in clauses
+            ):
+                return "unresolved_version_assertion"
     # Scaled quantities are not target software versions. Only suppress their
     # shape, never their original clause: affected assertions and collected
     # constraints still use text. Entity names and dates remain unresolved.
@@ -225,7 +258,9 @@ def _version_span_reason(span: DetailSpan, constraints: Sequence[str]) -> str | 
             )
         ):
             return None
-        included, excluded = _version_constraints(remainder)
+        included, excluded = _version_constraints(
+            remainder, explicit_owner=span.explicit_version_scope
+        )
         # Every version-bearing span must contribute to a complete collected
         # constraint. A known list elsewhere cannot hide unresolved prose.
         unresolved = not (included or excluded) or any(
@@ -320,8 +355,21 @@ def _scope(
         if known_list and not included and not exclusions:
             failures.add("empty_version_list")
         content_hash = hashlib.sha256(source.content.encode()).hexdigest()
+        after_assertion = False
         for span in spans:
-            reason = _version_span_reason(span, [*included, *exclusions])
+            if span.role != "body":
+                after_assertion = False
+            text = _version_source_text(span.text) if span.role == "body" else ""
+            complete = _complete_version_predicate(text) if text else False
+            if text and _version_list_cue(text):
+                after_assertion = False
+            reason = _version_span_reason(
+                span,
+                [*included, *exclusions],
+                after_complete_assertion=after_assertion,
+            )
+            if complete:
+                after_assertion = True
             if reason == "unclassified_numeric_prose":
                 span_hash = hashlib.sha256(span.text.encode()).hexdigest()
                 identity = json.dumps(

@@ -73,6 +73,28 @@ Finding details can inherit an explicit CVE section, including nested headings; 
 
 Version assessment also retains a separate view of evidence whose CVE ownership is unknown, overlapping or conflicting. Recognizable version evidence in that view blocks absence. Any unaccounted context blocks an otherwise recognized constraint or exclusion, because a separate paragraph or peer source may qualify it. An explicit, consistent foreign-CVE section can establish disjoint ownership; outside such a section, only a complete simple foreign-CVE/product/release assertion does so. A foreign identifier mentioned in a comparison or a sentence prefix is insufficient. The complete source catalog determines scope groups and peer sources even when a caller supplies a partial detail-context cache. This rejection-only guard adds no new extraction rule or unresolved eligibility, leaves no-CVE behavior unchanged, and may conservatively block additional CVE scopes.
 
+Article tables retain row and cell boundaries in a canonical carrier inside the
+hashed source body. Initially, rectangular, unmerged tables with Product, Flaw
+and Status headers can establish row ownership from complete leading identifiers
+in the Flaw cell. Status text and links cannot add identifiers to that identity.
+An explicitly separate flaw without an identifier cannot supply a neighboring
+CVE's range; blank, referential or ambiguous identities remain unowned. Merged,
+nested, malformed and unrecognized tables retain their evidence without
+certifying ownership. Cell-local paragraphs, lists, literal text and links
+survive normalization and catalog round trips, and list/recommendation context
+cannot cross cell or row boundaries. Changed source structure expires prior
+source-bound version references.
+
+Complete predicates such as “Versions before 1.3.0 are affected” and an explicit
+NVD affected-range statement require a CVE section or table-row owner. Mere
+presence of one CVE elsewhere in the article does not establish that ownership.
+A separately typed fixed-release clause supplies information, not an affected
+range. A complete assertion does not open a release list; dangling range
+fragments and unconsumed follow-up restrictions remain unresolved. Unknown
+suffixes, unconsumed clauses and mixed known/uncertain release
+evidence remain blocked; this does not broaden unresolved-state eligibility or
+change the selected grounding policy.
+
 ## Run It Locally
 
 SentryInsight requires Python 3.11 and [`uv`](https://docs.astral.sh/uv/):
