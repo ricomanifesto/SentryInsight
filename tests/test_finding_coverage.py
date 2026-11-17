@@ -186,13 +186,13 @@ def test_historical_cve_heading_still_supplies_finding_identity():
     assert missing_expected_cve_ids(report, [A]) == []
 
 
-def test_finding_coverage_rejection_keeps_its_existing_advisory_severity():
+def test_missing_required_finding_identity_is_blocking():
     report = VALID_REPORT.replace(
         "Recent exploitation activity", f"{B}: Recent exploitation activity"
     )
     issues = validate_report_content(report, expected_cves=[B])
     assert [issue.code for issue in issues] == ["missing_expected_cves"]
-    assert blocking_issues(issues) == []
+    assert blocking_issues(issues) == issues
 
 
 @pytest.mark.parametrize(

@@ -144,7 +144,6 @@ def test_supplied_vendor_link_is_accepted_in_advisory_mode():
 
 def test_only_quality_codes_are_advisory():
     issues = [
-        ReportValidationIssue("missing_expected_cves", "x"),
         ReportValidationIssue("executive_summary_readability", "x"),
         ReportValidationIssue("underpopulated_threat_actor_activities", "x"),
     ]
@@ -155,6 +154,7 @@ def test_only_quality_codes_are_advisory():
         "empty_report",
         "missing_section",
         "removed_source_attribution",
+        "missing_expected_cves",
     ):
         issue = ReportValidationIssue(code, "x")
         assert blocking_issues(issues + [issue]) == [issue]
@@ -178,13 +178,14 @@ def run_gate(report, config, *extra):
 
 
 @pytest.mark.parametrize("mode", ["advisory", "strict"])
-def test_publication_gate_follows_the_configured_mode(tmp_path, mode):
+def test_required_cve_coverage_blocks_publication_in_both_modes(tmp_path, mode):
     config = tmp_path / "config.json"
     config.write_text(json.dumps({"analysis": {"grounding": mode}}))
     report = tmp_path / "index.md"
     report.write_text((ROOT / "index.md").read_text())
     result = run_gate(report, config, "--expected-cve", "CVE-2099-0001")
-    assert (result.returncode == 0) is (mode == "advisory"), result.stdout
+    assert result.returncode == 1, result.stdout
+    assert "CVE-2099-0001" in result.stdout
 
 
 def test_publication_gate_still_blocks_safety_issues_when_advisory(tmp_path):

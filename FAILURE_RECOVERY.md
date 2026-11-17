@@ -15,6 +15,25 @@ Missing or malformed diagnostics do not authorize a retry. The verification
 workflow continues to allow only its single request and retains its existing
 receipt format.
 
+## Retained report candidates
+
+After successful generation, the workflow retains a separate
+`report-candidate-<run>-<attempt>` artifact for seven days before browser checks.
+It contains only exact `index.md` bytes and a small manifest bound to the run,
+attempt, checked-out source revision, review-plan identity and report SHA-256.
+The completed generation receipt must agree with the schema-5 report. Reports
+are limited to 2 MiB; nonregular files, hard links, symlink paths and existing
+output directories are refused. The manifest is finalized only after the report
+has been written, and upload requires successful export.
+
+This artifact contains generated report text for offline replay. It excludes
+article snapshots, prompts, model reasoning, logs, environment and credentials.
+It is an unpublished candidate with no publication authority; a failed browser
+check still prevents commit and publication. Export does not request another
+model response, release a reservation or authorize a retry. Diagnose and validate
+the retained candidate against its recorded source revision before any separate
+publication decision.
+
 ## Request budget
 
 Production uses the existing `publication-admission` compare-and-set store. Every

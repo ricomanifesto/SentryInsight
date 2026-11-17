@@ -260,6 +260,27 @@ jobs:
           retention-days: 7
           if-no-files-found: error
 
+      - name: Export bounded report candidate
+        id: candidate-export
+        if: success() && steps.generate.outcome == 'success' && steps.generate.outputs.report_generated == 'true'
+        env:
+          SOURCE_REVISION: ${{ steps.source.outputs.revision }}
+        run: |
+          .venv/bin/python -B scripts/export_report_candidate.py \
+            --report-root . --receipt-path "$RUNNER_TEMP/failure-diagnostics/outcome.json" \
+            --output "$RUNNER_TEMP/report-candidate" \
+            --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" \
+            --source-revision "$SOURCE_REVISION"
+
+      - name: Retain report candidate for seven days
+        if: steps.candidate-export.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/report-candidate
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Restore generator configuration
         if: always() && steps.admission.outputs.feed_url != ''
         run: git checkout -- config/config.json

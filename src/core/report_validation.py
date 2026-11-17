@@ -117,11 +117,10 @@ class ReportValidationIssue:
 
 
 # Report-quality checks that advisory grounding logs instead of blocking.
-# Safety (active content, error markers, empty output) and the structure the
-# renderer depends on always block.
+# Safety, required finding identities and the structure the renderer depends
+# on always block. Narrative CVE mentions cannot replace required findings.
 ADVISORY_CONTENT_CODES = frozenset(
     {
-        "missing_expected_cves",
         "executive_summary_readability",
         "underpopulated_threat_actor_activities",
     }
