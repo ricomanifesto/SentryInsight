@@ -66,7 +66,12 @@ def test_analysis_supplies_source_owned_contract_and_host_protocol(monkeypatch):
             "\nEND AFFECTED VERSION REFERENCES", 1
         )[0]
     )
-    assert contract(catalog) in context
+    [scope] = context
+    assert {key: scope[key] for key in contract(catalog)} == contract(catalog)
+    assert scope["emission"] == {
+        "affected_versions_field": "- **Affected Versions**: " + reference,
+        "required_reporting_keys": list(catalog),
+    }
     assert content in prompt
     assert "Do not output free-text version claims" in prompt
     assert result[PROTOCOL_KEY] == PROTOCOL_VERSION

@@ -26,6 +26,7 @@ from .report_findings import report_findings
 from .report_validation import (
     ReportValidationIssue,
     blocking_issues,
+    inspect_required_section_headings,
     prepare_generated_report,
     validate_report_content,
 )
@@ -232,6 +233,18 @@ def _resolve_reviewed_analysis(
             ]
         )
     visible_candidate_text(raw, reject_host_namespace=True)
+    section_counts, _ = inspect_required_section_headings(raw)
+    duplicates = [
+        ReportValidationIssue(
+            "duplicate_section", f"Report repeats required section: {section}"
+        )
+        for section, count in section_counts.items()
+        if count > 1
+    ]
+    if duplicates:
+        # Reject the whole response before a first-section parser can rewrite
+        # only part of it. Never choose, truncate or merge competing drafts.
+        raise ReviewedReportValidationError(duplicates)
     stage("source_review")
     plan = analysis_review_plan(result, advisory=advisory)
     if not plan.eligible_keys:
