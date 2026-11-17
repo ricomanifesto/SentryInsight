@@ -16,6 +16,7 @@ from .opencode_client import ModelSelection, OpenCodeClient
 from .openrouter_client import OPENROUTER_API_KEY_ENV_VAR, OpenRouterClient
 from .attempt_budget import AdmissionAttemptBudget, AttemptBudgetError
 from .failure_receipt import ENV_PATH, record_request
+from .paid_verification import active_verification
 
 
 class ReportModelClient(Protocol):
@@ -37,12 +38,17 @@ def build_model_client(
     Uses OpenRouter directly when ``OPENROUTER_API_KEY`` is set; otherwise uses
     a local OpenCode server.
     """
+    verification = active_verification()
     api_key = os.getenv(OPENROUTER_API_KEY_ENV_VAR, "").strip()
     durable = os.getenv("SENTRYINSIGHT_ATTEMPT_STORE")
     if durable and (durable != "admission" or not api_key or not os.getenv(ENV_PATH)):
         raise AttemptBudgetError()
     if api_key:
-        budget = AdmissionAttemptBudget.from_environment() if durable else None
+        budget = (
+            verification.bridge
+            if verification
+            else AdmissionAttemptBudget.from_environment() if durable else None
+        )
         receipt_path = Path(os.environ[ENV_PATH]) if durable else None
         return OpenRouterClient(
             api_key=api_key,

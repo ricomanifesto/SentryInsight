@@ -132,6 +132,50 @@ completion and reasoning tokens, cost, request latency, the observed output
 rate and the fraction of `max_tokens` used. The same counts and latency are kept
 in the generation diagnostics receipt. No prompt or response text is logged.
 
+### One-run paid verification
+
+The normal model configuration remains unchanged. An explicitly approved manual
+main-branch run may select `paid_verification` and supply bounded `billing_evidence`
+JSON. This consumes the fixed Kimi K3.1 Pro/Moonshot profile once. Scheduled runs,
+other refs, reruns and readmission cannot activate it. The profile permits at most
+three physical report attempts and 64 no-retry TypeSafe triage requests, with
+provider allowlists, disabled provider fallback and zero per-request fee ceilings.
+
+Before triage, read-only preflight binds the existing CI credential to the checked
+key and workspace and verifies current provider rates and context limits. One
+atomic admission-ledger operation consumes the profile and reserves **$7.956100**,
+rounded upward from three full report contexts plus 64 full triage contexts. This
+fits the **$8 total** bound without assuming cache savings. Report attempts use
+the existing durable request budget; triage batches require unique durable claims.
+Budget errors abort instead of entering the ordinary full-source triage fallback.
+All reservations remain held until explicit reconciliation, including missing or
+uncertain usage receipts. There are no automatic refunds or second workflow runs.
+
+The operator must first establish current Moonshot/TypeSafe BYOK absence and a
+complete conservative bound for the November period's actual and other held
+liabilities, covering relevant keys, historical BYOK bills and triage. OpenRouter
+credit usage alone cannot establish external BYOK charges. Existing unresolved
+reservations are added separately and remain intact under the $20 period ceiling.
+The attestation fields are:
+
+| Field | Required value |
+| --- | --- |
+| `billing` | `credits-no-applicable-byok` |
+| `coverage` | `all-applicable-ci-keys` |
+| `periodStart`, `periodEnd` | Fixed profile period, November 1–December 1, 2026, in UTC |
+| `actualMicrousd` | Conservative integer upper bound for all applicable actual/other liabilities; include settled charges and exclude only the unresolved reservations added separately |
+| `checkedAt` | Actual UTC time the billing evidence was checked |
+| `scopeSha256` | SHA-256 of `workspace:` followed by the actual workspace ID |
+| `keySha256` | SHA-256 of the existing API key, matching the checked key identifier |
+
+Supply hashes and conservative bounds, with no credentials, raw account data or
+screenshots. The exact attestation digest is bound to the reservation. Freshness
+is rechecked inside the atomic operation and before later claims: authorization
+expires after one hour or at period end, whichever comes first. Missing, changed
+or incomplete evidence fails closed. This route changes only the current process's
+model selection; it does not alter defaults, key limits, billing settings or any
+report identity, evidence or publication check.
+
 ### Optional article triage
 
 `analysis.triage` can ask a non-generative decision model

@@ -18,6 +18,16 @@ on:
         description: 'Re-admit after an uncertain earlier generation (true/false)'
         required: false
         default: 'false'
+      paid_verification:
+        description: 'Consume the single fixed Kimi/Moonshot verification reservation (maximum $8 including triage)'
+        type: boolean
+        required: false
+        default: false
+      billing_evidence:
+        description: 'Bounded billing attestation JSON for the fixed verification; no credentials or raw account data'
+        type: string
+        required: false
+        default: ''
 
 concurrency:
   group: sentryinsight-report-generation
@@ -148,6 +158,7 @@ jobs:
         env:
           READMIT: ${{ github.event.inputs.readmit || 'false' }}
           GENERATION_MODEL: ${{ vars.SENTRYINSIGHT_MODEL || 'openrouter/nvidia/nemotron-3.5-super-vl:free' }}
+          PAID_VERIFICATION: ${{ github.event.inputs.paid_verification || 'false' }}
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
@@ -158,7 +169,14 @@ jobs:
           # enabled) makes separate paid decision calls of a few cents at most;
           # each run records that spend, or a missing usage receipt, in its
           # triage receipt, and readmission does not reconcile it.
-          case "$GENERATION_MODEL" in *:free) READMIT=true ;; esac
+          if [ "${PAID_VERIFICATION:-false}" = "true" ]; then
+            if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ] || [ "$GITHUB_REF" != "refs/heads/main" ] || [ "$GITHUB_RUN_ATTEMPT" != "1" ] || [ "$READMIT" != "false" ]; then
+              echo 'Paid verification cannot readmit or run outside the first manual main attempt' >&2
+              exit 1
+            fi
+          else
+            case "$GENERATION_MODEL" in *:free) READMIT=true ;; esac
+          fi
           node publication/cli.js admit --event-name "$GITHUB_EVENT_NAME" --event-path "$GITHUB_EVENT_PATH" \
             --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --readmit "$READMIT"
 
@@ -176,6 +194,22 @@ jobs:
           ADMISSION_KEY: ${{ steps.admission.outputs.admission_key }}
         run: node publication/cli.js invoked --key "$ADMISSION_KEY" --run-id "$GITHUB_RUN_ID"
 
+      - name: Prepare fixed verification billing evidence
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.paid_verification == 'true' && steps.admission.outputs.decision == 'admitted'
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          event = json.loads(Path(os.environ['GITHUB_EVENT_PATH']).read_text())
+          raw = event.get('inputs', {}).get('billing_evidence', '')
+          if not isinstance(raw, str) or len(raw.encode()) > 4096 or not isinstance(json.loads(raw), dict):
+              raise ValueError('Bounded verification billing evidence is required')
+          path = Path(os.environ['RUNNER_TEMP']) / 'sentryinsight-paid-billing.json'
+          fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+          with os.fdopen(fd, 'w') as stream:
+              stream.write(raw)
+          PY
+
       - name: Generate exploitation report
         id: generate
         if: steps.admission.outputs.decision == 'admitted'
@@ -185,6 +219,8 @@ jobs:
           # no local OpenCode gateway is needed in CI.
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           SENTRYINSIGHT_ATTEMPT_STORE: admission
+          SENTRYINSIGHT_PAID_VERIFICATION: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.paid_verification == 'true' && 'kimi-moonshot-verification-20261117' || '' }}
+          SENTRYINSIGHT_BILLING_EVIDENCE: ${{ runner.temp }}/sentryinsight-paid-billing.json
           SENTRYINSIGHT_ADMISSION_KEY: ${{ steps.admission.outputs.admission_key }}
           SENTRYINSIGHT_SOURCE_REVISION: ${{ steps.source.outputs.revision }}
           SENTRYINSIGHT_FAILURE_RECEIPT: ${{ runner.temp }}/sentryinsight-failure.json

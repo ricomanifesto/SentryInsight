@@ -15,6 +15,7 @@ from .article_policy import (
     exclude_virtual_event_promotions,
 )
 from .exploitation_triage import run_triage
+from .paid_verification import initialize_verification, active_verification
 from .report_validation import (
     format_report_validation_issues,
 )
@@ -207,8 +208,10 @@ async def filter_articles(
             state["articles_fingerprint"] = fingerprint
             if not plan.eligible_keys:
                 state["status"] = "review_required"
-            elif fingerprint == read_stored_fingerprint(
-                _fingerprint_path_for(output_path)
+            elif (
+                fingerprint
+                == read_stored_fingerprint(_fingerprint_path_for(output_path))
+                and active_verification() is None
             ):
                 logger.info("Source review plan is unchanged; skipping analysis")
                 state["status"] = "completed_unchanged"
@@ -574,6 +577,7 @@ async def run_exploitation_analysis():
             )
             return None
 
+        await initialize_verification(config)
         span.set_attributes(model_attributes(config))
 
         # Initialize state

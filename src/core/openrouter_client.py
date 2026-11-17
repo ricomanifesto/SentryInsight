@@ -18,6 +18,7 @@ import httpx
 from .attempt_budget import AttemptBudget, MemoryAttemptBudget
 from .opencode_client import ModelSelection
 from .retry_policy import MAX_ATTEMPTS, MAX_RETRY_DELAY, retry_decision
+from .paid_verification import active_verification
 
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 OPENROUTER_API_KEY_ENV_VAR = "OPENROUTER_API_KEY"
@@ -87,7 +88,14 @@ class OpenRouterClient:
         self.timeout = timeout
         self.transport = transport
         self.max_attempts = max_attempts
-        self.attempt_budget = attempt_budget or MemoryAttemptBudget()
+        self.verification = active_verification()
+        if self.verification:
+            self.verification.assert_key(api_key)
+        self.attempt_budget = (
+            self.verification.bridge
+            if self.verification
+            else attempt_budget or MemoryAttemptBudget()
+        )
         self.on_request = on_request
         self.last_generation: dict[str, str] | None = None
         self.last_request: dict = {}
@@ -106,6 +114,8 @@ class OpenRouterClient:
                 "allow_fallbacks": False,
                 "max_price": {"prompt": 0, "completion": 0, "request": 0, "image": 0},
             }
+        if self.verification:
+            payload["provider"] = self.verification.provider_policy("report")
         return payload
 
     def _snapshot(self):
@@ -156,6 +166,10 @@ class OpenRouterClient:
             },
         ) as client:
             while True:
+                if self.verification:
+                    await self.verification.assert_report(
+                        model.model_id, self.max_tokens
+                    )
                 reservation = await self.attempt_budget.reserve(
                     request_sha256, self.max_attempts
                 )
@@ -178,6 +192,8 @@ class OpenRouterClient:
                 delay = 0.0
                 text = ""
                 try:
+                    if self.verification:
+                        self.verification.check_deadline()
                     started = time.monotonic()
                     try:
                         response = await client.post("/chat/completions", json=payload)

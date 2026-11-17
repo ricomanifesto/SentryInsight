@@ -26,6 +26,8 @@ const { loadSiteConfig, readSiteConfig } = require('./kit/config');
 const { contentIdentityFor, digestContentAt } = require('./kit/content');
 const { createGit } = require('./kit/git');
 const { createPublisher } = require('./kit/publisher');
+const { PROFILE, PROFILE_SHA256 } = require('./kit/verification-budget');
+const { canonicalJson, sha256 } = require('./kit/canonical');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const REMOTE = 'origin';
@@ -116,7 +118,18 @@ async function main() {
   const config = readSiteConfig(REPO_ROOT);
   const git = createGit(REPO_ROOT);
 
-  if (['admit', 'invoked', 'complete', 'request-reserve', 'request-finish'].includes(command)) {
+  if (command.startsWith('verification-')) {
+    if (config.site !== 'SentryInsight' || git.run(['rev-parse', 'HEAD']).trim() !== options.revision) {
+      throw new Error('verification source revision mismatch');
+    }
+    if (command === 'verification-profile') {
+      process.stdout.write(`${JSON.stringify({ profile: PROFILE, sha256: PROFILE_SHA256 })}\n`);
+      return;
+    }
+  }
+
+  if (['admit', 'invoked', 'complete', 'request-reserve', 'request-finish',
+    'verification-reserve', 'verification-triage', 'verification-report'].includes(command)) {
     const admission = createAdmission({
       repoRoot: REPO_ROOT,
       remote: REMOTE,
@@ -136,6 +149,27 @@ async function main() {
         }));
       },
     });
+    if (command.startsWith('verification-')) {
+      const args = { admissionKey: options.key, runId: options.run_id, revision: options.revision, runAttempt: options.run_attempt };
+      let result;
+      if (command === 'verification-reserve') {
+        const fd = fs.openSync(options.billing_evidence, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW | fs.constants.O_NONBLOCK);
+        let evidence;
+        try {
+          const info = fs.fstatSync(fd);
+          if (!info.isFile() || info.size > 4096) throw new Error('verification evidence unavailable');
+          const raw = fs.readFileSync(fd);
+          if (raw.length > 4096) throw new Error('verification evidence unavailable');
+          evidence = JSON.parse(raw.toString('utf8'));
+        } finally { fs.closeSync(fd); }
+        if (sha256(canonicalJson(evidence)) !== options.evidence_sha256) throw new Error('verification evidence changed');
+        result = await admission.reserveVerification({ ...args, evidence });
+      } else if (command === 'verification-triage') {
+        result = await admission.claimVerificationTriage({ ...args, slot: Number(options.slot), requestSha256: options.request_sha256 });
+      } else result = await admission.assertVerificationReport(args);
+      process.stdout.write(`${JSON.stringify(result)}\n`);
+      return;
+    }
     if (command === 'request-reserve' || command === 'request-finish') {
       if (git.run(['rev-parse', 'HEAD']).trim() !== options.revision) throw new Error('request source revision mismatch');
       const args = { admissionKey: options.key, runId: options.run_id, revision: options.revision,

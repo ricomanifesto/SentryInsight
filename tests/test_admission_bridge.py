@@ -16,7 +16,7 @@ from src.core.opencode_client import parse_model_selection
 
 
 @pytest.fixture
-def budget_factory(tmp_path):
+def budget_factory(tmp_path, request):
     root = tmp_path / "repo"
     root.mkdir()
     remote = tmp_path / "remote.git"
@@ -37,6 +37,20 @@ def budget_factory(tmp_path):
         root / "publication",
         ignore=shutil.ignore_patterns("test"),
     )
+    # Inject the existing clock dependency only in this disposable CLI copy.
+    # Production exposes no clock override; this fixed one-use period remains
+    # testable after its expiry without weakening the production gate.
+    if hasattr(request, "param"):
+        cli = root / "publication/cli.js"
+        source = cli.read_text()
+        marker = "const admission = createAdmission({"
+        assert source.count(marker) == 1
+        cli.write_text(
+            source.replace(
+                marker,
+                marker + "\n      now: () => new Date('2026-11-17T16:10:00.000Z'),",
+            )
+        )
     command("git", "add", "publication")
     command("git", "commit", "-m", "Offline request-budget fixture")
     revision = command("git", "rev-parse", "HEAD")
@@ -48,7 +62,7 @@ def budget_factory(tmp_path):
             "publication/cli.js",
             "admit",
             "--event-name",
-            "workflow_dispatch",
+            getattr(request, "param", "workflow_dispatch"),
             "--event-path",
             str(root / "event.json"),
             "--run-id",
@@ -76,6 +90,123 @@ def budget_factory(tmp_path):
         return value
 
     return factory
+
+
+def _seed_verification_history(budget):
+    script = """
+const {createStore}=require('./publication/kit/store');
+const {createGit}=require('./publication/kit/git');
+const store=createStore({git:createGit(process.cwd()),remote:'origin',branch:'publication-admission',site:'SentryInsight'});
+store.append(()=>[
+ {stage:'pilot_opening',periodStart:'2026-11-01T00:00:00.000Z',periodEnd:'2026-12-01T00:00:00.000Z',amountMicrousd:0},
+ {stage:'spend_reserved',generationToken:'held',amountMicrousd:7251456},
+ {stage:'spend_reserved',generationToken:'settled',amountMicrousd:7251456},
+ {stage:'spend_settled',generationToken:'settled',actualMicrousd:64110,releasedMicrousd:7187346}
+]).catch(()=>process.exit(1));
+"""
+    subprocess.run(
+        ["node", "-e", script], cwd=budget.root, check=True, capture_output=True
+    )
+
+
+def _billing_fixture(budget):
+    path = budget.root / "billing.json"
+    path.write_text(
+        json.dumps(
+            dict(
+                billing="credits-no-applicable-byok",
+                coverage="all-applicable-ci-keys",
+                periodStart="2026-11-01T00:00:00.000Z",
+                periodEnd="2026-12-01T00:00:00.000Z",
+                actualMicrousd=1400000,
+                checkedAt="2026-11-17T16:00:00.000Z",
+                scopeSha256="b" * 64,
+            )
+        )
+    )
+    import hashlib
+
+    digest = hashlib.sha256(
+        (
+            json.dumps(json.loads(path.read_text()), sort_keys=True, indent=2) + "\n"
+        ).encode()
+    ).hexdigest()
+    return [
+        "--run-attempt",
+        "1",
+        "--billing-evidence",
+        str(path),
+        "--evidence-sha256",
+        digest,
+    ]
+
+
+@pytest.mark.parametrize("budget_factory", ["workflow_dispatch"], indirect=True)
+def test_paid_profile_is_exported_without_spend_or_network(budget_factory):
+    budget = budget_factory()
+    result = budget._invoke("verification-profile", [])
+    assert result["profile"]["reserveMicrousd"] == 7956100
+    assert result["profile"]["model"] == "moonshotai/kimi-k3.1-pro"
+    assert len(result["sha256"]) == 64
+
+
+@pytest.mark.parametrize("budget_factory", ["workflow_dispatch"], indirect=True)
+def test_paid_cli_reservation_and_claims_survive_new_bridge_instances(budget_factory):
+    first = budget_factory()
+    _seed_verification_history(first)
+    exported = first._invoke("verification-profile", [])
+    assert first._invoke("verification-reserve", _billing_fixture(first)) == {
+        "reservedMicrousd": 7956100,
+        "profileSha256": exported["sha256"],
+        "validUntil": 1794934800000,
+    }
+    with pytest.raises(AttemptBudgetError):
+        budget_factory()._invoke("verification-reserve", _billing_fixture(first))
+    assert budget_factory()._invoke("verification-report", ["--run-attempt", "1"]) == {
+        "verified": True
+    }
+    options = ["--run-attempt", "1", "--slot", "0", "--request-sha256", "c" * 64]
+    assert first._invoke("verification-triage", options) == {"claimed": True}
+    with pytest.raises(AttemptBudgetError):
+        budget_factory()._invoke("verification-triage", options)
+    records = json.loads(
+        subprocess.check_output(
+            [
+                "git",
+                "--git-dir",
+                str(first.root.parent / "remote.git"),
+                "show",
+                "publication-admission:state.json",
+            ],
+            text=True,
+        )
+    )["records"]
+    assert len([row for row in records if row["stage"] == "verification_reserved"]) == 1
+    assert any(
+        row["stage"] == "spend_reserved" and row.get("generationToken") == "held"
+        for row in records
+    )
+
+
+@pytest.mark.parametrize("budget_factory", ["schedule"], indirect=True)
+def test_paid_cli_rejects_non_manual_admitted_episodes(budget_factory):
+    budget = budget_factory()
+    _seed_verification_history(budget)
+    with pytest.raises(AttemptBudgetError):
+        budget._invoke("verification-reserve", _billing_fixture(budget))
+
+
+@pytest.mark.parametrize("budget_factory", ["workflow_dispatch"], indirect=True)
+def test_paid_cli_rejects_proof_changed_after_metadata_preflight(budget_factory):
+    budget = budget_factory()
+    _seed_verification_history(budget)
+    args = _billing_fixture(budget)
+    path = budget.root / "billing.json"
+    value = json.loads(path.read_text())
+    value["actualMicrousd"] = 1000000
+    path.write_text(json.dumps(value))
+    with pytest.raises(AttemptBudgetError):
+        budget._invoke("verification-reserve", args)
 
 
 def test_real_bridge_reservation_survives_lost_client(budget_factory):

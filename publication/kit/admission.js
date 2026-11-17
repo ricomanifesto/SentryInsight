@@ -30,6 +30,7 @@ const { createGit } = require('./git');
 const { LAYOUT, SHA1, SHA256, releaseKeyOf } = require('./release');
 const { createStore } = require('./store');
 const { createRequestBudget } = require('./request-budget');
+const { createVerificationBudget } = require('./verification-budget');
 
 const DIGEST_REPOSITORY = 'ricomanifesto/SentryDigest';
 const SNAPSHOT_FEED_PATH = `${LAYOUT.payloadPrefix}feed.xml`;
@@ -352,14 +353,25 @@ function createAdmission({
     return appended[0].stage;
   }
 
-  const requests = createRequestBudget({ store, now, requireOwner(records, key, run) {
+  function requireOwner(records, key, run) {
     const latest = latestByKey(records).get(key);
     if (!latest || latest.stage !== 'invoked' || latest.run_id !== run) throw new Error('request admission not owned');
     const admittedIndex = records.findLastIndex((r) => r.admission_key === key && r.stage === 'admitted');
     if (admittedIndex < 0 || records[admittedIndex].run_id !== run) throw new Error('request episode not owned');
     return admittedIndex;
+  }
+  const requests = createRequestBudget({ store, now, requireOwner });
+  const verification = createVerificationBudget({ store, now, requireOwner(records, key, run) {
+    const index = requireOwner(records, key, run);
+    if (consumer !== 'SentryInsight' || records[index].event !== 'workflow_dispatch'
+        || records[index].run_attempt !== '1' || key !== `run:${run}`) {
+      throw new Error('verification requires an owned first manual attempt');
+    }
+    return index;
   } });
-  return { admit, complete, invoked, ...requests, readState: () => store.read() };
+  return { admit, complete, invoked, ...requests,
+    reserveVerification: verification.reserve, claimVerificationTriage: verification.claimTriage,
+    assertVerificationReport: verification.assertReport, readState: () => store.read() };
 }
 
 module.exports = { CONCLUSIVE_OUTCOMES, DIGEST_REPOSITORY, SNAPSHOT_FEED_PATH, createAdmission, findAdmissionReport, snapshotFeedUrl };
