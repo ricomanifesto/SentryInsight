@@ -3998,6 +3998,13 @@
       "run_id": "44032784765",
       "stage": "request_finished",
       "token": "b783535479a3f5e8c841ec6c17e64352"
+    },
+    {
+      "admission_key": "run:44032784765",
+      "at": "2026-11-17T06:46:29.926Z",
+      "outcome": "failed",
+      "run_id": "44032784765",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
