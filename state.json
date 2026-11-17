@@ -4303,6 +4303,18 @@
       "at": "2026-11-17T19:41:55.968Z",
       "run_id": "44160606236",
       "stage": "invoked"
+    },
+    {
+      "admission_key": "run:44160606236",
+      "amountMicrousd": 7956100,
+      "at": "2026-11-17T19:42:00.719Z",
+      "evidence_sha256": "958c0db87205cc2535fd7775dc1779971aaa04c15496a2f4a2131096bad62553",
+      "profile_id": "kimi-moonshot-verification-20261117",
+      "profile_sha256": "b25140834b2dfe6a1a69e23a39b38082aa2aa762d4921e1a8002276b24a2d2aa",
+      "revision": "98c20db1ba35e135f8600b532a40a640fc7cc678",
+      "run_id": "44160606236",
+      "stage": "verification_reserved",
+      "valid_until": 1794947806564
     }
   ],
   "schema_version": 1,
