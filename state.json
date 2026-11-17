@@ -3959,6 +3959,15 @@
       "release_key": "14c7fd3e46385ae0fb5f0205a918f65c043bc43dd7c8f495c61d70580420dc78",
       "run_id": "44030843920",
       "stage": "completed"
+    },
+    {
+      "admission_key": "run:44032784765",
+      "at": "2026-11-17T06:43:11.626Z",
+      "binding": "none",
+      "event": "schedule",
+      "run_attempt": "1",
+      "run_id": "44032784765",
+      "stage": "admitted"
     }
   ],
   "schema_version": 1,
