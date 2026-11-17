@@ -88,6 +88,55 @@ def test_real_bridge_reservation_survives_lost_client(budget_factory):
         asyncio.run(budget_factory().reserve("a" * 64, 3))
 
 
+def test_stale_event_uses_the_checked_out_revision_for_reserve_and_finish(
+    budget_factory, monkeypatch
+):
+    fixture = budget_factory()
+    for key, value in {
+        "SENTRYINSIGHT_ADMISSION_KEY": fixture.key,
+        "GITHUB_RUN_ID": fixture.run_id,
+        "GITHUB_RUN_ATTEMPT": "1",
+        "GITHUB_SHA": "a" * 40,
+        "SENTRYINSIGHT_SOURCE_REVISION": fixture.revision,
+    }.items():
+        monkeypatch.setenv(key, value)
+    budget = AdmissionAttemptBudget.from_environment()
+    budget.root = fixture.root
+    reservation = asyncio.run(budget.reserve("d" * 64, 3))
+    assert reservation["attempt"] == 1
+    assert budget.revision == fixture.revision
+    asyncio.run(budget.finish(reservation, "response_received"))
+    with pytest.raises(AttemptBudgetError):
+        asyncio.run(budget.reserve("d" * 64, 3))
+    assert os.environ["GITHUB_SHA"] == "a" * 40
+
+
+@pytest.mark.parametrize("revision", ["", "bad", "A" * 40, "a" * 39])
+def test_invalid_explicit_source_revision_never_falls_back(monkeypatch, revision):
+    for key, value in {
+        "SENTRYINSIGHT_ADMISSION_KEY": "run:9",
+        "GITHUB_RUN_ID": "9",
+        "GITHUB_RUN_ATTEMPT": "1",
+        "GITHUB_SHA": "a" * 40,
+        "SENTRYINSIGHT_SOURCE_REVISION": revision,
+    }.items():
+        monkeypatch.setenv(key, value)
+    with pytest.raises(AttemptBudgetError):
+        AdmissionAttemptBudget.from_environment()
+
+
+def test_historical_budget_callers_keep_the_event_revision(monkeypatch):
+    monkeypatch.delenv("SENTRYINSIGHT_SOURCE_REVISION", raising=False)
+    for key, value in {
+        "SENTRYINSIGHT_ADMISSION_KEY": "run:9",
+        "GITHUB_RUN_ID": "9",
+        "GITHUB_RUN_ATTEMPT": "1",
+        "GITHUB_SHA": "a" * 40,
+    }.items():
+        monkeypatch.setenv(key, value)
+    assert AdmissionAttemptBudget.from_environment().revision == "a" * 40
+
+
 def test_real_bridge_and_client_retry_share_one_persisted_cap(budget_factory):
     calls = []
 

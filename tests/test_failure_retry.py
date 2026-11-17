@@ -340,6 +340,19 @@ def test_workflow_uses_same_admission_and_separate_seven_day_artifact():
     assert "readmit" not in artifact
 
 
+@pytest.mark.parametrize("explicit", [None, "b" * 40, "", "bad"])
+def test_receipt_uses_explicit_checkout_identity_without_changing_its_schema(explicit):
+    env = {"GITHUB_SHA": "a" * 40}
+    if explicit is not None:
+        env["SENTRYINSIGHT_SOURCE_REVISION"] = explicit
+    receipt = make_receipt(None, started=True, environ=env)
+    expected = (
+        "a" * 40 if explicit is None else explicit if len(explicit) == 40 else None
+    )
+    assert receipt["source_revision"] == expected
+    assert validate_receipt(receipt) == receipt
+
+
 def test_real_validation_failure_reaches_durable_receipt_and_preserves_last_good(
     tmp_path,
 ):

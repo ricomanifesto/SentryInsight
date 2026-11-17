@@ -45,12 +45,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
         with:
+          # A queued main run starts from the preceding run's published report.
+          # Other refs retain the exact revision that requested the run.
+          ref: ${{ github.ref == 'refs/heads/main' && github.ref || github.sha }}
           token: ${{ secrets.PAT_GITHUB }}
 
       - name: Verify checkout Git access
+        id: source
         run: |
           git rev-parse --verify HEAD
           git status --porcelain
+          echo "revision=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -181,6 +186,7 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           SENTRYINSIGHT_ATTEMPT_STORE: admission
           SENTRYINSIGHT_ADMISSION_KEY: ${{ steps.admission.outputs.admission_key }}
+          SENTRYINSIGHT_SOURCE_REVISION: ${{ steps.source.outputs.revision }}
           SENTRYINSIGHT_FAILURE_RECEIPT: ${{ runner.temp }}/sentryinsight-failure.json
           SENTRYINSIGHT_TRIAGE_RECEIPT: ${{ runner.temp }}/sentryinsight-triage.json
           # Run-local source snapshot for the history projection below. It
@@ -196,7 +202,7 @@ jobs:
           # Without the secret, nothing is sent.
           LOGFIRE_TOKEN: ${{ secrets.LOGFIRE_TOKEN }}
           LOGFIRE_ENVIRONMENT: github-actions
-          LOGFIRE_SERVICE_VERSION: ${{ github.sha }}
+          LOGFIRE_SERVICE_VERSION: ${{ steps.source.outputs.revision }}
       
       - name: Export bounded failure or completion metadata
         id: failure-receipt
@@ -294,6 +300,7 @@ jobs:
         env:
           ADMISSION_KEY: ${{ steps.admission.outputs.admission_key }}
           ADMISSION_FEED: ${{ steps.admission.outputs.feed_url }}
+          GENERATION_SOURCE_SHA: ${{ steps.source.outputs.revision }}
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
@@ -311,6 +318,13 @@ jobs:
           printf 'Update exploitation report [automated]\n\nAdmission-Key: %s\nAdmission-Feed: %s\n' "$ADMISSION_KEY" "${ADMISSION_FEED:-none}" > "$RUNNER_TEMP/report-commit-message.txt"
           git commit -F "$RUNNER_TEMP/report-commit-message.txt"
           git pull --rebase origin main
+          # The report was generated and validated against this checkout.
+          # Refuse even a clean rebase onto source that changed during the run.
+          if [ "$(git rev-parse FETCH_HEAD)" != "$GENERATION_SOURCE_SHA" ] ||
+             [ "$(git rev-parse HEAD^)" != "$GENERATION_SOURCE_SHA" ]; then
+            echo "::error::Main advanced during generation; report not published"
+            exit 1
+          fi
           git push https://${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }}.git HEAD:main
           echo "published=true" >> "$GITHUB_OUTPUT"
 

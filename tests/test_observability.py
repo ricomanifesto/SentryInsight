@@ -622,7 +622,7 @@ def test_run_span_records_ci_identity_from_the_environment(capfire, monkeypatch)
     assert attributes["ci.event"] == "schedule"
 
 
-def test_service_version_is_the_commit_in_the_generation_step_only():
+def test_service_version_is_the_checkout_commit_in_the_generation_step_only():
     workflow_file = REPO_ROOT / ".github" / "workflows" / "generate-report.yml"
     header, *steps = workflow_file.read_text().split("\n      - name: ")
 
@@ -631,7 +631,8 @@ def test_service_version_is_the_commit_in_the_generation_step_only():
     assert [step.splitlines()[0] for step in holders] == [
         "Generate exploitation report"
     ]
-    assert "LOGFIRE_SERVICE_VERSION: ${{ github.sha }}" in holders[0]
+    assert "LOGFIRE_SERVICE_VERSION: ${{ steps.source.outputs.revision }}" in holders[0]
+    assert "LOGFIRE_SERVICE_VERSION: ${{ github.sha }}" not in holders[0]
 
 
 @pytest.fixture(autouse=True)

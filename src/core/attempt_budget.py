@@ -100,7 +100,11 @@ class AdmissionAttemptBudget:
             "revision": "GITHUB_SHA",
             "run_attempt": "GITHUB_RUN_ATTEMPT",
         }
-        return cls(**{name: os.environ.get(env, "") for name, env in names.items()})
+        values = {name: os.environ.get(env, "") for name, env in names.items()}
+        values["revision"] = os.environ.get(
+            "SENTRYINSIGHT_SOURCE_REVISION", values["revision"]
+        )
+        return cls(**values)
 
     def _invoke(self, command: str, arguments: list[str]) -> dict:
         argv = [

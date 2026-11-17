@@ -180,6 +180,9 @@ def make_receipt(
         field: _label(env.get(env_name), pattern)
         for field, (env_name, pattern) in _IDENTITY_FIELDS.items()
     }
+    identity["source_revision"] = _label(
+        env.get("SENTRYINSIGHT_SOURCE_REVISION", env.get("GITHUB_SHA")), r"[a-f0-9]{40}"
+    )
     return {
         "schema_version": 1,
         **identity,

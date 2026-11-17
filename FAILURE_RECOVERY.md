@@ -26,6 +26,17 @@ limit or owner cannot reuse that episode. These operational records persist on
 the admission branch independently of expiring Actions diagnostic artifacts;
 they contain hashes, identifiers and fixed states, never request/answer content.
 
+Generation runs share one queue. Main runs check out current main when they
+start; other refs retain the triggering revision. The recorded checkout SHA is
+passed as `SENTRYINSIGHT_SOURCE_REVISION` to the request budget and diagnostics,
+and identifies the trace's service version. Older callers without that variable
+retain their `GITHUB_SHA` identity; an invalid explicit revision cannot fall back
+to it. Before pushing a report, both the fetched main tip and the report commit's
+parent must match the recorded checkout. A main change during generation stops
+publication and preserves the remote report, including when rebase would apply
+cleanly or drop an already-applied report patch. There is no automatic
+regeneration after that failure.
+
 A reserved attempt with no trustworthy completion remains held. A timeout or lost
 acknowledgement while updating the ledger is not retried. Concurrent processes
 cannot both reserve the same next attempt. Recorded retry delays are checked by
