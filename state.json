@@ -4161,6 +4161,16 @@
       "run_id": "44082286249",
       "stage": "request_finished",
       "token": "d2646e3bf66ae270f0f5e611587b9829"
+    },
+    {
+      "admission_key": "digest:026ce688c0b17aaffd2ad8c57ea4b79b5b6dbd7a",
+      "at": "2026-11-17T12:35:08.800Z",
+      "binding": "feed-bytes",
+      "digest_content_digest": "90d6d393f66d5fb910041b4551d6c5f7a03a76089b9524249a27dbd29c7a3435",
+      "outcome": "not-published",
+      "release_key": "14437814abf89cce1442a5bdd9f1a1f5fdb40f52626b66027871c6a059ed2efe",
+      "run_id": "44082286249",
+      "stage": "completed"
     }
   ],
   "schema_version": 1,
