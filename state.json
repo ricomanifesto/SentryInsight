@@ -4315,6 +4315,17 @@
       "run_id": "44160606236",
       "stage": "verification_reserved",
       "valid_until": 1794947806564
+    },
+    {
+      "admission_key": "run:44160606236",
+      "at": "2026-11-17T19:42:05.767Z",
+      "attempt": 1,
+      "limit": 3,
+      "request_sha256": "bb22ce47da7c99c112a7b2c4797e94f5b18e94e93787a501fc77702c51f8648a",
+      "revision": "98c20db1ba35e135f8600b532a40a640fc7cc678",
+      "run_id": "44160606236",
+      "stage": "request_reserved",
+      "token": "c36d8d9037a9f5a5a18433c562863b3b"
     }
   ],
   "schema_version": 1,
