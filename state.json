@@ -3898,6 +3898,12 @@
       "outcome": "failed",
       "run_id": "43609016490",
       "stage": "unresolved"
+    },
+    {
+      "admission_key": "digest:f4c53c9671b53a537c972931170150148145be11",
+      "at": "2026-11-17T06:27:26.673Z",
+      "run_id": "44030843920",
+      "stage": "readmitted"
     }
   ],
   "schema_version": 1,
