@@ -177,7 +177,12 @@ def sentence_containing_position(text: str, position: int) -> str:
 
 
 def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]:
-    """Collect prompt CVEs that are tied to non-negated exploit activity."""
+    """Coverage obligations need subject-specific evidence, not article proximity.
+
+    This inventory never removes source evidence from generation or grounding.
+    Explicit background sections/paragraphs remain in the full article but do
+    not force an independent finding about a historical or related reference.
+    """
     cves: list[str] = []
     seen: set[str] = set()
 
@@ -188,21 +193,57 @@ def collect_exploitation_relevant_prompt_cves(article_summary: str) -> list[str]
         seen.add(normalized_cve)
         cves.append(normalized_cve)
 
+    narrative = strip_cve_metadata_noise(article_summary)
+    primary = _coverage_subject_text(narrative)
+    mentioned = set(collect_prompt_cves(narrative))
+    direct = []
+    for match in CVE_CONTEXT_PATTERN.finditer(primary):
+        context = sentence_containing_position(primary, match.start())
+        if has_exploitation_relevance(
+            context
+        ) and not has_negated_exploitation_relevance(context):
+            direct.append(normalize_cve_match(match))
+
     structured_cves = collect_structured_prompt_cves(article_summary)
     metadata_context_cves = structured_cves or collect_url_prompt_cves(article_summary)
-    if metadata_context_cves and has_positive_exploitation_sentence(article_summary):
+    if metadata_context_cves and has_positive_exploitation_sentence(primary):
         for cve in metadata_context_cves:
-            if not has_negated_cve_sentence(article_summary, cve):
+            if (cve not in mentioned or cve in direct) and not has_negated_cve_sentence(
+                article_summary, cve
+            ):
                 add_cve(cve)
-
-    for match in CVE_CONTEXT_PATTERN.finditer(article_summary):
-        cve_context = sentence_containing_position(article_summary, match.start())
-        if has_exploitation_relevance(
-            cve_context
-        ) and not has_negated_exploitation_relevance(cve_context):
-            add_cve(normalize_cve_match(match))
+    for cve in direct:
+        add_cve(cve)
 
     return cves
+
+
+def _coverage_subject_text(narrative: str) -> str:
+    lines = []
+    background_level = 0
+    background_paragraph = False
+    for line in narrative.splitlines():
+        heading = re.match(r"^(#{1,6})\s+(.+?)\s*$", line)
+        if heading:
+            level = len(heading[1])
+            if background_level and level <= background_level:
+                background_level = 0
+            if re.fullmatch(
+                r"Background|Related (?:reporting|articles|coverage)",
+                heading[2].rstrip(":"),
+                re.I,
+            ):
+                background_level = level
+        if not line.strip():
+            background_paragraph = False
+        if re.match(
+            r"^\s*(?:For background\b|Background\s*:|Related (?:reporting|articles|coverage)\s*:)",
+            line,
+            re.I,
+        ):
+            background_paragraph = True
+        lines.append("" if background_level or background_paragraph else line)
+    return "\n".join(lines)
 
 
 async def analyze_exploitation(

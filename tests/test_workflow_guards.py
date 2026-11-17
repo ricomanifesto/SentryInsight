@@ -233,6 +233,7 @@ Recent exploitation activity is concentrated in edge systems.
 ## Active Exploitation Details
 
 ### Example Vulnerability (CVE-2026-1234)
+- **CVE IDs**: CVE-2026-1234
 - **Description**: Attackers are exploiting a vulnerable service.
 - **Impact**: Remote access.
 - **Status**: Active exploitation observed.
@@ -316,6 +317,7 @@ Recent exploitation activity is concentrated in edge systems.
 ## Active Exploitation Details
 
 ### Example Vulnerability (CVE-2026-1234)
+- **CVE IDs**: CVE-2026-1234
 - **Description**: Attackers are exploiting a vulnerable service.
 - **Impact**: Remote access.
 - **Status**: Active exploitation observed.
@@ -383,6 +385,7 @@ Recent exploitation activity is concentrated in edge systems.
 ## Active Exploitation Details
 
 ### Example Vulnerability (CVE-2026-1234)
+- **CVE IDs**: CVE-2026-1234
 - **Description**: Attackers are exploiting a vulnerable service.
 - **Impact**: Remote access.
 - **Status**: Active exploitation observed.
@@ -635,6 +638,7 @@ Recent exploitation activity is concentrated in edge systems.
 ## Active Exploitation Details
 
 ### Example Vulnerability (CVE-2026-1234)
+- **CVE IDs**: CVE-2026-1234
 - **Description**: Attackers are exploiting a vulnerable service.
 - **Impact**: Remote access.
 - **Status**: Active exploitation observed.

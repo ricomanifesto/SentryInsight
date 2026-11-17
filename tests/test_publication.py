@@ -238,7 +238,7 @@ def test_publisher_runs_after_validation_or_through_the_manual_gate():
 def test_an_unchanged_generation_resumes_the_current_release():
     workflow = _workflow("generate-report.yml")
     assert re.search(
-        r"generate-report:\n\s+runs-on: ubuntu-latest\n\s+outputs:\n"
+        r"generate-report:\n\s+runs-on: ubuntu-24.04\n\s+outputs:\n"
         r"\s+published: \$\{\{ steps\.publish\.outputs\.published \}\}",
         workflow,
     )

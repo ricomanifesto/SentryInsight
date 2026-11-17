@@ -782,7 +782,11 @@ def grounding_failure_diagnostic(
     )
     return {
         "schema_version": 1,
-        "stage": "finding_evidence" if evidence_error else "reporting_identity",
+        "stage": (
+            "finding_evidence"
+            if evidence_error and evidence_error.code != "finding_cve_identity_mismatch"
+            else "reporting_identity"
+        ),
         "code": (
             evidence_error.code if evidence_error else "reporting_identity_rejected"
         ),
@@ -794,6 +798,7 @@ def grounding_failure_diagnostic(
                 *DETAIL_FIELDS,
                 "Exploitation Status",
                 "Reporting",
+                "CVE IDs",
                 "Action",
                 "prose",
                 "summary",

@@ -12,6 +12,7 @@ from .finding_evidence import (
     validate_finding_evidence,
     validate_vendor_links,
 )
+from .finding_grouping import group_related_findings
 from .report_artifact import DIGEST_ARCHIVE_ROOT, parse_report_artifact
 from .reporting import (
     REPORTING_KEY_PATTERN,
@@ -171,6 +172,33 @@ def resolve_reviewed_analysis(
         return _resolve_reviewed_analysis(result, on_stage=on_stage, advisory=advisory)
 
 
+def _validate_finding_identities(report: str) -> None:
+    """Fresh identity must agree before any stage unions CVEs for scoping.
+
+    A descriptive heading may name a subset of a joint finding's explicit IDs.
+    Historical artifact parsing intentionally keeps its existing grammar.
+    """
+    for row in report_findings(report).rows:
+        fields = [value for name, value in row.pairs if name == "CVE IDs"]
+        heading_cves = set(extract_cve_ids(row.heading)) | set(
+            extract_cve_ids(visible_candidate_text(row.heading))
+        )
+        explicit_cves = set(extract_cve_ids(fields[0])) if len(fields) == 1 else set()
+        if len(fields) > 1 or not heading_cves <= explicit_cves:
+            error = EvidenceError(
+                "Finding heading and explicit CVE identity disagree",
+                code="finding_cve_identity_mismatch",
+                field="CVE IDs",
+                expected=True,
+                observed=False,
+            )
+            error.finding_index = row.index
+            error.cves = row.cves
+            error.source_keys = row.cited_keys
+            error.finding_sha256 = row.sha256
+            raise error
+
+
 def _resolve_reviewed_analysis(
     result: Mapping[str, Any],
     *,
@@ -210,6 +238,7 @@ def _resolve_reviewed_analysis(
         raise SourceReviewError("source_review_required")
     stage("reporting_identity")
     prepared, cited = _prepare_reporting_selection(prepare_generated_report(raw), plan)
+    _validate_finding_identities(prepared)
     eligible_cves = {
         cve
         for row in plan.packet["sources"]
@@ -234,6 +263,12 @@ def _resolve_reviewed_analysis(
         on_reject=advise if advisory else None,
     )
     stage("finding_evidence")
+    grouped = group_related_findings(canonical, catalog)
+    if grouped != canonical:
+        # Combining citations must never legitimize a link that its original
+        # finding did not support. Recheck the combined evidence below too.
+        validate_vendor_links(canonical, catalog)
+        canonical = grouped
     if advisory:
         # Source identity stays blocking even when grounding is advisory.
         validate_vendor_links(canonical, catalog)

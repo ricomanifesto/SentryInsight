@@ -31,6 +31,7 @@ FIELDS = frozenset(
         "Vendor Links",
         "Exploitation Status",
         "Reporting",
+        "CVE IDs",
         "Action",
         "prose",
         "summary",
@@ -54,7 +55,7 @@ SOURCE_CODES = frozenset("""
     unknown_reporting_source quarantined_reporting_source duplicate_reporting_source
     """.split())
 EVIDENCE_CODES = frozenset("""
-    finding_evidence_rejected duplicate_version_reference
+    finding_evidence_rejected finding_cve_identity_mismatch duplicate_version_reference
     invalid_version_evidence_state invalid_version_reference
     invalid_version_reference_field invalid_version_reference_protocol
     invalid_version_reference_source misplaced_version_reference
