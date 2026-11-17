@@ -249,6 +249,16 @@ The store and the receipts directory must be outside the repository. The builder
 
 ### Source review and partial coverage
 
+The prompt repeats the same subject-specific CVE checklist used by the
+post-generation coverage check, with source keys identifying evidence to review.
+It does not require a finding or citation per checklist entry, establish active
+exploitation, or require every eligible article to become a finding. Complete
+source bodies, background and negative evidence remain available. The check
+counts identities in finding headings and CVE IDs fields; a joint finding can
+cover several CVEs. Summary text, reporting URLs and incidental mentions do not
+satisfy finding coverage. Under advisory grounding, missing IDs remain warnings.
+This checklist and coverage check do not guarantee complete source coverage.
+
 New generation performs source review before contacting the model or deciding
 that inputs are unchanged. Every retained source is classified as eligible,
 review required, or source rejected. A source with ambiguous version ownership

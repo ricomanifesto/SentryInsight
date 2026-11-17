@@ -10,6 +10,7 @@ from markdown_it import MarkdownIt
 
 from .article_policy import contains_virtual_event_tag
 from .heading_identity import normalize_heading_identity
+from .report_findings import report_findings
 
 REQUIRED_SECTIONS = (
     "# Exploitation Report",
@@ -894,8 +895,14 @@ def missing_expected_cve_ids(
     if not expected:
         return []
 
-    report_body = remove_source_attribution_section(markdown)
-    return sorted(expected - find_report_cve_ids(report_body))
+    finding_cves: set[str] = set()
+    for finding in report_findings(markdown).rows:
+        fields = finding.fields()
+        # Historical artifacts also accept the singular field. Fresh generation
+        # still enforces its explicit plural identity before this check.
+        identity = fields.get("CVE IDs", fields.get("CVE ID", ""))
+        finding_cves.update(find_report_cve_ids(finding.heading + " " + identity))
+    return sorted(expected - finding_cves)
 
 
 def get_nonempty_paragraphs(markdown: str) -> list[str]:

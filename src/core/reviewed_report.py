@@ -5,8 +5,10 @@ from datetime import datetime, timezone
 from typing import Any, Callable, Mapping
 
 from .article_policy import contains_virtual_event_tag
+from .article_prompt import format_article_summary
 from .cve import extract_cve_ids
 from .derivations import derivation_scope
+from .exploitation_coverage import collect_exploitation_relevant_prompt_cves
 from .finding_evidence import (
     EvidenceError,
     validate_finding_evidence,
@@ -294,13 +296,7 @@ def _resolve_reviewed_analysis(
     stage("reporting_identity")
     resolved = resolve_reporting_keys(canonical, catalog)
     stage("report_content")
-    # Import only the pure prompt helpers at call time; analysis itself imports
-    # the source planner. Expected IDs are recomputed, never trusted result data.
-    from .analyze import (
-        collect_exploitation_relevant_prompt_cves,
-        format_article_summary,
-    )
-
+    # Use the prompt's pure inventory; never trust result-supplied expected IDs.
     expected_cves = {
         cve
         for article in review_articles(plan)

@@ -259,9 +259,9 @@ class ReportValidationTests(unittest.TestCase):
 
     def test_expected_cves_pass_when_present(self):
         report = VALID_REPORT.replace(
-            "Recent exploitation activity is concentrated in edge systems.",
-            "Recent exploitation activity is concentrated in edge systems. "
-            "CVE-2026-1111 and CVE-2026-2222 are included in source metadata.",
+            "### Example Vulnerability\n",
+            "### Example Vulnerability\n"
+            "- **CVE IDs**: CVE-2026-1111, CVE-2026-2222\n",
         )
 
         self.assertEqual(
@@ -274,9 +274,8 @@ class ReportValidationTests(unittest.TestCase):
 
     def test_expected_cve_allows_long_sequence_numbers(self):
         report = VALID_REPORT.replace(
-            "Recent exploitation activity is concentrated in edge systems.",
-            "Recent exploitation activity is concentrated in edge systems. "
-            "CVE-2026-12345678 is included in source metadata.",
+            "### Example Vulnerability\n",
+            "### Example Vulnerability\n" "- **CVE IDs**: CVE-2026-12345678\n",
         )
 
         self.assertEqual(
