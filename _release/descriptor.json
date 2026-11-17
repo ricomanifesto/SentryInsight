@@ -14,9 +14,9 @@
     "mode": "prepare",
     "proof": "on"
   },
-  "release_key": "01aa2c06f1fb6a801c46546c055e729cf26972e0758c20c14bed0ad98611032b",
+  "release_key": "719128e6916e699bbec77981c7a0046fb5ef1de5e2f6fdff4e6bd3948f8581fa",
   "schema_version": 1,
   "site": "SentryInsight",
-  "source_committed_at": "2026-11-17T12:28:40.000Z",
-  "source_revision": "6cbd3f3d8c622926cb3e2cb41e864185f70e847b"
+  "source_committed_at": "2026-11-17T13:24:56.000Z",
+  "source_revision": "e214c251d1eebca7bc9289ea0c595c7d9f73beed"
 }
