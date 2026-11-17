@@ -4339,6 +4339,14 @@
       "run_id": "44160606236",
       "stage": "request_finished",
       "token": "c36d8d9037a9f5a5a18433c562863b3b"
+    },
+    {
+      "admission_key": "run:44160606236",
+      "at": "2026-11-17T19:58:00.584Z",
+      "binding": "none",
+      "outcome": "not-published",
+      "run_id": "44160606236",
+      "stage": "completed"
     }
   ],
   "schema_version": 1,
