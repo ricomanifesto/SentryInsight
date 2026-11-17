@@ -4362,6 +4362,12 @@
       "run_id": "44177670861",
       "source_revision": "38e287e5c647d0dfda2bd75a5a75ab47bff61104",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "digest:38e287e5c647d0dfda2bd75a5a75ab47bff61104",
+      "at": "2026-11-17T21:18:04.479Z",
+      "run_id": "44177670861",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
