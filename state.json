@@ -4722,6 +4722,13 @@
       "run_id": "44333435842",
       "stage": "request_finished",
       "token": "b4e278f79addabe6d4b20b6acb01006e"
+    },
+    {
+      "admission_key": "digest:b778df4c7fa88dea46ab8f8d02a99512540197d9",
+      "at": "2026-11-18T15:20:56.839Z",
+      "outcome": "failed",
+      "run_id": "44333435842",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
