@@ -4502,6 +4502,13 @@
       "run_id": "44250901758",
       "stage": "request_finished",
       "token": "ce3e83f5c8a0cea080eb83471f1587e4"
+    },
+    {
+      "admission_key": "digest:e134872daa8edc3ea14400077957e55bf6666313",
+      "at": "2026-11-18T06:30:40.717Z",
+      "outcome": "failed",
+      "run_id": "44250901758",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
