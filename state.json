@@ -4554,6 +4554,13 @@
       "run_id": "44252889865",
       "stage": "request_finished",
       "token": "d97ce385ef6b79794d62232ae2c75f48"
+    },
+    {
+      "admission_key": "run:44252889865",
+      "at": "2026-11-18T06:44:19.738Z",
+      "outcome": "failed",
+      "run_id": "44252889865",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
