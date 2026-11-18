@@ -4423,6 +4423,17 @@
       "at": "2026-11-18T00:37:32.576Z",
       "run_id": "44208837880",
       "stage": "invoked"
+    },
+    {
+      "admission_key": "digest:11538b6941d712a89ade609e0496622164ba20e5",
+      "at": "2026-11-18T00:37:42.054Z",
+      "attempt": 1,
+      "limit": 3,
+      "request_sha256": "6acd76ebb7048883cece84091a67110051c17ca84c09c2c9e3d93aaec53bf464",
+      "revision": "bbbe614fd6c4480dff95f1e7172fc123f1457cee",
+      "run_id": "44208837880",
+      "stage": "request_reserved",
+      "token": "dda9f83a8df6f2ae1d9ba5287aaec5b7"
     }
   ],
   "schema_version": 1,
