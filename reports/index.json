@@ -2,6 +2,14 @@
   "schema_version": 1,
   "reports": [
     {
+      "report_date": "2026-11-17",
+      "generated_at": "2026-11-17T21:20:51Z",
+      "html_path": "2026-11-17.html",
+      "markdown_path": "2026-11-17.md",
+      "finding_count": 3,
+      "cve_count": 19
+    },
+    {
       "report_date": "2026-11-13",
       "generated_at": "2026-11-13T21:18:54Z",
       "html_path": "2026-11-13.html",
