@@ -4750,6 +4750,12 @@
       "run_id": "44399312710",
       "source_revision": "507d3d35c0c87064fa64ecc303fcd50ecab2ac14",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "digest:507d3d35c0c87064fa64ecc303fcd50ecab2ac14",
+      "at": "2026-11-18T21:19:00.293Z",
+      "run_id": "44399312710",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
