@@ -5113,6 +5113,13 @@
       "run_id": "44552782832",
       "stage": "request_finished",
       "token": "0557b26d38da8f747b90da7db75b7b1a"
+    },
+    {
+      "admission_key": "digest:9c09c9813f2aa1d6773e4b1ddf506cd2afa993b5",
+      "at": "2026-11-19T15:23:04.016Z",
+      "outcome": "failed",
+      "run_id": "44552782832",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
