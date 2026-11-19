@@ -5083,6 +5083,12 @@
       "run_id": "44552782832",
       "source_revision": "9c09c9813f2aa1d6773e4b1ddf506cd2afa993b5",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "digest:9c09c9813f2aa1d6773e4b1ddf506cd2afa993b5",
+      "at": "2026-11-19T15:19:32.641Z",
+      "run_id": "44552782832",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
