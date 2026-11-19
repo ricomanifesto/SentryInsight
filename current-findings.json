@@ -1,13 +1,20 @@
 {
   "schema_version": 1,
-  "report_date": "2026-11-18",
-  "generated_at": "2026-11-18T12:26:34Z",
+  "report_date": "2026-11-19",
+  "generated_at": "2026-11-19T00:40:48Z",
   "report_url": "https://sentryinsight.ricomanifesto.com/",
-  "finding_count": 3,
-  "complete_cve_count": 3,
+  "finding_count": 5,
+  "complete_cve_count": 10,
   "cve_ids": [
-    "CVE-2026-65339",
-    "CVE-2026-115731",
-    "CVE-2026-115732"
+    "CVE-2026-123007",
+    "CVE-2026-123637",
+    "CVE-2026-121805",
+    "CVE-2026-120292",
+    "CVE-2026-120285",
+    "CVE-2026-116953",
+    "CVE-2026-120722",
+    "CVE-2026-114938",
+    "CVE-2026-94127",
+    "CVE-2026-43613"
   ]
 }
