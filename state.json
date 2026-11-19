@@ -5226,6 +5226,13 @@
       "run_id": "44617267950",
       "stage": "request_finished",
       "token": "aaab54d1df8e7d33259eb99efb19156a"
+    },
+    {
+      "admission_key": "digest:ba228333aec3ef8533ab0290ef38d3118d4d3175",
+      "at": "2026-11-19T21:23:28.718Z",
+      "outcome": "failed",
+      "run_id": "44617267950",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
