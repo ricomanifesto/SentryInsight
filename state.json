@@ -5352,6 +5352,15 @@
       "at": "2026-11-20T06:42:21.274Z",
       "run_id": "44689263695",
       "stage": "readmitted"
+    },
+    {
+      "admission_key": "run:44689263695",
+      "at": "2026-11-20T06:42:22.862Z",
+      "binding": "none",
+      "event": "schedule",
+      "run_attempt": "1",
+      "run_id": "44689263695",
+      "stage": "admitted"
     }
   ],
   "schema_version": 1,
