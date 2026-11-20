@@ -5582,6 +5582,12 @@
       "run_id": "44818522256",
       "source_revision": "8d7004fa89275ebf6d17159a6b0f0cdb39f11129",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "digest:8d7004fa89275ebf6d17159a6b0f0cdb39f11129",
+      "at": "2026-11-20T21:18:03.032Z",
+      "run_id": "44818522256",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
