@@ -5893,6 +5893,13 @@
       "run_id": "44903243169",
       "stage": "request_finished",
       "token": "bd15eb8e0e0631d3dc19fcb581e41448"
+    },
+    {
+      "admission_key": "digest:603401ca46faa9f37cdc8732c8b798d04cae01fc",
+      "at": "2026-11-21T12:25:11.343Z",
+      "outcome": "failed",
+      "run_id": "44903243169",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
