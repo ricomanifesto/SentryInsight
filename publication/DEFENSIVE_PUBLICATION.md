@@ -3,8 +3,8 @@
 SentryInsight publishes only one thing: the defensive package rendered by
 `scripts/package_defensive.py` (`src/core/defensive_package.py`) from pinned
 inputs at one exact commit. Production (the artifact branch, through
-`publication/cli.js publish`) and the GitHub Pages mirror both build that
-package with the same packager and refuse anything but the approved bytes.
+`publication/cli.js publish`) and the optional GitHub Pages mirror use the
+same packager and require the approved bytes.
 
 ## What the package contains
 
@@ -47,23 +47,30 @@ build, and the direct Node publisher, also refuse unless the actual checkout
 
 ## Release sequence
 
-1. Commit the canonical, owner-reviewed `config/paid-readiness-facts.json` in a
-   review-only pull request. This repository carries no production manifest
-   and no owner attestation; none may be invented.
-2. Local $0 proposal, with no approval, credentials or remote side effect:
+1. Merge the reviewed code-only pull request after the merge checks below.
+   The main push runs synthetic Validate and Workflow Lint. Leave Pages
+   disabled and confirm the existing release is still serving.
+2. Merge the canonical, owner-reviewed `config/paid-readiness-facts.json` in a
+   separate review-only pull request under the same merge checks. Use a
+   real owner-reviewed manifest and attestation.
+3. After the facts merge, pin the exact 40-hex current `main` SHA as `head`.
+   Set `package_dir` to a new directory outside the repository.
 
-       python3 -B scripts/package_defensive.py build --revision <head> \
-         --output <new directory outside the repository>
+       python3 -B scripts/package_defensive.py build --revision "$head" \
+         --output "$package_dir"
 
-   It prints the proposed triple. Independent review rebuilds it at the same
-   head and must obtain the same `package_sha256`.
-3. Merge the review-only pull request. Validate is synthetic-only and nothing
-   chains from it, so the code-only head merges without repackaging a prior
-   release.
-4. Separately authorized pure promotion: dispatch **Publish Production** and
-   then **Deploy GitHub Pages** manually on `main`, first attempt, with the
-   reviewed triple. Any other event, ref, attempt or digest refuses.
-5. Only if the paid evidence is needed: one manual **Generate Exploitation
+   Omit `--generated-at` so the package uses that commit's committer timestamp.
+   An independent rebuild from the same SHA must reproduce both digests.
+   Obtain owner approval of that exact SHA, facts digest and package digest.
+   If `main` advances, rebuild and obtain approval for the new triple.
+4. For an authorized Vercel-only promotion, complete the promotion checks
+   below, then dispatch **Publish Production** manually on `main`, first
+   attempt, with the approved triple. Confirm the live descriptor matches the
+   approved source SHA and package digest. Keep Pages disabled.
+5. A Pages promotion is optional and requires separate authorization and the
+   Pages checks below. Dispatch **Deploy GitHub Pages** manually on `main`,
+   first attempt, with the same approved triple for the current head.
+6. Only if the paid evidence is needed: one manual **Generate Exploitation
    Report** paid readiness dispatch (one Kimi attempt, hard cap $2.42). Its
    acknowledgment is outside this $0 package gate and changes no package
    bytes.
@@ -96,17 +103,26 @@ build, and the direct Node publisher, also refuse unless the actual checkout
   `scripts/local_validation.sh` stay as offline/local helpers; no workflow
   publishes their output.
 
-## Checks the owner makes read-only before any push
+## Read-only checks before merging
 
-These cannot be proved from the repository:
+- Confirm Vercel is connected to `ricomanifesto/SentryInsight`. The production
+  branch is `vercel-production` and the Root Directory is the repository root.
+  The project's Ignored Build Step allows only `vercel-production` to build.
+  Source branches also set `git.deploymentEnabled: false` in their root
+  `vercel.json`.
+- Confirm GitHub Pages is off, **Deploy GitHub Pages** is disabled, and the
+  existing production release is serving. A code-only merge changes neither
+  host's settings and authorizes no promotion.
 
-- Vercel project: the effective Production Branch is the artifact branch,
-  Root Directory is the repository root of that branch, and the Build and
-  Output settings are overridden by the artifact's own `vercel.json`. Source
-  branches carry the root `vercel.json` with `git.deploymentEnabled: false`,
-  so commits on them create no preview deployment; confirm the project honors
-  it (deployment list shows no source-branch builds).
-- GitHub Pages: the source is "GitHub Actions", so only the
-  **Deploy GitHub Pages** workflow deploys.
-- No other workflow, app or integration can push the artifact branch or
-  deploy Pages (branch protection, environments, installed apps).
+## Read-only checks before promotion
+
+- Vercel builds the artifact branch with `node _publication/build.js`. The
+  adapter writes Build Output API files to `.vercel/output`. The dashboard
+  Output Directory override is off.
+- Artifact-branch writer exclusivity is unverified. Hold Vercel promotion
+  until the owner confirms from effective branch rules and integration
+  permissions that only the approved publisher can write
+  `vercel-production`.
+- For a separately authorized Pages promotion, verify GitHub Pages uses
+  GitHub Actions as its source and that only **Deploy GitHub Pages** can deploy
+  it. Verify the environment and integration permissions before dispatch.
