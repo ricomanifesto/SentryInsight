@@ -1,5 +1,11 @@
 name: Validate
 
+# Synthetic-only checks on pull requests and main pushes. Nothing here
+# validates or renders a committed report, packages a release, takes a
+# screenshot or uploads an artifact, and nothing chains from this workflow:
+# promotion is the separate, manual, exact-head approved Publish Production
+# and Deploy GitHub Pages dispatch.
+
 on:
   pull_request:
   push:
@@ -10,28 +16,44 @@ permissions:
 
 jobs:
   validate:
-    # Match host Python tool-cache builds to the Noble container's OS libraries.
     runs-on: ubuntu-24.04
-    container:
-      # Matches the locked Playwright package; browsers and OS libraries are baked in.
-      image: mcr.microsoft.com/playwright:v1.62.1-noble@sha256:dcc5531e97840b9b5e794f2814476b21571c5124a3fca2267d73041f56e7580e
+    timeout-minutes: 20
     defaults:
       run:
         shell: bash
-    # Checkout's temporary HOME does not carry its Git trust into later steps.
-    # Trust only this job's checkout, including Git subprocesses in evaluations.
-    env:
-      GIT_CONFIG_COUNT: '1'
-      GIT_CONFIG_KEY_0: safe.directory
-      GIT_CONFIG_VALUE_0: ${{ github.workspace }}
     steps:
-      - name: Checkout code
+      # Live report paths and real facts are never on disk here: the current
+      # report and pages, dated archives, correction exchanges and the
+      # owner-reviewed fact manifest and surface approval.
+      - name: Checkout code without live report paths or real facts
         uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/index.md
+            !/index.html
+            !/current-findings.json
+            !/sitemap.xml
+            !/.sentryinsight-articles-fingerprint
+            !/reports/
+            !/corrections/
+            !/config/paid-readiness-facts.json
+            !/config/paid-readiness-surface.json
 
-      - name: Verify checkout Git access
+      - name: Prove live report paths and real facts are absent
         run: |
           git rev-parse --verify HEAD
           git status --porcelain
+          for held in index.md index.html current-findings.json sitemap.xml \
+              .sentryinsight-articles-fingerprint reports corrections \
+              config/paid-readiness-facts.json config/paid-readiness-surface.json; do
+            if [ -e "$held" ] || [ -L "$held" ]; then
+              echo "Synthetic validation refuses: $held is on disk" >&2
+              exit 1
+            fi
+          done
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -74,35 +96,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '24'
-          cache: npm
 
-      - name: Install browser test runtime
-        run: |
-          npm ci
-          # Fail before validation if the bundled browser or its libraries are unusable.
-          node -e 'require("@playwright/test").chromium.launch().then(browser => browser.close()).catch(error => { console.error(error); process.exit(1); })'
-
-      - name: Run validation
-        run: bash scripts/local_validation.sh
-
-      - name: Upload rendered report evidence
-        id: report-evidence
-        if: always()
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: report-screenshots-${{ github.run_id }}
-          path: test-results/screenshots
-          if-no-files-found: error
-
-      - name: Add rendered report review summary
-        if: always()
-        env:
-          ARTIFACT_URL: ${{ steps.report-evidence.outputs.artifact-url }}
-        run: |
-          {
-            echo "## Rendered report review"
-            echo
-            echo "[Open the desktop, tablet, and phone screenshots](${ARTIFACT_URL})"
-            echo
-            echo "Review the dark logo, report date and counts, finding badges, desktop TOC, and mobile map."
-          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Run synthetic validation
+        run: bash scripts/validate_synthetic.sh

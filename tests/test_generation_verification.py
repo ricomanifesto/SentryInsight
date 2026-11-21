@@ -158,17 +158,15 @@ def test_reviewed_report_emits_current_origin_and_accepts_historical_origin(
     assert parse_report_artifact(historical).source_coverage == candidate.coverage
 
 
-def test_merged_workflow_retains_both_admission_and_review_publication_gates():
+def test_hosted_legacy_generation_cannot_commit_push_or_resume_publication():
+    """The hosted legacy generator is held; only the paid readiness job remains."""
     workflow = Path(".github/workflows/generate-report.yml").read_text()
-    publish = workflow.split("- name: Commit and push updated report", 1)[1].split(
-        "run: |", 1
-    )[0]
-    for required in (
-        "steps.admission.outputs.decision == 'admitted'",
-        "steps.generate.outputs.report_generated == 'true'",
-        "steps.source-review-summary.outcome == 'success'",
-        "github.ref == 'refs/heads/main'",
+    for held in (
+        "- name: Commit and push updated report",
+        "git push",
+        "uv run python main.py",
+        "upload-artifact@v4",
+        "uses: ./.github/workflows/publish-production.yml",
     ):
-        assert required in publish
+        assert held not in workflow
     assert "node publication/cli.js complete" in workflow
-    assert "uses: ./.github/workflows/publish-production.yml" in workflow
