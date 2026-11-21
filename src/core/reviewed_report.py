@@ -26,9 +26,11 @@ from .reporting import (
 )
 from .report_findings import report_findings
 from .report_validation import (
+    ReportPreparationError,
     ReportValidationIssue,
     blocking_issues,
     inspect_required_section_headings,
+    order_active_findings,
     prepare_generated_report,
     validate_report_content,
 )
@@ -47,6 +49,7 @@ from .source_review import (
     review_articles,
     validate_review_packet,
 )
+from .vendor_link_references import resolve_vendor_link_ids
 from .version_references import resolve_analysis_version_references
 
 
@@ -278,6 +281,9 @@ def _resolve_reviewed_analysis(
         on_reject=advise if advisory else None,
     )
     stage("finding_evidence")
+    # Source-owned vendor link IDs resolve against each finding's own verified
+    # Reporting keys before grouping, so a merge cannot lend a citation.
+    canonical = resolve_vendor_link_ids(canonical, catalog)
     grouped = group_related_findings(canonical, catalog)
     if grouped != canonical:
         # Combining citations must never legitimize a link that its original
@@ -293,6 +299,18 @@ def _resolve_reviewed_analysis(
         if not advisory:
             raise
         advise(exc)
+    try:
+        # Once, after grouping and evidence checks: Critical first, stable ties.
+        canonical = order_active_findings(canonical)
+    except ReportPreparationError:
+        raise ReviewedReportValidationError(
+            [
+                ReportValidationIssue(
+                    "malformed_markdown",
+                    "Report findings could not be ordered unambiguously.",
+                )
+            ]
+        ) from None
     stage("reporting_identity")
     resolved = resolve_reporting_keys(canonical, catalog)
     stage("report_content")

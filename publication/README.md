@@ -90,3 +90,9 @@ node --test --test-concurrency=1 publication/test/*.test.js
 
 The tests use temporary local repositories and a file-transport remote; they
 make no network calls.
+
+## Defensive publication gate
+
+Only the approved defensive package publishes, through manual, exact-head
+promotion with the approval triple. Legacy resume and rollback are held. See
+[DEFENSIVE_PUBLICATION.md](DEFENSIVE_PUBLICATION.md).

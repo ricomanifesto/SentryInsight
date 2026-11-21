@@ -1,15 +1,19 @@
 #!/usr/bin/env node
 // Command-line entry for the publication workflows.
 //
-//   publish  --source <commit>          build, release and prove one source
-//   resume                              complete the current tip only
-//   rollback --target <release_key> --reason <text>
+//   publish  --source <commit> --approved-head <commit>
+//            --approved-facts-sha256 <hex> --approved-package-sha256 <hex>
+//                                       build, verify, release and prove the
+//                                       approved defensive package only
+//   resume, rollback                    held by the defensive publication gate
 //   resolve  --release <release_key> --attestation <text>
 //   seed     --consumer <name>=<commit|none> ... --attestation <text>
 //   authority                           publication mode at the remote main head
 //   admit    --event-name <name> --event-path <file> --run-id <id> --run-attempt <n> [--readmit true]
 //   invoked  --key <admission_key> --run-id <id> [--handle <id>]
 //   complete --key <admission_key> --run-id <id> --outcome <outcome> [--binding <level>]
+//   readiness-profile|readiness-reserve|readiness-report --key <admission_key> --run-id <id>
+//            --revision <commit> --run-attempt 1 ...   one-attempt paid readiness ledger
 //
 // Results are printed as JSON and, inside GitHub Actions, written as step
 // outputs and to the step summary. Every network call is anonymous except the
@@ -26,7 +30,8 @@ const { loadSiteConfig, readSiteConfig } = require('./kit/config');
 const { contentIdentityFor, digestContentAt } = require('./kit/content');
 const { createGit } = require('./kit/git');
 const { createPublisher } = require('./kit/publisher');
-const { PROFILE, PROFILE_SHA256 } = require('./kit/verification-budget');
+const { createDefensiveBuild, parseApproval } = require('./kit/defensive');
+const { PROFILE, PROFILE_SHA256, READINESS_PROFILE, READINESS_PROFILE_SHA256 } = require('./kit/verification-budget');
 const { canonicalJson, sha256 } = require('./kit/canonical');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
@@ -113,12 +118,25 @@ function writeOutputs(values) {
   process.stdout.write(`${JSON.stringify(values)}\n`);
 }
 
+// Legacy resume and rollback could re-serve or extract unapproved bytes.
+const HELD_COMMANDS = new Set(['resume', 'rollback']);
+
 async function main() {
   const { command, options } = parseArgs(process.argv.slice(2));
+  if (HELD_COMMANDS.has(command)) {
+    throw new Error(`${command} is held by the defensive publication gate; see publication/DEFENSIVE_PUBLICATION.md`);
+  }
+  // Refused before any configuration, Git or network access.
+  const approval = command === 'publish'
+    ? parseApproval({ head: options.approved_head, factsSha256: options.approved_facts_sha256,
+      packageSha256: options.approved_package_sha256 })
+    : null;
+  if (approval && options.source !== approval.head) throw new Error('defensive approval head mismatch');
   const config = readSiteConfig(REPO_ROOT);
   const git = createGit(REPO_ROOT);
 
-  if (command.startsWith('verification-')) {
+  const paid = command.startsWith('verification-') || command.startsWith('readiness-');
+  if (paid) {
     if (config.site !== 'SentryInsight' || git.run(['rev-parse', 'HEAD']).trim() !== options.revision) {
       throw new Error('verification source revision mismatch');
     }
@@ -126,10 +144,15 @@ async function main() {
       process.stdout.write(`${JSON.stringify({ profile: PROFILE, sha256: PROFILE_SHA256 })}\n`);
       return;
     }
+    if (command === 'readiness-profile') {
+      process.stdout.write(`${JSON.stringify({ profile: READINESS_PROFILE, sha256: READINESS_PROFILE_SHA256 })}\n`);
+      return;
+    }
   }
 
   if (['admit', 'invoked', 'complete', 'request-reserve', 'request-finish',
-    'verification-reserve', 'verification-triage', 'verification-report'].includes(command)) {
+    'verification-reserve', 'verification-triage', 'verification-report',
+    'readiness-reserve', 'readiness-report'].includes(command)) {
     const admission = createAdmission({
       repoRoot: REPO_ROOT,
       remote: REMOTE,
@@ -149,10 +172,10 @@ async function main() {
         }));
       },
     });
-    if (command.startsWith('verification-')) {
+    if (paid) {
       const args = { admissionKey: options.key, runId: options.run_id, revision: options.revision, runAttempt: options.run_attempt };
       let result;
-      if (command === 'verification-reserve') {
+      if (command === 'verification-reserve' || command === 'readiness-reserve') {
         const fd = fs.openSync(options.billing_evidence, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW | fs.constants.O_NONBLOCK);
         let evidence;
         try {
@@ -163,7 +186,12 @@ async function main() {
           evidence = JSON.parse(raw.toString('utf8'));
         } finally { fs.closeSync(fd); }
         if (sha256(canonicalJson(evidence)) !== options.evidence_sha256) throw new Error('verification evidence changed');
-        result = await admission.reserveVerification({ ...args, evidence });
+        result = command === 'readiness-reserve'
+          ? await admission.reserveReadiness({ ...args, evidence, factManifestSha256: options.fact_manifest_sha256 })
+          : await admission.reserveVerification({ ...args, evidence });
+      } else if (command === 'readiness-report') {
+        result = await admission.claimReadinessReport({ ...args, requestSha256: options.request_sha256,
+          factManifestSha256: options.fact_manifest_sha256 });
       } else if (command === 'verification-triage') {
         result = await admission.claimVerificationTriage({ ...args, slot: Number(options.slot), requestSha256: options.request_sha256 });
       } else result = await admission.assertVerificationReport(args);
@@ -206,7 +234,9 @@ async function main() {
     return;
   }
 
-  const buildPayload = buildPayloadWith(config);
+  const buildPayload = approval
+    ? createDefensiveBuild({ repoRoot: REPO_ROOT, approval, site: config.site })
+    : buildPayloadWith(config);
   const publisher = createPublisher({
     repoRoot: REPO_ROOT,
     remote: REMOTE,
@@ -217,12 +247,12 @@ async function main() {
     readMainHeadPublication: async () => mainHeadPublication(git),
     contentIdentityAt: async (revision) => digestContentAt(git, REPO_ROOT, revision),
     log: (message) => process.stderr.write(`${message}\n`),
+    defensive: true,
+    approval,
   });
   try {
     let result;
     if (command === 'publish') result = await publisher.publish({ sourceRevision: options.source });
-    else if (command === 'resume') result = await publisher.resume();
-    else if (command === 'rollback') result = await publisher.rollback({ targetReleaseKey: options.target, reason: options.reason });
     else if (command === 'resolve') result = await publisher.resolve({ releaseKey: options.release, attestation: options.attestation });
     else if (command === 'seed') {
       const consumers = Object.fromEntries(options.consumer.map((pair) => pair.split('=')));

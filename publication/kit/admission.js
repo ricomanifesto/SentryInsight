@@ -30,7 +30,7 @@ const { createGit } = require('./git');
 const { LAYOUT, SHA1, SHA256, releaseKeyOf } = require('./release');
 const { createStore } = require('./store');
 const { createRequestBudget } = require('./request-budget');
-const { createVerificationBudget } = require('./verification-budget');
+const { createReadinessBudget, createVerificationBudget } = require('./verification-budget');
 
 const DIGEST_REPOSITORY = 'ricomanifesto/SentryDigest';
 const SNAPSHOT_FEED_PATH = `${LAYOUT.payloadPrefix}feed.xml`;
@@ -361,17 +361,21 @@ function createAdmission({
     return admittedIndex;
   }
   const requests = createRequestBudget({ store, now, requireOwner });
-  const verification = createVerificationBudget({ store, now, requireOwner(records, key, run) {
+  function requireManualOwner(records, key, run) {
     const index = requireOwner(records, key, run);
     if (consumer !== 'SentryInsight' || records[index].event !== 'workflow_dispatch'
         || records[index].run_attempt !== '1' || key !== `run:${run}`) {
       throw new Error('verification requires an owned first manual attempt');
     }
     return index;
-  } });
+  }
+  const verification = createVerificationBudget({ store, now, requireOwner: requireManualOwner });
+  const readiness = createReadinessBudget({ store, now, requireOwner: requireManualOwner });
   return { admit, complete, invoked, ...requests,
     reserveVerification: verification.reserve, claimVerificationTriage: verification.claimTriage,
-    assertVerificationReport: verification.assertReport, readState: () => store.read() };
+    assertVerificationReport: verification.assertReport,
+    reserveReadiness: readiness.reserve, claimReadinessReport: readiness.claimReport,
+    readState: () => store.read() };
 }
 
 module.exports = { CONCLUSIVE_OUTCOMES, DIGEST_REPOSITORY, SNAPSHOT_FEED_PATH, createAdmission, findAdmissionReport, snapshotFeedUrl };

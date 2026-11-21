@@ -1,30 +1,38 @@
 name: Generate Exploitation Report
 
+# Manual paid readiness only. Publication is the separate, approved defensive
+# promotion (publication/DEFENSIVE_PUBLICATION.md): no SentryDigest dispatch,
+# schedule, legacy generation or resume reaches it, and nothing here is
+# packaged or published.
 on:
-  # Run when triggered by SentryDigest repository
-  repository_dispatch:
-    types: [sentrydigest-updated]
-  
-  # Schedule backup run (in case webhook fails). The workflow now fingerprints
-  # the source article set and skips report generation when nothing
-  # changed, so this only needs to catch a fully missed webhook, not run often.
-  schedule:
-    - cron: '30 6 * * *'  # Run once daily at 06:30 UTC
-  
-  # Allow manual triggering
   workflow_dispatch:
     inputs:
       readmit:
-        description: 'Re-admit after an uncertain earlier generation (true/false)'
+        description: 'Must stay false: paid readiness never readmits'
         required: false
         default: 'false'
       paid_verification:
-        description: 'Consume the single fixed Kimi/Moonshot verification reservation (maximum $8 including triage)'
+        description: 'Run only the pinned one-send Kimi readiness route (maximum $2.42, no triage, no retry, no publication)'
         type: boolean
         required: false
         default: false
       billing_evidence:
-        description: 'Bounded billing attestation JSON for the fixed verification; no credentials or raw account data'
+        description: 'Bounded billing attestation JSON for the readiness route; no credentials or raw account data'
+        type: string
+        required: false
+        default: ''
+      expected_head:
+        description: 'Paid only: the exact 40-hex main commit this run must execute'
+        type: string
+        required: false
+        default: ''
+      fact_manifest_sha256:
+        description: 'Paid only: SHA-256 of the reviewed fact manifest committed at that head'
+        type: string
+        required: false
+        default: ''
+      surface_approval_sha256:
+        description: 'Paid only: SHA-256 of the committed legacy surface approval (empty when none exists)'
         type: string
         required: false
         default: ''
@@ -34,72 +42,75 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Match host Python tool-cache builds to the Noble container's OS libraries.
-  generate-report:
+  # The hosted legacy generator is held: no legacy checkout, model run,
+  # artifact or screenshot upload, report commit or push runs here. main.py
+  # and scripts/local_validation.sh stay as offline/local helpers. The only
+  # job is the paid readiness route below, reached solely by paid_verification.
+
+  # The manual paid option: one pinned send under the readiness profile.
+  # First manual main attempt at the exact dispatched head, readmit=false,
+  # the committed fact manifest and surface approval pinned by digest, and
+  # only the existing checkout token and OpenRouter key. A rendered pair is
+  # retained for owner review only; nothing is committed, pushed, resumed,
+  # recorded in history or published. Any failure is final: the admission
+  # stays unresolved and its whole reservation remains held.
+  paid-readiness:
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.paid_verification == 'true'
     runs-on: ubuntu-24.04
-    outputs:
-      published: ${{ steps.publish.outputs.published }}
-    container:
-      # Matches the locked Playwright package; browsers and OS libraries are baked in.
-      image: mcr.microsoft.com/playwright:v1.62.1-noble@sha256:dcc5531e97840b9b5e794f2814476b21571c5124a3fca2267d73041f56e7580e
+    timeout-minutes: 30
+    permissions:
+      contents: read
     defaults:
       run:
         shell: bash
-    # Checkout's temporary HOME does not carry its Git trust into later steps.
-    # Trust only this job's checkout, including Git subprocesses in evaluations.
-    env:
-      GIT_CONFIG_COUNT: '1'
-      GIT_CONFIG_KEY_0: safe.directory
-      GIT_CONFIG_VALUE_0: ${{ github.workspace }}
     steps:
-      - name: Checkout code
+      - name: Refuse anything but the first manual main attempt at the exact head
+        env:
+          EXPECTED_HEAD: ${{ github.event.inputs.expected_head }}
+          READMIT: ${{ github.event.inputs.readmit }}
+          FACT_MANIFEST_SHA256: ${{ github.event.inputs.fact_manifest_sha256 }}
+          SURFACE_APPROVAL_SHA256: ${{ github.event.inputs.surface_approval_sha256 }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ] || [ "$GITHUB_REF" != "refs/heads/main" ] ||
+             [ "$GITHUB_RUN_ATTEMPT" != "1" ] || [ "$READMIT" != "false" ] ||
+             ! [[ "$EXPECTED_HEAD" =~ ^[0-9a-f]{40}$ ]] || [ "$GITHUB_SHA" != "$EXPECTED_HEAD" ] ||
+             ! [[ "$FACT_MANIFEST_SHA256" =~ ^[0-9a-f]{64}$ ]] ||
+             ! [[ "$SURFACE_APPROVAL_SHA256" =~ ^([0-9a-f]{64})?$ ]]; then
+            echo 'Paid readiness runs only as the first manual main attempt at the exact head with pinned digests' >&2
+            exit 1
+          fi
+
+      # Narrow sparse checkout of the exact head: the legacy report, pages and
+      # archives are never on disk, so the readiness surface preflight holds
+      # without any surface approval.
+      - name: Checkout the exact dispatched head
         uses: actions/checkout@v5
         with:
-          # A queued main run starts from the preceding run's published report.
-          # Other refs retain the exact revision that requested the run.
-          ref: ${{ github.ref == 'refs/heads/main' && github.ref || github.sha }}
+          ref: ${{ github.sha }}
           token: ${{ secrets.PAT_GITHUB }}
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/index.md
+            !/index.html
+            !/current-findings.json
+            !/sitemap.xml
+            !/.sentryinsight-articles-fingerprint
+            !/reports/
 
-      - name: Verify checkout Git access
+      - name: Verify the exact clean checkout
         id: source
+        env:
+          EXPECTED_HEAD: ${{ github.event.inputs.expected_head }}
         run: |
-          git rev-parse --verify HEAD
-          git status --porcelain
-          echo "revision=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          test -z "$(git status --porcelain)"
+          echo "revision=$EXPECTED_HEAD" >> "$GITHUB_OUTPUT"
 
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: '3.11'
-
-      - name: Verify Python HTTPS runtime
-        run: python3 scripts/verify_python_https.py
-
-      - name: Fetch canonical reporting identity verifier
-        run: |
-          python3 contracts/reporting-identity-verifier-v1.py fetch \
-            --artifact verifier \
-            --canonical-output "$RUNNER_TEMP/reporting-identity-verifier-v1.py"
-
-      - name: Check reporting identity verifier drift
-        run: |
-          python3 contracts/reporting-identity-verifier-v1.py compare \
-            --artifact verifier \
-            --local-artifact contracts/reporting-identity-verifier-v1.py \
-            --canonical-artifact "$RUNNER_TEMP/reporting-identity-verifier-v1.py"
-
-      - name: Fetch canonical reporting identity contract
-        run: |
-          python3 contracts/reporting-identity-verifier-v1.py fetch \
-            --artifact contract \
-            --canonical-output "$RUNNER_TEMP/reporting-identity-v1.json"
-
-      - name: Check reporting identity contract drift
-        run: |
-          python3 contracts/reporting-identity-verifier-v1.py compare \
-            --artifact contract \
-            --local-artifact contracts/reporting-identity-v1.json \
-            --canonical-artifact "$RUNNER_TEMP/reporting-identity-v1.json"
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v6
@@ -108,94 +119,27 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '24'
-          cache: npm
 
-      - name: Install browser test runtime
-        run: |
-          npm ci
-          # Fail before validation if the bundled browser or its libraries are unusable.
-          node -e 'require("@playwright/test").chromium.launch().then(browser => browser.close()).catch(error => { console.error(error); process.exit(1); })'
-      
-      - name: Install dependencies
-        run: uv sync --group dev --frozen
+      - name: Install locked runtime dependencies
+        run: uv sync --frozen
 
-      # The full suite validates code, not feed input. Validate already runs it
-      # on every push to main, so a successful push run for this exact commit
-      # is reused. A missing, pending or failed run, an API error or a checkout
-      # that is not GITHUB_SHA falls back to the full suite.
-      - name: Find Validate result for this commit
-        id: validated
-        env:
-          GH_TOKEN: ${{ secrets.PAT_GITHUB }}
-        run: |
-          passed=false
-          if [ "$(git rev-parse HEAD)" = "$GITHUB_SHA" ]; then
-            count=$(gh api \
-              "repos/$GITHUB_REPOSITORY/actions/workflows/validate.yml/runs?head_sha=$GITHUB_SHA&event=push&branch=main&status=success&per_page=1" \
-              --jq '.total_count' 2>/dev/null || true)
-            case "$count" in ''|*[!0-9]*) count=0 ;; esac
-            if [ "$count" -gt 0 ]; then passed=true; fi
-          fi
-          echo "passed=$passed" >> "$GITHUB_OUTPUT"
-          echo "Validate succeeded for $GITHUB_SHA: $passed"
-
-      - name: Run local validation
-        if: steps.validated.outputs.passed != 'true'
-        run: bash scripts/local_validation.sh
-
-      - name: Smoke-check committed report and site
-        if: steps.validated.outputs.passed == 'true'
-        run: |
-          uv run python -B scripts/validate_report.py index.md
-          uv run python -B scripts/build_site.py --check
-
-      # Admission before any model call: SentryDigest release events are bound
-      # to the release's commit-addressed feed snapshot; duplicate, stale and
-      # unbindable events stop here; an earlier generation whose outcome is
-      # unknown must be recovered or explicitly re-admitted first.
-      - name: Admit generation
+      - name: Admit paid readiness without readmission
         id: admission
-        env:
-          READMIT: ${{ github.event.inputs.readmit || 'false' }}
-          GENERATION_MODEL: ${{ vars.SENTRYINSIGHT_MODEL || 'openrouter/nvidia/nemotron-3.5-super-vl:free' }}
-          PAID_VERIFICATION: ${{ github.event.inputs.paid_verification || 'false' }}
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
-          # A free route has zero-price ceilings and no paid fallback, so an
-          # earlier failed or interrupted free generation leaves no generation
-          # spend to reconcile. Readmission still recovers a report that run
-          # pushed. Optional article triage (analysis.triage.mode shadow or
-          # enabled) makes separate paid decision calls of a few cents at most;
-          # each run records that spend, or a missing usage receipt, in its
-          # triage receipt, and readmission does not reconcile it.
-          if [ "${PAID_VERIFICATION:-false}" = "true" ]; then
-            if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ] || [ "$GITHUB_REF" != "refs/heads/main" ] || [ "$GITHUB_RUN_ATTEMPT" != "1" ] || [ "$READMIT" != "false" ]; then
-              echo 'Paid verification cannot readmit or run outside the first manual main attempt' >&2
-              exit 1
-            fi
-          else
-            case "$GENERATION_MODEL" in *:free) READMIT=true ;; esac
-          fi
           node publication/cli.js admit --event-name "$GITHUB_EVENT_NAME" --event-path "$GITHUB_EVENT_PATH" \
-            --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --readmit "$READMIT"
+            --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --readmit false
 
-      - name: Bind generator input to the admitted feed snapshot
-        if: steps.admission.outputs.decision == 'admitted' && steps.admission.outputs.feed_url != ''
-        env:
-          FEED_URL: ${{ steps.admission.outputs.feed_url }}
-        run: |
-          node -e "const fs = require('fs'); const p = 'config/config.json'; const c = JSON.parse(fs.readFileSync(p, 'utf8')); c.feed_url = process.env.FEED_URL; fs.writeFileSync(p, JSON.stringify(c, null, 4) + '\n');"
-
-      - name: Record generation start
+      - name: Record paid readiness start
         id: invoked
         if: steps.admission.outputs.decision == 'admitted'
         env:
           ADMISSION_KEY: ${{ steps.admission.outputs.admission_key }}
         run: node publication/cli.js invoked --key "$ADMISSION_KEY" --run-id "$GITHUB_RUN_ID"
 
-      - name: Prepare fixed verification billing evidence
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.paid_verification == 'true' && steps.admission.outputs.decision == 'admitted'
+      - name: Prepare readiness billing evidence
+        if: steps.invoked.outcome == 'success'
         run: |
           python3 - <<'PY'
           import json, os
@@ -203,240 +147,49 @@ jobs:
           event = json.loads(Path(os.environ['GITHUB_EVENT_PATH']).read_text())
           raw = event.get('inputs', {}).get('billing_evidence', '')
           if not isinstance(raw, str) or len(raw.encode()) > 4096 or not isinstance(json.loads(raw), dict):
-              raise ValueError('Bounded verification billing evidence is required')
+              raise ValueError('Bounded readiness billing evidence is required')
           path = Path(os.environ['RUNNER_TEMP']) / 'sentryinsight-paid-billing.json'
           fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
           with os.fdopen(fd, 'w') as stream:
               stream.write(raw)
           PY
 
-      - name: Generate exploitation report
-        id: generate
-        if: steps.admission.outputs.decision == 'admitted'
-        run: uv run python main.py
+      - name: Run the one-send paid readiness route
+        id: readiness
+        if: steps.invoked.outcome == 'success'
         env:
-          # Report generation calls OpenRouter directly (free model default);
-          # no local OpenCode gateway is needed in CI.
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          SENTRYINSIGHT_ATTEMPT_STORE: admission
-          SENTRYINSIGHT_PAID_VERIFICATION: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.paid_verification == 'true' && 'kimi-moonshot-verification-20261117' || '' }}
+          SENTRYINSIGHT_PAID_READINESS: kimi-moonshot-readiness-20261121
+          SENTRYINSIGHT_FACT_MANIFEST_SHA256: ${{ github.event.inputs.fact_manifest_sha256 }}
+          SENTRYINSIGHT_SURFACE_APPROVAL_SHA256: ${{ github.event.inputs.surface_approval_sha256 }}
           SENTRYINSIGHT_BILLING_EVIDENCE: ${{ runner.temp }}/sentryinsight-paid-billing.json
           SENTRYINSIGHT_ADMISSION_KEY: ${{ steps.admission.outputs.admission_key }}
           SENTRYINSIGHT_SOURCE_REVISION: ${{ steps.source.outputs.revision }}
-          SENTRYINSIGHT_FAILURE_RECEIPT: ${{ runner.temp }}/sentryinsight-failure.json
-          SENTRYINSIGHT_TRIAGE_RECEIPT: ${{ runner.temp }}/sentryinsight-triage.json
-          # Run-local source snapshot for the history projection below. It
-          # holds article text, stays in the runner and is never uploaded.
-          SENTRYINSIGHT_PROJECTION_SNAPSHOT: ${{ runner.temp }}/sentryinsight-run-snapshot.json
-          SENTRYINSIGHT_MODEL: ${{ vars.SENTRYINSIGHT_MODEL || 'openrouter/nvidia/nemotron-3.5-super-vl:free' }}
-          # Pass VT Intelligence API key under multiple common env names
-          VT_API_KEY: ${{ secrets.VT_API_KEY }}
-          VIRUSTOTAL_API_KEY: ${{ secrets.VIRUSTOTAL_API_KEY }}
-          VT_INTELLIGENCE_API_KEY: ${{ secrets.VT_INTELLIGENCE_API_KEY }}
-          GOOGLE_TI_API_KEY: ${{ secrets.GOOGLE_TI_API_KEY }}
-          # Optional tracing, scoped to this step so test runs never export.
-          # Without the secret, nothing is sent.
-          LOGFIRE_TOKEN: ${{ secrets.LOGFIRE_TOKEN }}
-          LOGFIRE_ENVIRONMENT: github-actions
-          LOGFIRE_SERVICE_VERSION: ${{ steps.source.outputs.revision }}
-      
-      - name: Export bounded failure or completion metadata
-        id: failure-receipt
-        if: always() && steps.generate.outcome != 'skipped' && steps.invoked.outcome == 'success'
+          SENTRYINSIGHT_ATTEMPT_STORE: admission
         run: |
-          .venv/bin/python -B scripts/export_failure_receipt.py \
-            --source "$RUNNER_TEMP/sentryinsight-failure.json" \
-            --output "$RUNNER_TEMP/failure-diagnostics/outcome.json" \
-            --triage-source "$RUNNER_TEMP/sentryinsight-triage.json" \
-            --triage-output "$RUNNER_TEMP/failure-diagnostics/triage.json"
+          mkdir -p "$RUNNER_TEMP/paid-readiness"
+          .venv/bin/python -B scripts/paid_readiness_report.py --output "$RUNNER_TEMP/paid-readiness/candidate"
 
-      - name: Retain bounded generation diagnostics for seven days
-        if: always() && steps.failure-receipt.outcome == 'success'
+      - name: Retain the rendered pair for owner review
+        if: success() && steps.readiness.outcome == 'success'
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: generation-diagnostics-${{ github.run_id }}
-          # One path lets the runner translate the entire input for the job container.
-          path: ${{ runner.temp }}/failure-diagnostics
+          name: paid-readiness-candidate-${{ github.run_id }}
+          path: ${{ runner.temp }}/paid-readiness/candidate
           retention-days: 7
           if-no-files-found: error
 
-      - name: Export bounded report candidate
-        id: candidate-export
-        if: success() && steps.generate.outcome == 'success' && steps.generate.outputs.report_generated == 'true'
-        env:
-          SOURCE_REVISION: ${{ steps.source.outputs.revision }}
-        run: |
-          .venv/bin/python -B scripts/export_report_candidate.py \
-            --report-root . --receipt-path "$RUNNER_TEMP/failure-diagnostics/outcome.json" \
-            --output "$RUNNER_TEMP/report-candidate" \
-            --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" \
-            --source-revision "$SOURCE_REVISION"
-
-      - name: Retain report candidate for seven days
-        if: steps.candidate-export.outcome == 'success'
-        uses: actions/upload-artifact@v4
-        with:
-          name: report-candidate-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/report-candidate
-          if-no-files-found: error
-          retention-days: 7
-
-      - name: Restore generator configuration
-        if: always() && steps.admission.outputs.feed_url != ''
-        run: git checkout -- config/config.json
-
-      - name: Validate report content before publishing
-        if: success() && steps.admission.outputs.decision == 'admitted' && steps.generate.outputs.report_generated == 'true'
-        run: |
-          uv run python scripts/validate_report.py index.md
-          uv run python scripts/build_site.py --check
-          # Browser tests and evidence screenshots serve test-results/pages;
-          # package the newly generated report, not the pre-generation one.
-          uv run python -B scripts/package_pages.py --output test-results/pages
-          npm run test:browser
-
-      - name: Upload rendered report evidence
-        id: generated-report-evidence
-        if: always() && steps.admission.outputs.decision == 'admitted' && steps.generate.outputs.report_generated == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: generated-report-screenshots-${{ github.run_id }}
-          path: test-results/screenshots
-          if-no-files-found: error
-
-      - name: Add rendered report review summary
-        if: always() && steps.admission.outputs.decision == 'admitted' && steps.generate.outputs.report_generated == 'true'
-        env:
-          ARTIFACT_URL: ${{ steps.generated-report-evidence.outputs.artifact-url }}
-        run: |
-          {
-            echo "## Rendered report review"
-            echo
-            echo "[Open the generated desktop, tablet, and phone screenshots](${ARTIFACT_URL})"
-            echo
-            echo "Review the dark logo, report date and counts, finding badges, desktop TOC, and mobile map before using the report."
-          } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Package source review metadata
-        id: source-review-package
-        if: always() && steps.admission.outputs.decision == 'admitted' && steps.generate.outcome != 'skipped'
-        run: uv run python scripts/review_sources.py package --root . --output "$RUNNER_TEMP/source-review-package"
-
-      - name: Upload source review metadata
-        id: source-review-artifact
-        if: always() && steps.source-review-package.outcome == 'success'
-        uses: actions/upload-artifact@v4
-        with:
-          name: source-review-${{ github.run_id }}
-          path: ${{ runner.temp }}/source-review-package
-          if-no-files-found: error
-          retention-days: 90
-
-      - name: Add source review summary
-        id: source-review-summary
-        if: always() && steps.source-review-artifact.outcome == 'success'
-        env:
-          ARTIFACT_URL: ${{ steps.source-review-artifact.outputs.artifact-url }}
-        run: |
-          python - <<'PY'
-          import os
-          from urllib.parse import urlsplit
-          url = os.environ['ARTIFACT_URL']
-          parsed = urlsplit(url)
-          expected = '/' + os.environ['GITHUB_REPOSITORY'] + '/actions/runs/' + os.environ['GITHUB_RUN_ID'] + '/artifacts/'
-          if parsed.scheme != 'https' or parsed.netloc != 'github.com' or not parsed.path.startswith(expected) or not parsed.path[len(expected):].isdigit() or parsed.query or parsed.fragment:
-              raise SystemExit('Review artifact link missing or invalid')
-          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as stream:
-              stream.write('\n## Source coverage and review\n\n[Open validated review metadata](' + url + ')\n\n')
-              stream.write('Held and rejected sources are not published findings. Eligible sources that were not cited are not established as irrelevant. Review metadata is retained for 90 days; expiry does not resolve review items. The outcome receipt identifies whether a new report was generated.\n')
-          PY
-
-      - name: Commit and push updated report
-        id: publish
-        if: success() && github.ref == 'refs/heads/main' && steps.admission.outputs.decision == 'admitted' && steps.generate.outputs.report_generated == 'true' && steps.source-review-summary.outcome == 'success'
-        env:
-          ADMISSION_KEY: ${{ steps.admission.outputs.admission_key }}
-          ADMISSION_FEED: ${{ steps.admission.outputs.feed_url }}
-          GENERATION_SOURCE_SHA: ${{ steps.source.outputs.revision }}
-        run: |
-          git config --global user.name 'GitHub Actions'
-          git config --global user.email 'actions@github.com'
-          # Force add the canonical report and generated site files
-          git add -f index.md index.html current-findings.json sitemap.xml || true
-          git add -f reports/ || true
-          git add -f assets/site.css assets/report.js assets/vendor/ || true
-          git add -f .sentryinsight-articles-fingerprint || true
-          if git diff --cached --quiet; then
-            echo "No report changes to commit"
-            echo "published=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          # The trailers let a later run recover this exact admission.
-          printf 'Update exploitation report [automated]\n\nAdmission-Key: %s\nAdmission-Feed: %s\n' "$ADMISSION_KEY" "${ADMISSION_FEED:-none}" > "$RUNNER_TEMP/report-commit-message.txt"
-          git commit -F "$RUNNER_TEMP/report-commit-message.txt"
-          git pull --rebase origin main
-          # The report was generated and validated against this checkout.
-          # Refuse even a clean rebase onto source that changed during the run.
-          if [ "$(git rev-parse FETCH_HEAD)" != "$GENERATION_SOURCE_SHA" ] ||
-             [ "$(git rev-parse HEAD^)" != "$GENERATION_SOURCE_SHA" ]; then
-            echo "::error::Main advanced during generation; report not published"
-            exit 1
-          fi
-          git push https://${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }}.git HEAD:main
-          echo "published=true" >> "$GITHUB_OUTPUT"
-
-      # The outcome is recorded whenever generation started and the run is
-      # still able to report it. A cancelled or failed generation may leave
-      # paid work outstanding, so admission keeps it uncertain until a report
-      # is recovered or an operator readmits; a runner lost mid-generation
-      # likewise leaves the admission uncertain.
-      - name: Record generation outcome
-        id: outcome
+      # A rendered pair is held for review, not published. Anything else
+      # leaves the admission unresolved, so no readmission or retry follows.
+      - name: Record paid readiness outcome
         if: always() && steps.invoked.outcome == 'success'
         env:
           ADMISSION_KEY: ${{ steps.admission.outputs.admission_key }}
           BINDING: ${{ steps.admission.outputs.binding }}
-          GENERATE: ${{ steps.generate.outcome }}
-          PUBLISHED: ${{ steps.publish.outputs.published }}
-          REPORT_GENERATED: ${{ steps.generate.outputs.report_generated }}
-          REVIEW_DELIVERED: ${{ steps.source-review-summary.outcome }}
+          READINESS: ${{ steps.readiness.outcome }}
         run: |
-          if [ "$GENERATE" = "cancelled" ]; then OUTCOME=cancelled
-          elif [ "$GENERATE" != "success" ]; then OUTCOME=failed
-          elif [ "$PUBLISHED" = "true" ]; then OUTCOME=published
-          elif [ "$PUBLISHED" = "false" ]; then OUTCOME=unchanged
-          elif [ "$REPORT_GENERATED" = "false" ] && [ "$REVIEW_DELIVERED" = "success" ]; then OUTCOME=unchanged
-          else OUTCOME=not-published
+          if [ "$READINESS" = "success" ]; then OUTCOME=not-published
+          elif [ "$READINESS" = "cancelled" ]; then OUTCOME=cancelled
+          else OUTCOME=failed
           fi
-          echo "outcome=$OUTCOME" >> "$GITHUB_OUTPUT"
           node publication/cli.js complete --key "$ADMISSION_KEY" --run-id "$GITHUB_RUN_ID" --outcome "$OUTCOME" --binding "$BINDING"
-
-      # History projection: records the finished run in the report history
-      # store after the fact. The report commit and its deployment stay the
-      # authority; this step never changes the run's outcome (a failure only
-      # annotates the run), and it is skipped until the store's URL and
-      # projection token are configured.
-      - name: Project run into report history
-        if: always() && steps.outcome.outputs.outcome != '' && vars.CONTROL_PLANE_URL != ''
-        env:
-          CONTROL_PLANE_URL: ${{ vars.CONTROL_PLANE_URL }}
-          CONTROL_PLANE_TOKEN: ${{ secrets.CONTROL_PLANE_PROJECT_TOKEN }}
-          OUTCOME: ${{ steps.outcome.outputs.outcome }}
-        run: |
-          .venv/bin/python -B -m src.control_plane.projection run \
-            --snapshot "$RUNNER_TEMP/sentryinsight-run-snapshot.json" --report-root . \
-            --source-commit "$(git rev-parse HEAD)" --run-id "$GITHUB_RUN_ID" \
-            --run-attempt "$GITHUB_RUN_ATTEMPT" --outcome "$OUTCOME" \
-            || echo "::warning::Run was not recorded in report history"
-
-  # A pushed report is published after Validate succeeds for it. Otherwise
-  # the single publisher resumes the current release (state record, proof),
-  # so an interrupted publication recovers without promoting new source.
-  resume-publication:
-    needs: generate-report
-    if: always() && needs.generate-report.outputs.published != 'true'
-    permissions:
-      contents: write
-    uses: ./.github/workflows/publish-production.yml
-    with:
-      invocation: resume
