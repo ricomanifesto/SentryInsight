@@ -22,4 +22,4 @@ uv run python -B -W error -m pytest -q -p no:cacheprovider \
   tests/test_critical_first_order.py \
   tests/test_vendor_link_references.py \
   tests/test_bounded_reasoning_route.py
-node --test publication/test/
+node --test --test-concurrency=1 publication/test/*.test.js
