@@ -1,0 +1,37 @@
+{
+  "advisories": [
+    {
+      "cve": "CVE-2024-10441",
+      "exposure": "active",
+      "product": "Synology DiskStation Manager",
+      "references": [
+        {
+          "commit": "a705bb0fa3ba6fc554cf8694c9c321364a4a094e",
+          "provider": "github",
+          "repository": "cisagov/kev-data"
+        }
+      ],
+      "remediation": "patch",
+      "severity": "critical"
+    },
+    {
+      "cve": "CVE-2025-42884",
+      "exposure": "active",
+      "product": "SAP NetWeaver Enterprise Portal",
+      "references": [
+        {
+          "commit": "9c564f4dfa6dab393748a3b37038cde6a11b3585",
+          "provider": "github",
+          "repository": "cisagov/kev-data"
+        }
+      ],
+      "remediation": "patch",
+      "severity": "medium"
+    }
+  ],
+  "approval": {
+    "reviewed_by": "ricomanifesto",
+    "state": "approved"
+  },
+  "schema": "sentryinsight/paid-readiness-facts/v1"
+}
