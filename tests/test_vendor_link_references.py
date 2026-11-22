@@ -7,9 +7,17 @@ import pytest
 
 from src.core import vendor_link_references as references
 from src.core.exploitation_prompt import build_exploitation_prompt
+from src.core.failure_receipt import (
+    FailureReceiptError,
+    finish_receipt,
+    make_receipt,
+    read_receipt,
+    write_receipt,
+)
 from src.core.finding_evidence import (
     EvidenceError,
     MAX_VENDOR_LINK_POSITION,
+    VENDOR_LINK_REASONS_BY_CODE,
     grounding_failure_diagnostic,
     validate_finding_evidence,
     validate_vendor_links,
@@ -741,3 +749,349 @@ def test_persisted_diagnostic_exporters_redact_sensitive_vendor_link_text(adviso
             assert forbidden not in serialized
     for forbidden in forbidden_tokens[:-1]:
         assert forbidden not in str(error)
+
+
+ALL_ALLOWED_VENDOR_LINK_PAIRS = [
+    (code, reason)
+    for code in sorted(VENDOR_LINK_REASONS_BY_CODE)
+    for reason in sorted(VENDOR_LINK_REASONS_BY_CODE[code])
+]
+
+
+@pytest.mark.parametrize(("code", "reason"), ALL_ALLOWED_VENDOR_LINK_PAIRS)
+@pytest.mark.parametrize(
+    "position",
+    [1, MAX_VENDOR_LINK_POSITION, None],
+    ids=["pos-1", "pos-256", "pos-none"],
+)
+def test_failure_receipt_round_trip_keeps_every_allowed_vendor_link_pair(
+    tmp_path, code, reason, position
+):
+    receipt_path = tmp_path / "failure-receipt.json"
+    diagnostic = {
+        "stage": "finding_evidence",
+        "codes": [code],
+        "field": "Vendor Links",
+        "finding_index": 1,
+        "expected": True,
+        "observed": False,
+        "vendor_link_reason": reason,
+    }
+    if position is not None:
+        diagnostic["vendor_link_position"] = position
+    state = {"status": "failed", "failure_diagnostic": diagnostic}
+
+    write_receipt(receipt_path, make_receipt(None, started=True, environ={}))
+    finish_receipt(receipt_path, state)
+    loaded = read_receipt(receipt_path)
+
+    assert loaded["status"] == "failed"
+    persisted = loaded["diagnostic"]
+    assert persisted["codes"] == [code]
+    assert persisted["field"] == "Vendor Links"
+    assert persisted["vendor_link_reason"] == reason
+    if position is None:
+        assert "vendor_link_position" not in persisted
+    else:
+        assert persisted["vendor_link_position"] == position
+
+
+@pytest.mark.parametrize(
+    ("code", "bad_reason"),
+    [
+        ("invalid_vendor_link", "arbitrary_freeform_reason"),
+        ("invalid_vendor_link", "not_in_cited_sources"),
+        ("unsupported_vendor_link", "invalid_url_scheme"),
+        ("unsupported_vendor_link", "https://vendor.example.test/raw?token=synthq"),
+        ("invalid_vendor_link", id_for("alpha", ALPHA_ADVISORY)),
+    ],
+    ids=[
+        "arbitrary-string",
+        "cross-class-invalid",
+        "cross-class-unsupported",
+        "raw-url-as-reason",
+        "link-id-as-reason",
+    ],
+)
+@pytest.mark.parametrize(
+    "bad_position",
+    [True, False, 0, -1, MAX_VENDOR_LINK_POSITION + 1, 9999, 1.0, "2"],
+    ids=[
+        "bool-true",
+        "bool-false",
+        "pos-0",
+        "pos-neg1",
+        "pos-257",
+        "pos-9999",
+        "float",
+        "str",
+    ],
+)
+def test_failure_receipt_round_trip_drops_unallowed_values_and_sensitive_fields(
+    tmp_path, code, bad_reason, bad_position
+):
+    receipt_path = tmp_path / "failure-receipt.json"
+    sensitive_url = (
+        "https://synthuser:synthsecret@vendor.example.test"
+        "/advisory/secret-path?token=synthq#synthfrag"
+    )
+    leaked_link_id = id_for("alpha", ALPHA_ADVISORY)
+    leaked_sha = "a" * 64
+    leaked_source_key = key_for("alpha")
+    leaked_title = "Synthetic gateway campaign"
+    leaked_source_text = "Synthetic source advisory body text."
+    dirty_diagnostic = {
+        "stage": "finding_evidence",
+        "codes": [code, "arbitrary_code_name", sensitive_url],
+        "field": "Vendor Links",
+        "finding_index": 1,
+        "expected": sensitive_url,
+        "observed": leaked_title,
+        "vendor_link_reason": bad_reason,
+        "vendor_link_position": bad_position,
+        "url": sensitive_url,
+        "link_id": leaked_link_id,
+        "title": leaked_title,
+        "query": "token=synthq",
+        "source_text": leaked_source_text,
+        "cves": [CVE],
+        "finding_sha256": leaked_sha,
+        "finding_id": "finding-synth-identifier",
+        "source_keys": [leaked_source_key],
+    }
+
+    receipt = make_receipt(
+        {"status": "failed", "failure_diagnostic": dirty_diagnostic},
+        request={"state": "completed", "attempts": 1, "limit": 3},
+        environ={},
+    )
+    write_receipt(receipt_path, receipt)
+    loaded = read_receipt(receipt_path)
+
+    persisted = loaded["diagnostic"]
+    assert "vendor_link_reason" not in persisted
+    assert "vendor_link_position" not in persisted
+    assert persisted["codes"] == [code, "unclassified_validation_failure"]
+    assert persisted["expected"] == "invalid"
+    assert persisted["observed"] == "invalid"
+
+    raw_disk = receipt_path.read_text(encoding="utf-8")
+    serialized = json.dumps(loaded)
+    forbidden_tokens = (
+        "arbitrary_freeform_reason",
+        "arbitrary_code_name",
+        "synthuser",
+        "synthsecret",
+        "vendor.example.test",
+        "secret-path",
+        "token=synthq",
+        "synthfrag",
+        leaked_link_id,
+        "link-",
+        leaked_title,
+        leaked_source_text,
+        CVE,
+        leaked_sha,
+        "finding-synth-identifier",
+        leaked_source_key,
+    )
+    for token in forbidden_tokens:
+        assert token not in raw_disk
+        assert token not in serialized
+
+
+@pytest.mark.parametrize("advisory", MODES, ids=MODE_IDS)
+def test_failure_receipt_from_real_pipeline_error_redacts_all_identifiers(
+    tmp_path, advisory
+):
+    receipt_path = tmp_path / "pipeline-failure-receipt.json"
+    sensitive_url = (
+        "https://synthuser:synthsecret@vendor.example.test"
+        "/advisory/secret-path?token=synthq#synthfrag"
+    )
+    articles = standard_articles()
+    articles[0] = article(
+        "alpha",
+        [ALPHA_ADVISORY, ALPHA_NOTES, SEPARATOR_LINK],
+        content=f"A synthetic alpha advisory describing {CVE}.",
+    )
+    alpha_id = id_for("alpha", ALPHA_ADVISORY, articles)
+    findings = alpha_finding(f"{alpha_id}; {sensitive_url}")
+    findings = findings.replace(
+        "- **Severity**", f"- **CVE IDs**: {CVE}\n- **Severity**"
+    )
+    error = pipeline_error(findings, advisory=advisory, articles=articles)
+    state = {
+        "status": "failed",
+        "failure_diagnostic": validation_diagnostic("finding_evidence", error),
+    }
+
+    write_receipt(receipt_path, make_receipt(None, started=True, environ={}))
+    finish_receipt(receipt_path, state)
+    loaded = read_receipt(receipt_path)
+
+    persisted = loaded["diagnostic"]
+    assert persisted["codes"] == ["invalid_vendor_link"]
+    assert persisted["vendor_link_reason"] == "url_credentials_not_allowed"
+    assert persisted["vendor_link_position"] == 2
+    assert persisted["field"] == "Vendor Links"
+
+    raw_disk = receipt_path.read_text(encoding="utf-8")
+    for token in (
+        "synthuser",
+        "synthsecret",
+        "vendor.example.test",
+        "secret-path",
+        "token=synthq",
+        "synthfrag",
+        alpha_id,
+        "link-",
+        "Synthetic gateway campaign",
+        "A synthetic alpha advisory describing",
+        CVE,
+        key_for("alpha"),
+        error.finding_sha256,
+    ):
+        assert token not in raw_disk
+
+
+@pytest.mark.parametrize(
+    "tamper",
+    [
+        lambda d: d.update({"vendor_link_reason": "arbitrary_reason"}),
+        lambda d: d.update({"vendor_link_position": True}),
+        lambda d: d.update({"vendor_link_position": False}),
+        lambda d: d.update({"vendor_link_position": 0}),
+        lambda d: d.update({"vendor_link_position": MAX_VENDOR_LINK_POSITION + 1}),
+        lambda d: d.update({"url": ALPHA_ADVISORY}),
+        lambda d: d.update({"finding_sha256": "b" * 64}),
+    ],
+    ids=[
+        "arbitrary-reason",
+        "bool-true-pos",
+        "bool-false-pos",
+        "pos-0",
+        "pos-257",
+        "raw-url-key",
+        "finding-sha-key",
+    ],
+)
+def test_failure_receipt_reader_rejects_tampered_vendor_link_payload(tmp_path, tamper):
+    receipt_path = tmp_path / "tampered-receipt.json"
+    valid = make_receipt(
+        {
+            "status": "failed",
+            "failure_diagnostic": {
+                "stage": "finding_evidence",
+                "codes": ["invalid_vendor_link"],
+                "field": "Vendor Links",
+                "finding_index": 1,
+                "expected": True,
+                "observed": False,
+                "vendor_link_reason": "invalid_url_scheme",
+                "vendor_link_position": 2,
+            },
+        },
+        request={"state": "completed", "attempts": 1, "limit": 3},
+        environ={},
+    )
+    write_receipt(receipt_path, valid)
+    payload = json.loads(receipt_path.read_text(encoding="utf-8"))
+    tamper(payload["diagnostic"])
+    receipt_path.write_text(json.dumps(payload) + "\n", encoding="utf-8")
+    assert (receipt_path.stat().st_mode & 0o777) == 0o600
+    with pytest.raises(FailureReceiptError):
+        read_receipt(receipt_path)
+
+
+@pytest.mark.parametrize("advisory", MODES, ids=MODE_IDS)
+@pytest.mark.parametrize(
+    ("unsupported_entry", "invalid_entry", "expected_reason"),
+    [
+        (BETA_ADVISORY, "vendor.example.test/advisory/alpha", "invalid_url_scheme"),
+        (
+            "https://vendor.example.test/advisory/other",
+            "https://user:pass@vendor.example.test/advisory/alpha",
+            "url_credentials_not_allowed",
+        ),
+        (
+            BETA_ADVISORY,
+            "https://vendor.example.test:99999/advisory/alpha",
+            "invalid_url_port",
+        ),
+        (BETA_ADVISORY, "", "empty_url"),
+        (
+            id_for("beta", BETA_ADVISORY),
+            "vendor.example.test/advisory/alpha",
+            "invalid_url_scheme",
+        ),
+        (
+            "link-" + "0" * 16,
+            "https://[::1/advisory/alpha",
+            "invalid_url_syntax",
+        ),
+        (
+            id_for("beta", BETA_ADVISORY),
+            "https://bad..example.test/advisory/alpha",
+            "invalid_url_host",
+        ),
+    ],
+    ids=[
+        "uncited-raw-before-no-scheme",
+        "absent-raw-before-credentials",
+        "uncited-raw-before-invalid-port",
+        "uncited-raw-before-empty",
+        "uncited-id-before-no-scheme",
+        "unknown-id-before-invalid-syntax",
+        "uncited-id-before-invalid-host",
+    ],
+)
+def test_invalid_normalization_precedes_unsupported_cited_evidence(
+    tmp_path, advisory, unsupported_entry, invalid_entry, expected_reason
+):
+    # Control: without the malformed sibling, the unsupported entry fails as unsupported.
+    control_error = pipeline_error(alpha_finding(unsupported_entry), advisory=advisory)
+    assert control_error.code == "unsupported_vendor_link"
+
+    # Precedence: with an invalid normalization sibling after it, invalid_vendor_link wins.
+    combined = f"{unsupported_entry}; {invalid_entry}"
+    findings = alpha_finding(combined)
+    error = pipeline_error(findings, advisory=advisory)
+    assert (
+        error.code,
+        error.field,
+        error.vendor_link_reason,
+        error.vendor_link_position,
+    ) == (
+        "invalid_vendor_link",
+        "Vendor Links",
+        expected_reason,
+        2,
+    )
+
+    if not LINK_ID_PATTERN.fullmatch(unsupported_entry):
+        for validator in (validate_finding_evidence, validate_vendor_links):
+            with pytest.raises(EvidenceError) as direct:
+                validator(report(findings), catalog())
+            assert (
+                direct.value.code,
+                direct.value.vendor_link_reason,
+                direct.value.vendor_link_position,
+            ) == ("invalid_vendor_link", expected_reason, 2)
+
+    receipt_path = tmp_path / "precedence-receipt.json"
+    write_receipt(
+        receipt_path,
+        make_receipt(
+            {
+                "status": "failed",
+                "failure_diagnostic": validation_diagnostic("finding_evidence", error),
+            },
+            request={"state": "completed", "attempts": 1, "limit": 3},
+            environ={},
+        ),
+    )
+    loaded = read_receipt(receipt_path)["diagnostic"]
+    assert loaded["codes"] == ["invalid_vendor_link"]
+    assert loaded["vendor_link_reason"] == expected_reason
+    assert loaded["vendor_link_position"] == 2

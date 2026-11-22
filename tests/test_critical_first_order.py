@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 
 from scripts.build_site import build_site
-from src.core import reviewed_report
+from src.core import report_validation, reviewed_report
 from src.core.report_artifact import parse_report_artifact, slugify
 from src.core.report_findings import report_findings
 from src.core.report_validation import (
@@ -368,3 +368,60 @@ def test_historical_noncritical_first_artifact_parses_in_file_order(monkeypatch)
     assert [item.title for item in artifact.findings] == [
         title(label) for label in LABELS
     ]
+
+
+@pytest.mark.parametrize("advisory", [False, True], ids=["strict", "advisory"])
+def test_critical_first_ordering_is_applied_exactly_once(
+    advisory, tmp_path, monkeypatch
+):
+    real_order = order_active_findings
+    calls: list[dict[str, object]] = []
+    stages: list[str] = []
+
+    def spy_order(markdown: str) -> str:
+        ordered = real_order(markdown)
+        calls.append(
+            {
+                "stage": stages[-1] if stages else None,
+                "before_labels": labels_of(markdown),
+                "after_labels": labels_of(ordered),
+                "has_link_id": "link-" in markdown,
+            }
+        )
+        return ordered
+
+    monkeypatch.setattr(reviewed_report, "order_active_findings", spy_order)
+    monkeypatch.setattr(report_validation, "order_active_findings", spy_order)
+
+    raw_report = eight_finding_report()
+    candidate = resolve_reviewed_analysis(
+        prepared_result(standard_articles(), raw_report),
+        on_stage=stages.append,
+        advisory=advisory,
+    )
+    artifact = parse_report_artifact(candidate.source)
+    report_path = tmp_path / "index.md"
+    report_path.write_text(candidate.source)
+    output = tmp_path / "site"
+    build_site(report_path=report_path, output_path=output, template_path=ROOT / "site")
+
+    assert len(calls) == 1
+    assert calls[0] == {
+        "stage": "finding_evidence",
+        "before_labels": list(LABELS),
+        "after_labels": list(EXPECTED),
+        "has_link_id": False,
+    }
+    assert labels_of(candidate.report) == list(EXPECTED)
+    assert [item.title for item in artifact.findings] == [
+        title(label) for label in EXPECTED
+    ]
+    assert (
+        report_findings(candidate.grounded_report).outside()
+        == report_findings(raw_report).outside()
+    )
+    assert real_order(candidate.grounded_report) is candidate.grounded_report
+
+    page = Page()
+    page.feed((output / "index.html").read_text())
+    assert page.titles == [title(label) for label in EXPECTED]
