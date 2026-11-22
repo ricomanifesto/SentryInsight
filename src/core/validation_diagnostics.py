@@ -1,6 +1,6 @@
 """Bounded categories shared by production and unpublished verification; never serialize exceptions."""
 
-from src.core.finding_evidence import EvidenceError
+from src.core.finding_evidence import EvidenceError, vendor_link_diagnostic_fields
 from src.core.report_artifact import ReportArtifactError
 from src.core.report_validation import ReportValidationIssue
 from src.core.reporting import ReportingGroundingError
@@ -121,6 +121,7 @@ def validation_diagnostic(stage: str, error: Exception) -> dict:
     truncated = False
     expected = observed = None
     markdown_reason = None
+    vendor_link: dict[str, str | int] = {}
     if isinstance(error, EvidenceError):
         codes = [_known(error.code, EVIDENCE_CODES, UNKNOWN_CODE)]
         field = _known(error.field, FIELDS, "") or None
@@ -131,6 +132,9 @@ def validation_diagnostic(stage: str, error: Exception) -> dict:
         if codes != [UNKNOWN_CODE]:
             expected = _bounded_value(error.expected)
             observed = _bounded_value(error.observed)
+        vendor_link = vendor_link_diagnostic_fields(
+            codes, error.vendor_link_reason, error.vendor_link_position
+        )
     elif isinstance(error, SourceReviewError):
         codes = [_known(error.code, SOURCE_CODES, UNKNOWN_CODE)]
         if isinstance(error, ReportingSelectionError):
@@ -168,6 +172,7 @@ def validation_diagnostic(stage: str, error: Exception) -> dict:
         codes = ["artifact_rejected"]
     return {
         **({"markdown_reason": markdown_reason} if markdown_reason else {}),
+        **vendor_link,
         "schema_version": 1,
         "stage": _known(stage, STAGES, "unknown_validation_stage"),
         "codes": codes,
@@ -227,25 +232,34 @@ def sanitize_diagnostic(value: object) -> dict:
     value = value if type(value) is dict else {}
     raw_codes = value.get("codes")
     codes = raw_codes if type(raw_codes) is list else []
+    sanitized_codes = (
+        list(
+            dict.fromkeys(
+                _known(code, WORKFLOW_CODES, UNKNOWN_CODE)
+                for code in codes[:MAX_ISSUES]
+            )
+        )
+        or [UNKNOWN_CODE]
+    )
     index = value.get("finding_index")
     markdown_reason = (
         _known(value.get("markdown_reason"), MARKDOWN_REASONS, "")
         if "malformed_markdown" in codes[:MAX_ISSUES]
         else ""
     )
+    vendor_link = vendor_link_diagnostic_fields(
+        sanitized_codes,
+        value.get("vendor_link_reason"),
+        value.get("vendor_link_position"),
+    )
     return {
         **({"markdown_reason": markdown_reason} if markdown_reason else {}),
+        **vendor_link,
         "schema_version": 1,
         "stage": _known(
             value.get("stage"), WORKFLOW_STAGES, "unknown_validation_stage"
         ),
-        "codes": list(
-            dict.fromkeys(
-                _known(code, WORKFLOW_CODES, UNKNOWN_CODE)
-                for code in codes[:MAX_ISSUES]
-            )
-        )
-        or [UNKNOWN_CODE],
+        "codes": sanitized_codes,
         "field": _known(value.get("field"), FIELDS, "") or None,
         "finding_index": (
             index if type(index) is int and 0 <= index <= MAX_FINDING_INDEX else None

@@ -9,6 +9,8 @@ from src.core import vendor_link_references as references
 from src.core.exploitation_prompt import build_exploitation_prompt
 from src.core.finding_evidence import (
     EvidenceError,
+    MAX_VENDOR_LINK_POSITION,
+    grounding_failure_diagnostic,
     validate_finding_evidence,
     validate_vendor_links,
 )
@@ -17,7 +19,10 @@ from src.core.report_artifact import parse_report_artifact
 from src.core.reporting import build_reporting_catalog
 from src.core.reviewed_report import resolve_reviewed_analysis
 from src.core.source_review import SourceReviewError, prepare_source_review
-from src.core.validation_diagnostics import validation_diagnostic
+from src.core.validation_diagnostics import (
+    sanitize_diagnostic,
+    validation_diagnostic,
+)
 from src.core.vendor_link_references import (
     LINK_ID_PATTERN,
     build_vendor_link_context,
@@ -437,4 +442,302 @@ def test_rejection_diagnostic_carries_no_link_text():
     serialized = json.dumps(validation_diagnostic("finding_evidence", error))
     for forbidden in ("link-", "example.test", BETA_ADVISORY):
         assert forbidden not in serialized
+        assert forbidden not in str(error)
+
+
+def _exported_diagnostics(text: str, error: EvidenceError) -> tuple[dict, dict, dict]:
+    grounding = grounding_failure_diagnostic(text, catalog(), error)
+    validation = validation_diagnostic("finding_evidence", error)
+    sanitized = sanitize_diagnostic(validation)
+    return grounding, validation, sanitized
+
+
+@pytest.mark.parametrize("advisory", MODES, ids=MODE_IDS)
+@pytest.mark.parametrize(
+    ("value", "reason", "position"),
+    [
+        ("vendor.example.test/advisory/alpha", "invalid_url_scheme", 1),
+        (
+            f"{ALPHA_ADVISORY}; https://user:pass@vendor.example.test/advisory/alpha",
+            "url_credentials_not_allowed",
+            2,
+        ),
+        (f"{ALPHA_ADVISORY};", "empty_url", 2),
+        (f"{ALPHA_ADVISORY}; https:///advisory/alpha", "missing_url_host", 2),
+        (
+            f"{ALPHA_ADVISORY}; https://vendor.example.test:99999/advisory/alpha",
+            "invalid_url_port",
+            2,
+        ),
+        (
+            f"{ALPHA_ADVISORY}; https://bad..example.test/advisory/alpha",
+            "invalid_url_host",
+            2,
+        ),
+        (
+            f"{ALPHA_ADVISORY}; https://[::1/advisory/alpha",
+            "invalid_url_syntax",
+            2,
+        ),
+        # Malformed-before-unsupported precedence: entry 1 is unsupported, entry 2 is malformed.
+        (
+            f"{BETA_ADVISORY}; vendor.example.test/advisory/alpha",
+            "invalid_url_scheme",
+            2,
+        ),
+    ],
+    ids=[
+        "no-scheme",
+        "credentials",
+        "empty-entry",
+        "missing-host",
+        "invalid-port",
+        "invalid-host",
+        "invalid-syntax",
+        "malformed-before-unsupported",
+    ],
+)
+def test_normalization_and_precedence_diagnostics_carry_reason_and_position(
+    advisory, value, reason, position
+):
+    findings = alpha_finding(value)
+    error = pipeline_error(findings, advisory=advisory)
+    assert error.code == "invalid_vendor_link"
+    grounding, validation, sanitized = _exported_diagnostics(report(findings), error)
+    for exported in (grounding, validation, sanitized):
+        assert exported["vendor_link_reason"] == reason
+        assert exported["vendor_link_position"] == position
+    assert grounding["code"] == "invalid_vendor_link"
+    assert validation["codes"] == ["invalid_vendor_link"]
+    assert sanitized["codes"] == ["invalid_vendor_link"]
+
+
+@pytest.mark.parametrize("advisory", MODES, ids=MODE_IDS)
+@pytest.mark.parametrize(
+    ("value", "code", "reason", "position"),
+    [
+        (
+            f"{ALPHA_ADVISORY}; {BETA_ADVISORY}",
+            "unsupported_vendor_link",
+            "not_in_cited_sources",
+            2,
+        ),
+        (
+            f"{ALPHA_ADVISORY}; https://vendor.example.test/advisory/other",
+            "unsupported_vendor_link",
+            "not_in_cited_sources",
+            2,
+        ),
+        (
+            f"{ALPHA_ADVISORY}; {id_for('beta', BETA_ADVISORY)}",
+            "unsupported_vendor_link",
+            "uncited_link_reference",
+            2,
+        ),
+        (
+            f"{ALPHA_ADVISORY}; {'link-' + '0' * 16}",
+            "unsupported_vendor_link",
+            "unknown_link_reference",
+            2,
+        ),
+        (
+            f"{id_for('alpha', ALPHA_ADVISORY)}; {id_for('alpha', ALPHA_ADVISORY)}",
+            "invalid_vendor_link",
+            "duplicate_vendor_link",
+            2,
+        ),
+        (
+            f"{ALPHA_ADVISORY}; {id_for('alpha', ALPHA_ADVISORY)}",
+            "invalid_vendor_link",
+            "duplicate_vendor_link",
+            2,
+        ),
+        (
+            f"{id_for('alpha', ALPHA_ADVISORY)}; vendor.example.test/advisory/alpha",
+            "invalid_vendor_link",
+            "invalid_url_scheme",
+            2,
+        ),
+    ],
+    ids=[
+        "uncited-raw-url",
+        "absent-raw-url",
+        "uncited-link-id",
+        "unknown-link-id",
+        "duplicate-link-id",
+        "raw-and-duplicate-id",
+        "id-with-malformed-sibling",
+    ],
+)
+def test_unsupported_and_resolver_diagnostics_carry_reason_and_position(
+    advisory, value, code, reason, position
+):
+    findings = alpha_finding(value)
+    error = pipeline_error(findings, advisory=advisory)
+    assert error.code == code
+    grounding, validation, sanitized = _exported_diagnostics(report(findings), error)
+    for exported in (grounding, validation, sanitized):
+        assert exported["vendor_link_reason"] == reason
+        assert exported["vendor_link_position"] == position
+    assert grounding["code"] == code
+    assert validation["codes"] == [code]
+    assert sanitized["codes"] == [code]
+
+
+@pytest.mark.parametrize("place", ["summary", "description", "trailer"])
+def test_stray_link_reference_outside_vendor_links_omits_unknown_position(place):
+    stray = id_for("alpha", ALPHA_ADVISORY)
+    kwargs = {}
+    description = "A campaign described by the supplied reporting."
+    if place == "summary":
+        kwargs["summary"] = f"See {stray} for the advisory.\n\n"
+    elif place == "description":
+        description = f"A campaign; see {stray}."
+    else:
+        kwargs["trailer"] = TRAILER + f"- Background reference {stray}.\n"
+    text = report(alpha_finding(ABSENT, description=description), **kwargs)
+    with pytest.raises(EvidenceError) as caught:
+        resolve_vendor_link_ids(text, catalog())
+    grounding, validation, sanitized = _exported_diagnostics(text, caught.value)
+    for exported in (grounding, validation, sanitized):
+        assert exported["vendor_link_reason"] == "stray_link_reference"
+        assert "vendor_link_position" not in exported
+
+
+@pytest.mark.parametrize(
+    "validator", [validate_finding_evidence, validate_vendor_links], ids=MODE_IDS
+)
+@pytest.mark.parametrize(
+    ("position", "expected_position"),
+    [
+        (MAX_VENDOR_LINK_POSITION, MAX_VENDOR_LINK_POSITION),
+        (MAX_VENDOR_LINK_POSITION + 1, None),
+    ],
+    ids=["upper-bound-256", "over-bound-257"],
+)
+def test_vendor_link_position_bounds_in_validators(
+    validator, position, expected_position
+):
+    value = "; ".join([ALPHA_ADVISORY] * (position - 1) + [BETA_ADVISORY])
+    text = report(alpha_finding(value))
+    with pytest.raises(EvidenceError) as caught:
+        validator(text, catalog())
+    assert caught.value.code == "unsupported_vendor_link"
+    grounding, validation, sanitized = _exported_diagnostics(text, caught.value)
+    for exported in (grounding, validation, sanitized):
+        assert exported["vendor_link_reason"] == "not_in_cited_sources"
+        if expected_position is None:
+            assert "vendor_link_position" not in exported
+        else:
+            assert exported["vendor_link_position"] == expected_position
+
+
+@pytest.mark.parametrize("bad_position", [0, -1, 257, True, False, 1.0, "1", None])
+def test_diagnostic_exporters_enforce_strict_int_bounds(bad_position):
+    text = report(alpha_finding(ABSENT))
+    error = EvidenceError(
+        "Unsupported vendor link",
+        code="invalid_vendor_link",
+        field="Vendor Links",
+        expected=True,
+        observed=False,
+        vendor_link_reason="invalid_url_scheme",
+        vendor_link_position=bad_position,
+    )
+    grounding, validation, _ = _exported_diagnostics(text, error)
+    sanitized = sanitize_diagnostic(
+        {
+            "stage": "finding_evidence",
+            "codes": ["invalid_vendor_link"],
+            "field": "Vendor Links",
+            "vendor_link_reason": "invalid_url_scheme",
+            "vendor_link_position": bad_position,
+        }
+    )
+    for exported in (grounding, validation, sanitized):
+        assert exported["vendor_link_reason"] == "invalid_url_scheme"
+        assert "vendor_link_position" not in exported
+
+
+def test_diagnostic_exporters_reject_non_allowlisted_cross_class_and_unrelated_codes():
+    text = report(alpha_finding(ABSENT))
+    bad_reason = EvidenceError(
+        "Unsupported vendor link",
+        code="invalid_vendor_link",
+        field="Vendor Links",
+        vendor_link_reason="not_in_cited_sources",
+        vendor_link_position=1,
+    )
+    for exported in _exported_diagnostics(text, bad_reason):
+        assert "vendor_link_reason" not in exported
+        assert exported["vendor_link_position"] == 1
+
+    tampered = sanitize_diagnostic(
+        {
+            "stage": "finding_evidence",
+            "codes": ["unsupported_vendor_link"],
+            "field": "Vendor Links",
+            "vendor_link_reason": "https://secret.example.test/raw?token=1",
+            "vendor_link_position": 2,
+        }
+    )
+    assert "vendor_link_reason" not in tampered
+    assert tampered["vendor_link_position"] == 2
+
+    unrelated = EvidenceError(
+        "Missing field",
+        code="missing_detail_field",
+        field="Vendor Links",
+        vendor_link_reason="empty_url",
+        vendor_link_position=1,
+    )
+    for exported in _exported_diagnostics(text, unrelated):
+        assert "vendor_link_reason" not in exported
+        assert "vendor_link_position" not in exported
+    unrelated_sanitized = sanitize_diagnostic(
+        {
+            "stage": "finding_evidence",
+            "codes": ["missing_detail_field"],
+            "field": "Vendor Links",
+            "vendor_link_reason": "empty_url",
+            "vendor_link_position": 1,
+        }
+    )
+    assert "vendor_link_reason" not in unrelated_sanitized
+    assert "vendor_link_position" not in unrelated_sanitized
+
+
+@pytest.mark.parametrize("advisory", MODES, ids=MODE_IDS)
+def test_persisted_diagnostic_exporters_redact_sensitive_vendor_link_text(advisory):
+    sensitive_url = (
+        "https://synthuser:synthsecret@vendor.example.test"
+        "/advisory/secret-path?token=synthq#synthfrag"
+    )
+    findings = alpha_finding(f"{ALPHA_ADVISORY}; {sensitive_url}")
+    error = pipeline_error(findings, advisory=advisory)
+    grounding, validation, sanitized = _exported_diagnostics(report(findings), error)
+    for exported in (grounding, validation, sanitized):
+        assert exported["vendor_link_reason"] == "url_credentials_not_allowed"
+        assert exported["vendor_link_position"] == 2
+    assert set(grounding["sources"][0]) == {
+        "key",
+        "content_kind",
+        "content_chars",
+        "content_sha256",
+    }
+    forbidden_tokens = (
+        "synthuser",
+        "synthsecret",
+        "vendor.example.test",
+        "secret-path",
+        "synthq",
+        "synthfrag",
+        "link-",
+        "Synthetic gateway campaign",
+    )
+    for exported in (grounding, validation, sanitized):
+        serialized = json.dumps(exported)
+        for forbidden in forbidden_tokens:
+            assert forbidden not in serialized
+    for forbidden in forbidden_tokens[:-1]:
         assert forbidden not in str(error)

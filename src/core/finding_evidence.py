@@ -26,8 +26,62 @@ from .report_findings import FIELD, FindingRow, report_findings
 from .reporting import (
     ReportingGroundingError,
     ReportingSource,
+    URL_NORMALIZATION_REASONS,
     normalize_reporting_url,
 )
+
+VENDOR_LINK_CODES = frozenset({"invalid_vendor_link", "unsupported_vendor_link"})
+INVALID_VENDOR_LINK_REASONS = URL_NORMALIZATION_REASONS | frozenset(
+    {
+        "duplicate_vendor_link",
+        "stray_link_reference",
+    }
+)
+UNSUPPORTED_VENDOR_LINK_REASONS = frozenset(
+    {
+        "not_in_cited_sources",
+        "unknown_link_reference",
+        "uncited_link_reference",
+    }
+)
+VENDOR_LINK_REASONS_BY_CODE: Mapping[str, frozenset[str]] = {
+    "invalid_vendor_link": INVALID_VENDOR_LINK_REASONS,
+    "unsupported_vendor_link": UNSUPPORTED_VENDOR_LINK_REASONS,
+}
+VENDOR_LINK_REASONS = INVALID_VENDOR_LINK_REASONS | UNSUPPORTED_VENDOR_LINK_REASONS
+MAX_VENDOR_LINK_POSITION = 256
+
+
+def bound_vendor_link_position(value: object) -> int | None:
+    """Return a strict 1-based position in 1..256, or None when missing/invalid."""
+    if type(value) is int and 1 <= value <= MAX_VENDOR_LINK_POSITION:
+        return value
+    return None
+
+
+def vendor_link_diagnostic_fields(
+    codes: Sequence[str],
+    reason: object,
+    position: object,
+) -> dict[str, str | int]:
+    """Project only allowlisted vendor-link reason and bounded 1-based position."""
+    allowed_reasons: frozenset[str] = frozenset().union(
+        *(
+            VENDOR_LINK_REASONS_BY_CODE[code]
+            for code in codes
+            if type(code) is str and code in VENDOR_LINK_REASONS_BY_CODE
+        )
+    )
+    if not allowed_reasons:
+        return {}
+    projected: dict[str, str | int] = {}
+    if type(reason) is str and reason in allowed_reasons:
+        projected["vendor_link_reason"] = reason
+    bounded_position = bound_vendor_link_position(position)
+    if bounded_position is not None:
+        projected["vendor_link_position"] = bounded_position
+    return projected
+
 
 DETAIL_FIELDS = (
     "Affected Versions",
@@ -210,12 +264,16 @@ class EvidenceError(ValueError):
         field: str | None = None,
         expected: str | int | bool | None = None,
         observed: str | int | bool | None = None,
+        vendor_link_reason: str | None = None,
+        vendor_link_position: int | None = None,
     ):
         super().__init__(message)
         self.code = code
         self.field = field
         self.expected = expected
         self.observed = observed
+        self.vendor_link_reason = vendor_link_reason
+        self.vendor_link_position = vendor_link_position
         self.finding_index: int | None = None
         self.cves: tuple[str, ...] = ()
         self.source_keys: tuple[str, ...] = ()
@@ -957,6 +1015,16 @@ def grounding_failure_diagnostic(
 ) -> dict[str, Any]:
     """Bounded metadata for logs; never include source, candidate, URL or error text."""
     evidence_error = error if isinstance(error, EvidenceError) else None
+    code = evidence_error.code if evidence_error else "reporting_identity_rejected"
+    vendor_link = (
+        vendor_link_diagnostic_fields(
+            (code,),
+            evidence_error.vendor_link_reason,
+            evidence_error.vendor_link_position,
+        )
+        if evidence_error
+        else {}
+    )
     cves = evidence_error.cves if evidence_error else ()
     logged_cves = [cve for cve in cves if len(cve) <= 64][:32]
     selected = evidence_error.source_keys if evidence_error else ()
@@ -974,9 +1042,7 @@ def grounding_failure_diagnostic(
             if evidence_error and evidence_error.code != "finding_cve_identity_mismatch"
             else "reporting_identity"
         ),
-        "code": (
-            evidence_error.code if evidence_error else "reporting_identity_rejected"
-        ),
+        "code": code,
         "field": (
             evidence_error.field
             if evidence_error
@@ -992,6 +1058,7 @@ def grounding_failure_diagnostic(
             }
             else None
         ),
+        **vendor_link,
         "expected": (
             _safe_diagnostic_value(evidence_error.expected) if evidence_error else None
         ),
@@ -2195,24 +2262,9 @@ def _validate_finding(
         entries = [entry.strip() for entry in value.split(";")]
         if name == "Vendor Links":
             links = {link for source in sources for link in source.links}
-            try:
-                normalized = [normalize_reporting_url(entry) for entry in entries]
-            except ReportingGroundingError as exc:
-                raise EvidenceError(
-                    f"{title}: unsupported vendor link",
-                    code="invalid_vendor_link",
-                    field=name,
-                    expected=True,
-                    observed=False,
-                ) from exc
-            if any(entry not in links for entry in normalized):
-                raise EvidenceError(
-                    f"{title}: unsupported vendor link",
-                    code="unsupported_vendor_link",
-                    field=name,
-                    expected=True,
-                    observed=False,
-                )
+            _validate_vendor_link_entries(
+                entries, links, message=f"{title}: unsupported vendor link"
+            )
         elif name == "Recommended Actions":
             _validate_recommendation_statements(value, detail_spans)
         elif name == "Exceptions":
@@ -2282,6 +2334,39 @@ def _validate_finding(
             )
 
 
+def _validate_vendor_link_entries(
+    entries: Sequence[str],
+    links: set[str],
+    *,
+    message: str,
+) -> None:
+    normalized: list[str] = []
+    for position, entry in enumerate(entries, start=1):
+        try:
+            normalized.append(normalize_reporting_url(entry))
+        except ReportingGroundingError as exc:
+            raise EvidenceError(
+                message,
+                code="invalid_vendor_link",
+                field="Vendor Links",
+                expected=True,
+                observed=False,
+                vendor_link_reason=exc.reason,
+                vendor_link_position=bound_vendor_link_position(position),
+            ) from exc
+    for position, entry in enumerate(normalized, start=1):
+        if entry not in links:
+            raise EvidenceError(
+                message,
+                code="unsupported_vendor_link",
+                field="Vendor Links",
+                expected=True,
+                observed=False,
+                vendor_link_reason="not_in_cited_sources",
+                vendor_link_position=bound_vendor_link_position(position),
+            )
+
+
 def validate_vendor_links(report: str, catalog: Mapping[str, ReportingSource]) -> None:
     """Every vendor link must be a supplied link of the finding's cited sources.
 
@@ -2295,26 +2380,15 @@ def validate_vendor_links(report: str, catalog: Mapping[str, ReportingSource]) -
             continue
         keys = row.cited_keys
         links = {link for key in keys if key in catalog for link in catalog[key].links}
-        code = None
         try:
-            normalized = [
-                normalize_reporting_url(entry.strip()) for entry in value.split(";")
-            ]
-        except ReportingGroundingError:
-            code = "invalid_vendor_link"
-        else:
-            if any(entry not in links for entry in normalized):
-                code = "unsupported_vendor_link"
-        if code is not None:
-            error = EvidenceError(
-                "Unsupported vendor link",
-                code=code,
-                field="Vendor Links",
-                expected=True,
-                observed=False,
+            _validate_vendor_link_entries(
+                [entry.strip() for entry in value.split(";")],
+                links,
+                message="Unsupported vendor link",
             )
+        except EvidenceError as error:
             _identify(error, row, catalog)
-            raise error
+            raise
 
 
 def _identify(

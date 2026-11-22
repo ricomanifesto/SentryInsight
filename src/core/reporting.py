@@ -23,8 +23,25 @@ import idna
 REPORTING_KEY_PATTERN = re.compile(r"^source-[0-9a-f]{12}$")
 
 
+URL_NORMALIZATION_REASONS = frozenset(
+    {
+        "empty_url",
+        "invalid_url_syntax",
+        "invalid_url_scheme",
+        "missing_url_host",
+        "url_credentials_not_allowed",
+        "invalid_url_port",
+        "invalid_url_host",
+    }
+)
+
+
 class ReportingGroundingError(ValueError):
     """Raised when reporting evidence cannot be grounded in supplied inputs."""
+
+    def __init__(self, message: str, *, reason: str | None = None):
+        super().__init__(message)
+        self.reason = reason
 
 
 @dataclass(frozen=True)
@@ -45,7 +62,8 @@ def normalize_reporting_url(value: Any) -> str:
         parsed = urlsplit(raw)
     except ValueError as exc:
         raise ReportingGroundingError(
-            "Reporting links must use an absolute http or https URL"
+            "Reporting links must use an absolute http or https URL",
+            reason="invalid_url_syntax",
         ) from exc
     if (
         parsed.scheme.casefold() not in {"http", "https"}
@@ -53,15 +71,27 @@ def normalize_reporting_url(value: Any) -> str:
         or parsed.username
         or parsed.password
     ):
+        if not raw:
+            reason = "empty_url"
+        elif parsed.scheme.casefold() not in {"http", "https"}:
+            reason = "invalid_url_scheme"
+        elif not parsed.hostname:
+            reason = "missing_url_host"
+        else:
+            reason = "url_credentials_not_allowed"
         raise ReportingGroundingError(
-            "Reporting links must use an absolute http or https URL without credentials"
+            "Reporting links must use an absolute http or https URL without credentials",
+            reason=reason,
         )
     scheme = parsed.scheme.casefold()
     host = parsed.hostname.lower()
     try:
         port = parsed.port
     except ValueError as exc:
-        raise ReportingGroundingError("Reporting URL contains an invalid port") from exc
+        raise ReportingGroundingError(
+            "Reporting URL contains an invalid port",
+            reason="invalid_url_port",
+        ) from exc
     try:
         address = ipaddress.ip_address(host)
     except ValueError:
@@ -69,7 +99,8 @@ def normalize_reporting_url(value: Any) -> str:
             host = idna.encode(host, uts46=True, transitional=False).decode("ascii")
         except idna.IDNAError as exc:
             raise ReportingGroundingError(
-                "Reporting URL contains an invalid host"
+                "Reporting URL contains an invalid host",
+                reason="invalid_url_host",
             ) from exc
     else:
         if isinstance(address, ipaddress.IPv6Address):

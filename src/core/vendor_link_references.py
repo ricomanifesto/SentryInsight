@@ -17,7 +17,7 @@ import hashlib
 import re
 from typing import Mapping
 
-from .finding_evidence import EvidenceError
+from .finding_evidence import EvidenceError, bound_vendor_link_position
 from .report_findings import FIELD, FindingRow, report_findings
 from .reporting import (
     ReportingGroundingError,
@@ -80,13 +80,22 @@ def build_vendor_link_context(
     return context
 
 
-def _reject(code: str, row: FindingRow | None, catalog) -> EvidenceError:
+def _reject(
+    code: str,
+    row: FindingRow | None,
+    catalog,
+    *,
+    reason: str | None = None,
+    position: int | None = None,
+) -> EvidenceError:
     error = EvidenceError(
         "Unsupported vendor link",
         code=code,
         field=FIELD_NAME,
         expected=True,
         observed=False,
+        vendor_link_reason=reason,
+        vendor_link_position=bound_vendor_link_position(position),
     )
     if row is not None:
         error.finding_index = row.index
@@ -102,6 +111,33 @@ def _normalizes(entry: str) -> bool:
     except ReportingGroundingError:
         return False
     return True
+
+
+def _stray_diagnostic(
+    stray_start: int, owner: FindingRow | None
+) -> tuple[str, int | None]:
+    if owner is None:
+        return "stray_link_reference", None
+    body_start = owner.start + len(owner.heading)
+    for match in FIELD.finditer(owner.body):
+        if match[1] != FIELD_NAME:
+            continue
+        value_start = body_start + match.start(2)
+        value_end = body_start + match.end(2)
+        if not (value_start <= stray_start < value_end):
+            continue
+        value = match[2]
+        for position, part in enumerate(value.split(";"), start=1):
+            entry = part.strip()
+            if LINK_ID_PATTERN.fullmatch(entry):
+                continue
+            try:
+                normalize_reporting_url(entry)
+            except ReportingGroundingError as exc:
+                return exc.reason or "invalid_url_syntax", position
+        position = value[: stray_start - value_start].count(";") + 1
+        return "stray_link_reference", position
+    return "stray_link_reference", None
 
 
 def _resolve_value(
@@ -122,23 +158,53 @@ def _resolve_value(
         # Leave the field untouched; the validators and the stray-ID check
         # reject it as invalid_vendor_link.
         return value
-    if len(set(ids)) != len(ids):
-        raise _reject("invalid_vendor_link", row, catalog)
+    seen_ids: set[str] = set()
+    for position, entry in enumerate(entries, start=1):
+        if not LINK_ID_PATTERN.fullmatch(entry):
+            continue
+        if entry in seen_ids:
+            raise _reject(
+                "invalid_vendor_link",
+                row,
+                catalog,
+                reason="duplicate_vendor_link",
+                position=position,
+            )
+        seen_ids.add(entry)
     cited = set(row.cited_keys)
     resolved = []
-    for part, entry in zip(parts, entries, strict=True):
+    for position, (part, entry) in enumerate(zip(parts, entries, strict=True), start=1):
         if not LINK_ID_PATTERN.fullmatch(entry):
             resolved.append(part)
             continue
         target = targets.get(entry)
         if target is None or target[0] not in cited or target[0] not in catalog:
-            raise _reject("unsupported_vendor_link", row, catalog)
+            raise _reject(
+                "unsupported_vendor_link",
+                row,
+                catalog,
+                reason=(
+                    "unknown_link_reference"
+                    if target is None
+                    else "uncited_link_reference"
+                ),
+                position=position,
+            )
         start = part.index(entry)
         resolved.append(part[:start] + target[1] + part[start + len(entry) :])
     urls = [normalize_reporting_url(part.strip()) for part in resolved]
-    if len(set(urls)) != len(urls):
-        # Two IDs, or an ID and a raw entry, select the same resolved URL.
-        raise _reject("invalid_vendor_link", row, catalog)
+    seen_urls: set[str] = set()
+    for position, url in enumerate(urls, start=1):
+        if url in seen_urls:
+            # Two IDs, or an ID and a raw entry, select the same resolved URL.
+            raise _reject(
+                "invalid_vendor_link",
+                row,
+                catalog,
+                reason="duplicate_vendor_link",
+                position=position,
+            )
+        seen_urls.add(url)
     return ";".join(resolved)
 
 
@@ -176,5 +242,12 @@ def resolve_vendor_link_ids(report: str, catalog: Mapping[str, ReportingSource])
             ),
             None,
         )
-        raise _reject("invalid_vendor_link", owner, catalog)
+        reason, position = _stray_diagnostic(stray.start(), owner)
+        raise _reject(
+            "invalid_vendor_link",
+            owner,
+            catalog,
+            reason=reason,
+            position=position,
+        )
     return resolved
