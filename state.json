@@ -6019,6 +6019,15 @@
       "release_key": "82de4d5bfe98264fa911c87ab42671c7f0a2adabc74665b7d3c8eecc3b5f3be1",
       "run_id": "44934587980",
       "stage": "completed"
+    },
+    {
+      "admission_key": "run:45108150818",
+      "at": "2026-11-23T03:54:21.842Z",
+      "binding": "none",
+      "event": "workflow_dispatch",
+      "run_attempt": "1",
+      "run_id": "45108150818",
+      "stage": "admitted"
     }
   ],
   "schema_version": 1,
