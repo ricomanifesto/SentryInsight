@@ -6028,6 +6028,12 @@
       "run_attempt": "1",
       "run_id": "45108150818",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "run:45108150818",
+      "at": "2026-11-23T03:54:24.404Z",
+      "run_id": "45108150818",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
