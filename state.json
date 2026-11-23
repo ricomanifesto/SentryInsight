@@ -6268,6 +6268,13 @@
       "run_id": "45173523072",
       "stage": "request_finished",
       "token": "f037e08db94e945ca6fe5706f16cfc9a"
+    },
+    {
+      "admission_key": "digest:dde9ce258987da07c28392ee94feb827f0f930a8",
+      "at": "2026-11-23T12:30:17.472Z",
+      "outcome": "failed",
+      "run_id": "45173523072",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
