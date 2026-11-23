@@ -103,8 +103,7 @@ function createVerificationBudget({ store, requireOwner, now = () => new Date() 
     const result = await store.append(records => {
       billingEvidence(evidence, now().getTime());
       requireOwner(records, bound.admission_key, bound.run_id);
-      // A readiness reservation is an unsettled paid liability of its own.
-      if (records.some(row => ['verification_reserved', 'readiness_reserved'].includes(row.stage))) {
+      if (records.some(row => row.stage === 'verification_reserved')) {
         throw new Error('verification approval already consumed');
       }
       const { uncertain, settled } = historicalLiability(records);
@@ -147,107 +146,4 @@ function createVerificationBudget({ store, requireOwner, now = () => new Date() 
   return { reserve, claimTriage, assertReport };
 }
 
-// The narrower paid readiness route: one full-context report attempt, zero
-// triage. The bound is the whole input context at the prompt price plus the
-// whole output allowance (reasoning included) at the completion price.
-const READINESS_PROFILE = Object.freeze({
-  id: 'kimi-moonshot-readiness-20261121',
-  model: PROFILE.model,
-  provider: PROFILE.provider,
-  reportAttempts: 1,
-  reportContext: 1048576,
-  reportOutput: 32000,
-  reportPromptPrice: '2',
-  reportCompletionPrice: '10',
-  triageRequests: 0,
-  reserveMicrousd: 1 * (1048576 * 2 + 32000 * 10),
-  limitMicrousd: 2420000,
-  periodMicrousd: PROFILE.periodMicrousd,
-  periodStart: PROFILE.periodStart,
-  periodEnd: PROFILE.periodEnd,
-});
-if (READINESS_PROFILE.reserveMicrousd !== 2417152
-    || READINESS_PROFILE.reserveMicrousd > READINESS_PROFILE.limitMicrousd) {
-  throw new Error('readiness bound exceeds its hard cap');
-}
-const READINESS_PROFILE_SHA256 = sha256(canonicalJson(READINESS_PROFILE));
-const PAID_STAGES = new Set(['verification_reserved', 'readiness_reserved', 'readiness_report_claimed']);
-
-function readinessIdentity(options) {
-  return { ...identity(options), profile_id: READINESS_PROFILE.id, profile_sha256: READINESS_PROFILE_SHA256 };
-}
-
-function createReadinessBudget({ store, requireOwner, now = () => new Date() }) {
-  function owned(records, bound) {
-    requireOwner(records, bound.admission_key, bound.run_id);
-    const reservations = records.filter(row => row.stage === 'readiness_reserved');
-    const current = now().getTime();
-    if (reservations.length !== 1 || !same(reservations[0], bound)
-        || reservations[0].amountMicrousd !== READINESS_PROFILE.reserveMicrousd
-        || !Number.isFinite(reservations[0].valid_until)
-        || !Number.isFinite(current) || current < Date.parse(READINESS_PROFILE.periodStart)
-        || current >= Math.min(reservations[0].valid_until, Date.parse(READINESS_PROFILE.periodEnd))) {
-      throw new Error('readiness reservation unavailable');
-    }
-    return reservations[0];
-  }
-
-  async function reserve(options) {
-    const bound = readinessIdentity(options);
-    if (typeof options.factManifestSha256 !== 'string' || !HEX64.test(options.factManifestSha256)) {
-      throw new Error('readiness fact manifest unavailable');
-    }
-    const evidence = billingEvidence(options.evidence, now().getTime());
-    const result = await store.append(records => {
-      billingEvidence(evidence, now().getTime());
-      requireOwner(records, bound.admission_key, bound.run_id);
-      // Single use, no readmission: any earlier paid reservation or claim,
-      // settled or not, consumes this approval. A request already reserved
-      // under this admission is an unresolved prior send.
-      if (records.some(row => PAID_STAGES.has(row.stage))
-          || records.some(row => row.stage === 'request_reserved' && row.admission_key === bound.admission_key)) {
-        throw new Error('readiness approval consumed or prior send unresolved');
-      }
-      const { uncertain, settled } = historicalLiability(records);
-      if (evidence.actualMicrousd < settled
-          || uncertain + evidence.actualMicrousd + READINESS_PROFILE.reserveMicrousd > READINESS_PROFILE.periodMicrousd) {
-        throw new Error('readiness period capacity unavailable');
-      }
-      const validUntil = Math.min(Date.parse(evidence.checkedAt) + 3600000, Date.parse(READINESS_PROFILE.periodEnd));
-      return { append: [{ stage: 'readiness_reserved', ...bound,
-        amountMicrousd: READINESS_PROFILE.reserveMicrousd, evidence_sha256: sha256(canonicalJson(evidence)),
-        fact_manifest_sha256: options.factManifestSha256, valid_until: validUntil }],
-      value: { reservedMicrousd: READINESS_PROFILE.reserveMicrousd, profileSha256: READINESS_PROFILE_SHA256,
-        factManifestSha256: options.factManifestSha256, validUntil } };
-    });
-    return result.value;
-  }
-
-  // The one durable paid report attempt. The reservation is never released.
-  async function claimReport(options) {
-    const bound = readinessIdentity(options);
-    if (typeof options.requestSha256 !== 'string' || !HEX64.test(options.requestSha256)
-        || typeof options.factManifestSha256 !== 'string' || !HEX64.test(options.factManifestSha256)) {
-      throw new Error('invalid readiness report claim');
-    }
-    await store.append(records => {
-      const reservation = owned(records, bound);
-      if (reservation.fact_manifest_sha256 !== options.factManifestSha256) {
-        throw new Error('readiness fact manifest changed');
-      }
-      if (records.some(row => row.stage === 'readiness_report_claimed')) {
-        throw new Error('readiness report attempt already claimed');
-      }
-      return { append: [{ stage: 'readiness_report_claimed', ...bound,
-        fact_manifest_sha256: options.factManifestSha256, request_sha256: options.requestSha256 }] };
-    });
-    return { claimed: true };
-  }
-
-  return { reserve, claimReport };
-}
-
-module.exports = {
-  PROFILE, PROFILE_SHA256, createVerificationBudget,
-  READINESS_PROFILE, READINESS_PROFILE_SHA256, createReadinessBudget,
-};
+module.exports = { PROFILE, PROFILE_SHA256, createVerificationBudget };

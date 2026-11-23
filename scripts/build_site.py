@@ -27,7 +27,6 @@ from markdown_it.token import Token
 
 from src.core.public_site import emitted_origin, rewrite_public_urls
 from src.core.report_artifact import (
-    REVIEWED_FACTS_MODE,
     Finding,
     ReportArtifact,
     ReportingReference,
@@ -611,18 +610,6 @@ def _method_html(digest_issue_url: str) -> str:
     )
 
 
-def _reviewed_facts_method_html() -> str:
-    """Host-rendered reviewed facts: no digest issue exists, so none is linked."""
-    return (
-        '<aside class="report-method" aria-label="How this report is made">\n'
-        "    <strong>Reviewed advisory facts.</strong>\n"
-        "    <span>Rendered from an owner-approved fact manifest; links are "
-        "reviewed, commit-addressed remediation references. "
-        "Verify NVD and vendor guidance before action.</span>\n"
-        "  </aside>"
-    )
-
-
 def _reject_active_content(rendered: str) -> None:
     lowered = rendered.casefold()
     forbidden = ("<script", "<iframe", "<object", "<embed", "onerror=", "onclick=")
@@ -1065,15 +1052,10 @@ def _render_report_page(
     relative_age: bool,
     history: _HistoryView | None = None,
 ) -> str:
+    digest_issue_url = artifact.digest_issue_url or emitted_origin("SentryDigest")
     # Page-level material closes the report instead of preceding it, in order:
     # the method, the archive comparison, unresolved versions, source coverage.
-    # Every consumer rebuilding a reviewed-facts report, current or archived,
-    # reaches this branch from the artifact itself and links no digest.
-    if artifact.render_mode == REVIEWED_FACTS_MODE:
-        about_items = [_reviewed_facts_method_html()]
-    else:
-        digest_issue_url = artifact.digest_issue_url or emitted_origin("SentryDigest")
-        about_items = [_method_html(digest_issue_url)]
+    about_items = [_method_html(digest_issue_url)]
     if history is not None and history.summary_html:
         about_items.append(history.summary_html)
     if artifact.unresolved_version_count:

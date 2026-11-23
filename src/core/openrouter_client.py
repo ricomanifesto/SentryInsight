@@ -33,13 +33,6 @@ USAGE_KEYS = (
     "cost",
 )
 logger = logging.getLogger(__name__)
-# Only the exact observed free route and output cap get a reasoning budget.
-# Run 44888730870 spent 28,510 of 32,000 completion tokens on reasoning and
-# ended at the length limit. require_parameters keeps a provider that cannot
-# honor the budget from serving the request; nothing retries without it.
-BOUNDED_REASONING_MODEL = "nvidia/nemotron-3.5-super-vl:free"
-BOUNDED_REASONING_OUTPUT_CAP = 32000
-REASONING_MAX_TOKENS = 8000
 
 
 class OpenRouterError(RuntimeError):
@@ -121,17 +114,6 @@ class OpenRouterClient:
                 "allow_fallbacks": False,
                 "max_price": {"prompt": 0, "completion": 0, "request": 0, "image": 0},
             }
-            if (
-                not self.verification
-                and model_id == BOUNDED_REASONING_MODEL
-                and self.max_tokens == BOUNDED_REASONING_OUTPUT_CAP
-            ):
-                if not 0 < REASONING_MAX_TOKENS < self.max_tokens:
-                    raise OpenRouterError(
-                        "Reasoning budget must be below the output token cap"
-                    )
-                payload["provider"]["require_parameters"] = True
-                payload["reasoning"] = {"max_tokens": REASONING_MAX_TOKENS}
         if self.verification:
             payload["provider"] = self.verification.provider_policy("report")
         return payload

@@ -1,28 +1,41 @@
 name: Publish Production
 
-# The only publisher of the production artifact branch, and only of the
-# approved defensive package. It runs solely as the first manual attempt on
-# main at the exact approved head. The approval triple (head, committed facts
-# SHA-256, package inventory SHA-256) is verified by the Node publisher before
-# it reads the artifact branch, resumes anything, writes a state record or
-# pushes a ref. No workflow_run, schedule or workflow_call reaches it, and
-# legacy resume and rollback are held (publication/DEFENSIVE_PUBLICATION.md).
+# The only publisher of the production artifact branch. It publishes a main
+# commit after Validate succeeded for that exact commit, or any other chosen
+# source after running the same validation gate itself. The report generation
+# workflow calls it to resume the current release when a run pushed nothing.
+# The GitHub Pages deployment remains as the mirror. While publication is
+# disabled in publication/site.json the publisher only builds and validates.
 
 on:
+  workflow_call:
+    inputs:
+      invocation:
+        type: string
+        required: true
+  workflow_run:
+    workflows: ["Validate"]
+    branches: [main]
+    types: [completed]
   workflow_dispatch:
     inputs:
-      approved_head:
-        description: 'Exact 40-hex main commit approved for promotion'
-        type: string
-        required: true
-      approved_facts_sha256:
-        description: 'SHA-256 of the canonical owner-reviewed config/paid-readiness-facts.json at that head'
-        type: string
-        required: true
-      approved_package_sha256:
-        description: 'Approved defensive package inventory SHA-256 (the local $0 build proposes it)'
-        type: string
-        required: true
+      invocation:
+        description: 'publish, resume, rollback or resolve'
+        type: choice
+        options: [publish, resume, rollback, resolve]
+        default: resume
+      source_sha:
+        description: 'Full source commit to publish (publish)'
+        required: false
+      release_key:
+        description: 'Target release key (rollback) or the tip release key (resolve)'
+        required: false
+      reason:
+        description: 'Rollback reason'
+        required: false
+      attestation:
+        description: 'Operator attestation (resolve)'
+        required: false
 
 permissions:
   contents: write
@@ -33,44 +46,40 @@ concurrency:
 
 jobs:
   publish:
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    if: inputs.invocation != '' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    # Match host Python tool-cache builds to the Noble container's OS libraries.
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    container:
+      # Matches the locked Playwright package; browsers and OS libraries are baked in.
+      image: mcr.microsoft.com/playwright:v1.62.1-noble@sha256:dcc5531e97840b9b5e794f2814476b21571c5124a3fca2267d73041f56e7580e
     defaults:
       run:
         shell: bash
+    # Checkout's temporary HOME does not carry its Git trust into later steps.
+    # Trust only this job's checkout, including Git subprocesses in evaluations.
+    env:
+      GIT_CONFIG_COUNT: '1'
+      GIT_CONFIG_KEY_0: safe.directory
+      GIT_CONFIG_VALUE_0: ${{ github.workspace }}
     steps:
-      - name: Refuse anything but the first manual main attempt at the approved head
-        env:
-          APPROVED_HEAD: ${{ inputs.approved_head }}
-          APPROVED_FACTS: ${{ inputs.approved_facts_sha256 }}
-          APPROVED_PACKAGE: ${{ inputs.approved_package_sha256 }}
-        run: |
-          if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ] || [ "$GITHUB_REF" != "refs/heads/main" ] ||
-             [ "$GITHUB_RUN_ATTEMPT" != "1" ] || ! [[ "$APPROVED_HEAD" =~ ^[0-9a-f]{40}$ ]] ||
-             [ "$GITHUB_SHA" != "$APPROVED_HEAD" ] || ! [[ "$APPROVED_FACTS" =~ ^[0-9a-f]{64}$ ]] ||
-             ! [[ "$APPROVED_PACKAGE" =~ ^[0-9a-f]{64}$ ]]; then
-            echo 'Promotion runs only as the first manual main attempt at the exact approved head' >&2
-            exit 1
-          fi
-
-      - name: Checkout the exact approved head
+      - name: Checkout source
         uses: actions/checkout@v5
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.workflow_run.head_sha || inputs.source_sha || github.sha }}
           fetch-depth: 0
 
-      - name: Verify the exact clean checkout
-        env:
-          APPROVED_HEAD: ${{ inputs.approved_head }}
+      - name: Verify checkout Git access
         run: |
-          test "$(git rev-parse HEAD)" = "$APPROVED_HEAD"
-          test -z "$(git status --porcelain)"
+          git rev-parse --verify HEAD
+          git status --porcelain
 
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: '3.11'
+
+      - name: Verify Python HTTPS runtime
+        run: python3 scripts/verify_python_https.py
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v6
@@ -79,25 +88,38 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '24'
+          cache: npm
 
-      - name: Install locked runtime dependencies
-        run: uv sync --frozen
+      - name: Install locked dependencies
+        run: uv sync --group dev --frozen
+
+      - name: Run repository gate
+        if: github.event_name != 'workflow_run' && (inputs.invocation || 'publish') == 'publish'
+        run: |
+          npm ci
+          # Fail before validation if the bundled browser or its libraries are unusable.
+          node -e 'require("@playwright/test").chromium.launch().then(browser => browser.close()).catch(error => { console.error(error); process.exit(1); })'
+          bash scripts/local_validation.sh
 
       - name: Configure Git
         run: |
           git config user.name 'GitHub Actions'
           git config user.email 'actions@github.com'
 
-      # The publisher builds the package with the shared packager, refuses any
-      # difference from the triple, and re-verifies before the ref write.
-      - name: Publish the approved defensive package
+      - name: Run publisher
         env:
-          APPROVED_HEAD: ${{ inputs.approved_head }}
-          APPROVED_FACTS: ${{ inputs.approved_facts_sha256 }}
-          APPROVED_PACKAGE: ${{ inputs.approved_package_sha256 }}
+          INVOCATION: ${{ inputs.invocation || 'publish' }}
+          SOURCE_SHA: ${{ github.event.workflow_run.head_sha || inputs.source_sha || github.sha }}
+          RELEASE_KEY: ${{ inputs.release_key }}
+          REASON: ${{ inputs.reason }}
+          ATTESTATION: ${{ inputs.attestation }}
         run: |
           source .venv/bin/activate
-          node publication/cli.js publish --source "$APPROVED_HEAD" \
-            --approved-head "$APPROVED_HEAD" \
-            --approved-facts-sha256 "$APPROVED_FACTS" \
-            --approved-package-sha256 "$APPROVED_PACKAGE"
+          case "$INVOCATION" in
+            publish) set -- --source "$SOURCE_SHA" ;;
+            resume) set -- ;;
+            rollback) set -- --target "$RELEASE_KEY" --reason "$REASON" ;;
+            resolve) set -- --release "$RELEASE_KEY" --attestation "$ATTESTATION" ;;
+            *) echo "Unknown invocation $INVOCATION" >&2; exit 1 ;;
+          esac
+          node publication/cli.js "$INVOCATION" "$@"

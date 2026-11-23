@@ -1,26 +1,17 @@
 name: Deploy GitHub Pages
 
-# The GitHub Pages mirror of the approved defensive package. It runs solely
-# as the first manual attempt on main at the exact approved head, builds the
-# package with the same shared packager and triple as Publish Production,
-# refuses any difference, and re-verifies the bytes immediately before the
-# upload. No workflow_run or legacy packaging reaches it.
-
 on:
+  workflow_run:
+    workflows: ["Validate"]
+    branches: [main]
+    types: [completed]
   workflow_dispatch:
     inputs:
-      approved_head:
-        description: 'Exact 40-hex main commit approved for promotion'
+      expected_commit:
+        description: Optional exact commit for this manual deployment
+        required: false
         type: string
-        required: true
-      approved_facts_sha256:
-        description: 'SHA-256 of the canonical owner-reviewed config/paid-readiness-facts.json at that head'
-        type: string
-        required: true
-      approved_package_sha256:
-        description: 'Approved defensive package inventory SHA-256 (the local $0 build proposes it)'
-        type: string
-        required: true
+        default: ''
 
 permissions:
   contents: read
@@ -29,46 +20,23 @@ permissions:
 
 concurrency:
   group: sentryinsight-pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   deploy:
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    if: >-
+      (github.event_name == 'workflow_dispatch' &&
+       (inputs.expected_commit == '' || inputs.expected_commit == github.sha)) ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    defaults:
-      run:
-        shell: bash
+    runs-on: ubuntu-latest
     steps:
-      - name: Refuse anything but the first manual main attempt at the approved head
-        env:
-          APPROVED_HEAD: ${{ inputs.approved_head }}
-          APPROVED_FACTS: ${{ inputs.approved_facts_sha256 }}
-          APPROVED_PACKAGE: ${{ inputs.approved_package_sha256 }}
-        run: |
-          if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ] || [ "$GITHUB_REF" != "refs/heads/main" ] ||
-             [ "$GITHUB_RUN_ATTEMPT" != "1" ] || ! [[ "$APPROVED_HEAD" =~ ^[0-9a-f]{40}$ ]] ||
-             [ "$GITHUB_SHA" != "$APPROVED_HEAD" ] || ! [[ "$APPROVED_FACTS" =~ ^[0-9a-f]{64}$ ]] ||
-             ! [[ "$APPROVED_PACKAGE" =~ ^[0-9a-f]{64}$ ]]; then
-            echo 'Promotion runs only as the first manual main attempt at the exact approved head' >&2
-            exit 1
-          fi
-
-      - name: Checkout the exact approved head
+      - name: Checkout validated source
         uses: actions/checkout@v5
         with:
-          ref: ${{ github.sha }}
-          persist-credentials: false
-
-      - name: Verify the exact clean checkout
-        env:
-          APPROVED_HEAD: ${{ inputs.approved_head }}
-        run: |
-          test "$(git rev-parse HEAD)" = "$APPROVED_HEAD"
-          test -z "$(git status --porcelain)"
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -78,27 +46,16 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v6
 
-      - name: Install locked runtime dependencies
-        run: uv sync --frozen
+      - name: Install locked dependencies
+        run: uv sync --group dev --frozen
 
-      - name: Build the approved defensive package
-        env:
-          APPROVED_HEAD: ${{ inputs.approved_head }}
-          APPROVED_FACTS: ${{ inputs.approved_facts_sha256 }}
-          APPROVED_PACKAGE: ${{ inputs.approved_package_sha256 }}
-        run: |
-          mkdir -p "$RUNNER_TEMP/defensive"
-          .venv/bin/python -B scripts/package_defensive.py build --revision "$APPROVED_HEAD" \
-            --output "$RUNNER_TEMP/defensive/package" \
-            --approve-head "$APPROVED_HEAD" --approve-facts "$APPROVED_FACTS" \
-            --approve-package "$APPROVED_PACKAGE"
+      # The substantive report gate applies to manual deployments too; a
+      # failure stops before upload, so the deployed mirror stays as it was.
+      - name: Validate report content
+        run: uv run python scripts/validate_report.py index.md
 
-      - name: Re-verify the approved bytes before upload
-        env:
-          APPROVED_PACKAGE: ${{ inputs.approved_package_sha256 }}
-        run: |
-          .venv/bin/python -B scripts/package_defensive.py verify \
-            --package "$RUNNER_TEMP/defensive/package" --approve-package "$APPROVED_PACKAGE"
+      - name: Build public artifact
+        run: uv run python scripts/package_pages.py --output _site
 
       - name: Configure Pages
         uses: actions/configure-pages@v6
@@ -106,7 +63,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: ${{ runner.temp }}/defensive/package
+          path: _site
 
       - name: Deploy Pages artifact
         id: deployment

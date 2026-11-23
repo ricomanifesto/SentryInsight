@@ -41,11 +41,6 @@ DIGEST_ARCHIVE_ROOTS = tuple(
 )
 
 
-# Host-rendered from owner-approved facts: no reporting digest exists, so no
-# renderer may link one. Only schema 1 carries it, and no other value parses.
-REVIEWED_FACTS_MODE = "reviewed_facts"
-
-
 class ReportArtifactError(ValueError):
     """Raised when a report does not satisfy the published artifact contract."""
 
@@ -111,7 +106,6 @@ class ReportArtifact:
     findings: tuple[Finding, ...]
     digest_issue_url: str | None = None
     source_coverage: dict[str, Any] | None = None
-    render_mode: str | None = None
 
     @property
     def unresolved_version_count(self) -> int:
@@ -417,13 +411,6 @@ def parse_report_artifact(source: str) -> ReportArtifact:
                 "digest_issue_url must identify the report date SentryDigest archive: "
                 f"{expected_digest_url}"
             )
-    render_mode = metadata.get("render_mode")
-    if render_mode is not None and (
-        render_mode != REVIEWED_FACTS_MODE or schema_version != 1
-    ):
-        raise ReportArtifactError(
-            "render_mode reviewed_facts requires schema_version 1"
-        )
     coverage = None
     finding_body = body
     if schema_version == 5:
@@ -468,5 +455,4 @@ def parse_report_artifact(source: str) -> ReportArtifact:
         findings=findings,
         digest_issue_url=digest_issue_url,
         source_coverage=coverage,
-        render_mode=render_mode,
     )

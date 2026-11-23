@@ -29,7 +29,6 @@ const { CompareAndSetLost, createGit } = require('./git');
 const { proveServing } = require('./proof');
 const { LAYOUT, SHA1, buildDescriptor, parseDescriptor } = require('./release');
 const { createStore } = require('./store');
-const { CLOSED_PATHS, verifyApprovedPayload } = require('./defensive');
 
 const RELEASE_STAGES = new Set(['released', 'serving', 'verification-failed', 'failed-attested', 'alias-regressed']);
 const TERMINAL_DELIVERY = new Set(['sent', 'ineligible', 'not-applicable', 'superseded']);
@@ -52,12 +51,6 @@ function createPublisher({
   gitEnv = process.env,
   hooks = {},
   log = () => {},
-  // Defensive publication: only an approved package publishes, verified
-  // before any resume, state write or ref write; legacy resume and rollback
-  // are held.
-  defensive = false,
-  approval = null,
-  approvedPaths = CLOSED_PATHS,
 }) {
   const git = createGit(repoRoot, { env: gitEnv });
   const branch = config.artifact_branch;
@@ -400,57 +393,12 @@ function createPublisher({
     return { outcome: 'alias-regressed', served_release_key: served, repair };
   }
 
-  function holdLegacy(action) {
-    if (defensive) throw new Error(`${action} is held by the defensive publication gate; see publication/DEFENSIVE_PUBLICATION.md`);
-  }
-
   async function resume() {
-    holdLegacy('resume');
     const ctx = await readContext();
     return { tip: await resumeTip(ctx) };
   }
 
-  // The approved package is built and verified first. Nothing resumes the
-  // legacy tip: an unproved tip holds, and no legacy payload is extracted.
-  async function publishApproved({ sourceRevision }) {
-    if (!approval) throw new Error('defensive publication needs an approval');
-    if (!SHA1.test(sourceRevision || '') || sourceRevision !== approval.head) throw new Error('defensive approval head mismatch');
-    // A direct publisher runs only from a checkout at the approved head.
-    if (git.run(['rev-parse', 'HEAD']).trim() !== approval.head) throw new Error('defensive approval checkout mismatch');
-    git.run(['cat-file', '-e', `${sourceRevision}^{commit}`]);
-    const publication = publicationAt(sourceRevision);
-    const built = await stagePayload(sourceRevision, publication);
-    verifyApprovedPayload(approval, { sourceRevision, payloadDir: built.payloadDir, closedPaths: approvedPaths });
-    if (built.payloadDigest !== approval.packageSha256) throw new Error('defensive package digest mismatch');
-    if (publication.mode === 'disabled') {
-      return { outcome: 'disabled', release_key: built.releaseKey, payload_digest: built.payloadDigest };
-    }
-    for (let attempt = 1; attempt <= MAX_ADVANCE_ATTEMPTS; attempt += 1) {
-      const ctx = await readContext();
-      const top = ctx.entries.at(-1);
-      if (top && top.releaseKey === built.releaseKey) {
-        return { outcome: 'no-op', release_key: built.releaseKey, release_ref: ctx.tip };
-      }
-      if (top && top.sourceRevision !== sourceRevision && git.isAncestor(sourceRevision, top.sourceRevision)) {
-        return { outcome: 'superseded', release_key: built.releaseKey };
-      }
-      if (ctx.boundary && publication.proof === 'off') {
-        return { outcome: 'rejected', reason: 'publication proof is off after the proof boundary' };
-      }
-      // The same bytes, re-verified immediately before the ref write.
-      verifyApprovedPayload(approval, { sourceRevision, payloadDir: built.payloadDir, closedPaths: approvedPaths });
-      try {
-        return await advance(ctx, built, { sourceRevision });
-      } catch (error) {
-        if (!(error instanceof CompareAndSetLost)) throw error;
-        log(`artifact branch moved; re-reading (${error.message})`);
-      }
-    }
-    throw new Error(`${branch} kept moving; gave up after ${MAX_ADVANCE_ATTEMPTS} attempts`);
-  }
-
   async function publish({ sourceRevision }) {
-    if (defensive) return publishApproved({ sourceRevision });
     if (!SHA1.test(sourceRevision || '')) throw new Error('source revision must be a full commit id');
     git.run(['cat-file', '-e', `${sourceRevision}^{commit}`]);
     const publication = publicationAt(sourceRevision);
@@ -495,7 +443,6 @@ function createPublisher({
   }
 
   async function rollback({ targetReleaseKey, reason }) {
-    holdLegacy('rollback');
     if (!reason) throw new Error('a rollback needs a reason');
     for (let attempt = 1; attempt <= MAX_ADVANCE_ATTEMPTS; attempt += 1) {
       const ctx = await readContext();

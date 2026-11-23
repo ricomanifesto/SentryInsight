@@ -417,16 +417,18 @@ def test_workflow_initializes_paid_budget_before_graph_or_triage():
     )
 
 
-def test_paid_workflow_option_routes_only_to_the_readiness_job():
-    """The manual paid option no longer reaches the whole-run verification."""
+def test_paid_workflow_is_manual_main_first_attempt_and_never_readmits_automatically():
     source = (ROOT / ".github/workflows/generate-report.yml").read_text()
     assert "paid_verification:" in source and "billing_evidence:" in source
-    # The hosted legacy generator, its admission and its push are held.
-    assert "      - name: Admit generation" not in source
-    assert "uv run python main.py" not in source
-    assert "SENTRYINSIGHT_PAID_VERIFICATION" not in source
-    assert paid.PROFILE_ID not in source
-    assert "SENTRYINSIGHT_PAID_READINESS: kimi-moonshot-readiness-20261121" in source
+    admission = source[
+        source.index("      - name: Admit generation") : source.index(
+            "      - name: Bind generator input"
+        )
+    ]
+    assert "${PAID_VERIFICATION:-false}" in admission
+    assert "Paid verification cannot readmit" in admission
+    assert "SENTRYINSIGHT_PAID_VERIFICATION:" in source
+    assert "SENTRYINSIGHT_BILLING_EVIDENCE:" in source
 
 
 @pytest.mark.parametrize("mode", ["ordinary", "verified", "blocked"])
@@ -575,109 +577,38 @@ def test_expiry_during_triage_claim_stops_the_post(setup):
 
 
 @pytest.mark.parametrize(
-    "event,ref,attempt,requested,head,fact,surface,allowed",
+    "paid_run,event,ref,attempt,requested,expected",
     [
-        (
-            "workflow_dispatch",
-            "refs/heads/main",
-            "1",
-            "false",
-            "a" * 40,
-            "b" * 64,
-            "",
-            True,
-        ),
-        (
-            "workflow_dispatch",
-            "refs/heads/main",
-            "1",
-            "false",
-            "a" * 40,
-            "b" * 64,
-            "c" * 64,
-            True,
-        ),
-        ("schedule", "refs/heads/main", "1", "false", "a" * 40, "b" * 64, "", False),
-        (
-            "workflow_dispatch",
-            "refs/heads/other",
-            "1",
-            "false",
-            "a" * 40,
-            "b" * 64,
-            "",
-            False,
-        ),
-        (
-            "workflow_dispatch",
-            "refs/heads/main",
-            "2",
-            "false",
-            "a" * 40,
-            "b" * 64,
-            "",
-            False,
-        ),
-        (
-            "workflow_dispatch",
-            "refs/heads/main",
-            "1",
-            "true",
-            "a" * 40,
-            "b" * 64,
-            "",
-            False,
-        ),
-        (
-            "workflow_dispatch",
-            "refs/heads/main",
-            "1",
-            "false",
-            "d" * 40,
-            "b" * 64,
-            "",
-            False,
-        ),
-        ("workflow_dispatch", "refs/heads/main", "1", "false", "", "b" * 64, "", False),
-        ("workflow_dispatch", "refs/heads/main", "1", "false", "a" * 40, "", "", False),
-        (
-            "workflow_dispatch",
-            "refs/heads/main",
-            "1",
-            "false",
-            "a" * 40,
-            "b" * 64,
-            "x",
-            False,
-        ),
+        ("false", "schedule", "refs/heads/main", "1", "false", "true"),
+        ("true", "workflow_dispatch", "refs/heads/main", "1", "false", "false"),
+        ("true", "schedule", "refs/heads/main", "1", "false", None),
+        ("true", "workflow_dispatch", "refs/heads/other", "1", "false", None),
+        ("true", "workflow_dispatch", "refs/heads/main", "2", "false", None),
+        ("true", "workflow_dispatch", "refs/heads/main", "1", "true", None),
     ],
 )
-def test_actual_paid_readiness_shell_guard_admits_only_the_exact_first_attempt(
-    event, ref, attempt, requested, head, fact, surface, allowed
+def test_actual_admission_shell_guard_keeps_paid_intent_separate(
+    paid_run, event, ref, attempt, requested, expected
 ):
     source = (ROOT / ".github/workflows/generate-report.yml").read_text()
-    job = source[source.index("  paid-readiness:") :]
-    start = job.index('          if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ]')
-    finish = job.index("      - name: Checkout the exact dispatched head", start)
-    script = "\n".join(
-        line[10:]
-        for line in job[start:finish].splitlines()
-        if not line.lstrip().startswith("#")
-    )
+    start = source.index('          if [ "${PAID_VERIFICATION:-false}"')
+    finish = source.index("          node publication/cli.js admit", start)
+    script = source[start:finish] + '\nprintf %s "$READMIT"'
     result = subprocess.run(
         ["bash", "-c", script],
         env={
             "PATH": "/usr/bin:/bin",
+            "PAID_VERIFICATION": paid_run,
             "GITHUB_EVENT_NAME": event,
             "GITHUB_REF": ref,
             "GITHUB_RUN_ATTEMPT": attempt,
-            "GITHUB_SHA": "a" * 40,
             "READMIT": requested,
-            "EXPECTED_HEAD": head,
-            "FACT_MANIFEST_SHA256": fact,
-            "SURFACE_APPROVAL_SHA256": surface,
+            "GENERATION_MODEL": "openrouter/nvidia/nemotron-3.5-super-vl:free",
         },
         capture_output=True,
         text=True,
     )
-    assert (result.returncode == 0) is allowed
+    if expected is None:
+        assert result.returncode != 0
+    else:
+        assert result.returncode == 0 and result.stdout == expected

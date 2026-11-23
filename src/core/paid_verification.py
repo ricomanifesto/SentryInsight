@@ -23,8 +23,6 @@ from .attempt_budget import AdmissionAttemptBudget, AttemptBudgetError
 PROFILE_ID = "kimi-moonshot-verification-20261117"
 FLAG = "SENTRYINSIGHT_PAID_VERIFICATION"
 EVIDENCE = "SENTRYINSIGHT_BILLING_EVIDENCE"
-# The narrower paid readiness route; it never shares a run with this one.
-READINESS_FLAG = "SENTRYINSIGHT_PAID_READINESS"
 _HEX = re.compile(r"[a-f0-9]{64}")
 _current: Verification | None = None
 logger = logging.getLogger(__name__)
@@ -244,9 +242,6 @@ async def initialize_verification(
     """Reserve the complete run before triage; never change persistent defaults."""
     global _current
     _current = None
-    # A readiness dispatch runs only its own entry point: the legacy pipeline,
-    # its fallback generation and its publication never start beside it.
-    _require(not os.environ.get(READINESS_FLAG, ""))
     if not os.environ.get(FLAG, ""):
         return None
     _require(
