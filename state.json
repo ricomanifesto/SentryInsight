@@ -6058,6 +6058,14 @@
       "run_id": "45108150818",
       "stage": "request_finished",
       "token": "c2efc6787fcce90fab84d40401f2db8e"
+    },
+    {
+      "admission_key": "run:45108150818",
+      "at": "2026-11-23T03:58:19.918Z",
+      "binding": "none",
+      "outcome": "published",
+      "run_id": "45108150818",
+      "stage": "completed"
     }
   ],
   "schema_version": 1,
