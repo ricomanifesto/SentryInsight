@@ -6354,6 +6354,12 @@
       "run_id": "45236804721",
       "source_revision": "24037d5f9576e0f27fd7c45ed96ade06a4527300",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "digest:24037d5f9576e0f27fd7c45ed96ade06a4527300",
+      "at": "2026-11-23T18:21:26.574Z",
+      "run_id": "45236804721",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
