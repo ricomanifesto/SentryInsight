@@ -300,7 +300,7 @@ claims always require separate source review; regrading is not a model improveme
 
 - `.github/workflows/generate-report.yml` runs after a SentryDigest update, once daily as a backup, or by manual trigger.
 - `.github/workflows/validate.yml` checks pull requests and pushes to `main`.
-- `.github/workflows/publish-production.yml` runs after Validate succeeds for a push to `main`. It builds the payload for that exact commit, commits it to the `vercel-production` branch, and, with proof on, verifies that the production origin serves exactly that release ([static release guide](publication/README.md)). A manual dispatch can publish, resume, roll back or resolve a release. The earlier GitHub Pages workflow (`deploy-pages.yml`) is disabled.
+- `.github/workflows/publish-production.yml` runs after Validate succeeds for a push to `main`. It builds the payload for that exact commit, commits it to the `vercel-production` branch, and, with proof on, verifies that the production origin serves exactly that release ([static release guide](publication/README.md)). A manual dispatch can publish, resume, roll back or resolve a release. The earlier GitHub Pages workflow (`deploy-pages.yml`) is disabled. Its retained guard accepts only successful Validate runs for pushes to this repository's `main`, or manual dispatches on `main` with the optional exact-commit check.
 
 - **Report history:**
   - After the outcome is recorded, `generate-report.yml` also records the finished run in the report history store (`backend/report-control-plane/`, [projection contract](backend/report-control-plane/contracts/projection.md)).

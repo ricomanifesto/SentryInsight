@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 import pytest
+import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -151,6 +152,28 @@ def test_pages_workflow_deploys_only_a_packaged_artifact_after_validation():
     assert "actions/deploy-pages@v5" in workflow
     assert "pages: write" in workflow
     assert "id-token: write" in workflow
+
+
+def test_pages_workflow_accepts_only_trusted_main_events():
+    workflow = yaml.load(
+        (REPO_ROOT / ".github" / "workflows" / "deploy-pages.yml").read_text(),
+        Loader=yaml.BaseLoader,
+    )
+
+    assert workflow["on"]["workflow_run"]["branches"] == ["main"]
+    # Pin the whole admission expression so an additional OR path cannot bypass
+    # the source-repository, event, branch or exact manual-commit restrictions.
+    condition = " ".join(workflow["jobs"]["deploy"]["if"].split())
+    assert condition == (
+        "(github.event_name == 'workflow_dispatch' && "
+        "github.ref == 'refs/heads/main' && "
+        "(inputs.expected_commit == '' || inputs.expected_commit == github.sha)) || "
+        "(github.event_name == 'workflow_run' && "
+        "github.event.workflow_run.conclusion == 'success' && "
+        "github.event.workflow_run.event == 'push' && "
+        "github.event.workflow_run.head_branch == 'main' && "
+        "github.event.workflow_run.head_repository.full_name == github.repository)"
+    )
 
 
 @pytest.mark.parametrize(
