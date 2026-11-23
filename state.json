@@ -6333,6 +6333,12 @@
       "outcome": "failed",
       "run_id": "45203452827",
       "stage": "unresolved"
+    },
+    {
+      "admission_key": "digest:a15c812994e8a74b852bc3eab97196e0f2792a67",
+      "at": "2026-11-23T18:21:22.484Z",
+      "run_id": "45236804721",
+      "stage": "readmitted"
     }
   ],
   "schema_version": 1,
