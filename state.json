@@ -6213,6 +6213,16 @@
       "run_id": "45146100879",
       "stage": "request_finished",
       "token": "766dfbaf9a556b03d2af9e91f3e76980"
+    },
+    {
+      "admission_key": "digest:276c225225827c7554eb15855ae0760346084fdc",
+      "at": "2026-11-23T09:29:37.947Z",
+      "binding": "feed-bytes",
+      "digest_content_digest": "a926f890c007f186cc7293d425c036970c73e13c9d4abc48ebaf88dc1e1d11f8",
+      "outcome": "published",
+      "release_key": "f7b59c18117eb269c00c22b6d1fcc5840731a492a9815b75208eb4c58edfa80f",
+      "run_id": "45146100879",
+      "stage": "completed"
     }
   ],
   "schema_version": 1,
