@@ -6160,6 +6160,14 @@
       "run_id": "45126813019",
       "stage": "request_finished",
       "token": "ee686a1ac7a341e8e32779600797603f"
+    },
+    {
+      "admission_key": "run:45126813019",
+      "at": "2026-11-23T06:57:12.811Z",
+      "binding": "none",
+      "outcome": "published",
+      "run_id": "45126813019",
+      "stage": "completed"
     }
   ],
   "schema_version": 1,
