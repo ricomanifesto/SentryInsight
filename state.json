@@ -6183,6 +6183,12 @@
       "run_id": "45146100879",
       "source_revision": "276c225225827c7554eb15855ae0760346084fdc",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "digest:276c225225827c7554eb15855ae0760346084fdc",
+      "at": "2026-11-23T09:25:02.743Z",
+      "run_id": "45146100879",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
