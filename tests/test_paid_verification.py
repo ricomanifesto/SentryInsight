@@ -334,6 +334,7 @@ def test_report_client_pins_provider_and_checks_durable_reservation_before_send(
     [
         ("openrouter/nvidia/nemotron-3.5-super-vl:free", 32000),
         ("openrouter/moonshotai/kimi-k3.1-pro", 32001),
+        ("openrouter/moonshotai/kimi-k3.1-pro", 96000),
     ],
 )
 def test_paid_report_model_or_output_drift_never_sends(setup, model, tokens):
@@ -355,6 +356,93 @@ def test_paid_report_model_or_output_drift_never_sends(setup, model, tokens):
                 system_prompt="s", user_prompt="u", model=parse_model_selection(model)
             )
         )
+
+
+@pytest.mark.parametrize("bad_max_tokens", [0, 31999, 131073, True, "96000", None])
+def test_paid_verification_rejects_out_of_range_config_max_tokens(
+    setup, bad_max_tokens
+):
+    setup[0]["analysis"]["max_tokens"] = bad_max_tokens
+    with pytest.raises(paid.PaidVerificationError):
+        initialize(setup)
+    assert setup[3] == []
+
+
+@pytest.mark.parametrize("bad_reasoning", [0, -1, 32000, 32001, True, "16000"])
+def test_paid_verification_rejects_invalid_reasoning_budget(setup, bad_reasoning):
+    setup[0]["analysis"]["reasoning_max_tokens"] = bad_reasoning
+    with pytest.raises(paid.PaidVerificationError):
+        initialize(setup)
+    assert setup[3] == []
+
+
+def test_paid_analysis_pins_kimi_output_to_profile_report_output_even_with_higher_free_config(
+    setup, monkeypatch, tmp_path
+):
+    v = initialize(setup)
+    import os
+    from src.core import analyze, model_client
+    from src.core.failure_receipt import make_receipt, write_receipt
+    from src.core.openrouter_client import OpenRouterClient
+
+    write_receipt(
+        Path(os.environ["SENTRYINSIGHT_FAILURE_RECEIPT"]),
+        make_receipt(None, started=True),
+    )
+    seen = []
+
+    def handler(request):
+        payload = json.loads(request.content)
+        seen.append(payload)
+        assert payload["max_tokens"] == 32000
+        assert "reasoning" not in payload
+        assert payload["model"] == v.profile["model"]
+        if len(seen) == 1:
+            return httpx.Response(
+                200,
+                json={
+                    "model": v.profile["model"],
+                    "choices": [
+                        {"finish_reason": "length", "message": {"content": "partial"}}
+                    ],
+                },
+            )
+        return httpx.Response(
+            200,
+            json={
+                "model": v.profile["model"],
+                "choices": [{"finish_reason": "stop", "message": {"content": "done"}}],
+            },
+        )
+
+    def client_with_mock_transport(**kwargs):
+        return OpenRouterClient(transport=httpx.MockTransport(handler), **kwargs)
+
+    monkeypatch.setattr(model_client, "OpenRouterClient", client_with_mock_transport)
+    monkeypatch.setattr(analyze, "build_model_client", model_client.build_model_client)
+
+    config = json.loads(json.dumps(setup[0]))
+    config["output_path"] = str(tmp_path / "index.md")
+    assert config["analysis"]["max_tokens"] == 96000
+    result = asyncio.run(
+        analyze.analyze_exploitation(
+            [
+                {
+                    "title": "Synthetic",
+                    "source": "Synthetic",
+                    "link": "https://example.test/report",
+                    "content": "A service advisory.",
+                }
+            ],
+            config,
+        )
+    )
+    assert "error" not in result
+    assert result["exploitation_report"] == "done"
+    assert [payload["max_tokens"] for payload in seen] == [32000, 32000]
+    for bad in (0, 32000, True, "16000"):
+        with pytest.raises(paid.PaidVerificationError):
+            asyncio.run(v.assert_report(v.profile["model"], 32000, bad))
 
 
 def test_both_clients_reject_a_different_key_from_the_verified_workspace(setup):

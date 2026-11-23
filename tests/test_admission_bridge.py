@@ -298,6 +298,98 @@ def test_real_bridge_and_client_retry_share_one_persisted_cap(budget_factory):
     assert len(calls) == 3
 
 
+def test_real_bridge_allows_one_output_limit_recovery_and_holds_on_second_limit(
+    budget_factory,
+):
+    model = parse_model_selection("openrouter/nvidia/nemotron-3-ultra-550b-a55b:free")
+    kwargs = {
+        "system_prompt": "synthetic",
+        "user_prompt": "synthetic",
+        "model": model,
+    }
+    length_response = httpx.Response(
+        200,
+        json={
+            "model": model.model_id,
+            "choices": [{"finish_reason": "length", "message": {"content": "partial"}}],
+            "usage": {
+                "prompt_tokens": 70000,
+                "completion_tokens": 96000,
+                "reasoning_tokens": 82000,
+            },
+        },
+    )
+    complete_response = httpx.Response(
+        200,
+        json={
+            "model": model.model_id,
+            "choices": [{"finish_reason": "stop", "message": {"content": "complete"}}],
+        },
+    )
+    recovered_calls = []
+
+    def recover_handler(request):
+        recovered_calls.append(json.loads(request.content))
+        return length_response if len(recovered_calls) == 1 else complete_response
+
+    client = OpenRouterClient(
+        api_key="synthetic",
+        max_tokens=96000,
+        recovery_max_tokens=131072,
+        attempt_budget=budget_factory(),
+        transport=httpx.MockTransport(recover_handler),
+    )
+    assert asyncio.run(client.generate(**kwargs)) == "complete"
+    assert len(recovered_calls) == 2
+    assert recovered_calls[0]["max_tokens"] == 96000
+    assert recovered_calls[1]["max_tokens"] == 131072
+    assert "reasoning" not in recovered_calls[0]
+    assert "reasoning" not in recovered_calls[1]
+
+    # Once completed, the durable budget prevents another send in the same episode.
+    with pytest.raises(AttemptBudgetError):
+        asyncio.run(client.generate(**kwargs))
+
+
+def test_real_bridge_blocks_third_attempt_after_two_output_limits(budget_factory):
+    from src.core.openrouter_client import OpenRouterOutputLimitExceeded
+
+    model = parse_model_selection("openrouter/nvidia/nemotron-3-ultra-550b-a55b:free")
+    kwargs = {
+        "system_prompt": "synthetic",
+        "user_prompt": "synthetic",
+        "model": model,
+    }
+    calls = []
+
+    def always_length(request):
+        calls.append(json.loads(request.content))
+        return httpx.Response(
+            200,
+            json={
+                "model": model.model_id,
+                "choices": [
+                    {"finish_reason": "length", "message": {"content": "partial"}}
+                ],
+            },
+        )
+
+    client = OpenRouterClient(
+        api_key="synthetic",
+        max_tokens=96000,
+        recovery_max_tokens=131072,
+        attempt_budget=budget_factory(),
+        transport=httpx.MockTransport(always_length),
+    )
+    with pytest.raises(OpenRouterOutputLimitExceeded) as raised:
+        asyncio.run(client.generate(**kwargs))
+    assert len(calls) == 2
+    assert raised.value.attempts == 2
+    with pytest.raises(AttemptBudgetError):
+        asyncio.run(client.generate(**kwargs))
+    assert len(calls) == 2
+
+
 @pytest.fixture
 def guarded_bridge(budget_factory, tmp_path, monkeypatch):
     """Real Node CLI/CAS, with ownership checks forced only on its initial Git probe."""

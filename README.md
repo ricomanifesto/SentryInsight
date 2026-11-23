@@ -121,11 +121,19 @@ provider token count. When changing models, keep this cap plus `max_tokens`
 comfortably below the new model's context limit. Inputs over the cap fail without truncating source
 evidence or replacing the published report.
 
-`analysis.max_tokens` allows up to 32,000 output tokens, including reasoning
-tokens counted by the provider. OpenRouter responses that reach this limit fail
-with `model_output_limit_exceeded` before report validation, without an automatic
-retry or replacing the published report. A complete response must still pass
-source-grounding and report validation before publication.
+`analysis.max_tokens` allows up to 96,000 output tokens by default (within the
+free route's 131,072-token completion limit), including reasoning tokens counted
+by the provider. Reasoning is intentionally uncapped by default so the model is
+not squeezed into lower-quality analysis; an optional `analysis.reasoning_max_tokens`
+setting remains supported and off by default. OpenRouter responses that still
+reach `finish_reason == "length"` always reject partial output; production analysis
+allows at most one bounded recovery attempt—raising `max_tokens` to the free
+route's 131,072 ceiling without tightening reasoning—within the existing
+three-attempt request budget and bounded per-attempt (30-minute) / total
+(60-minute) wall-clock limits inside the 75-minute job timeout. After recovery is
+used up, analysis fails with `model_output_limit_exceeded` before report
+validation without replacing the published report. A complete response must still
+pass source-grounding and report validation before publication.
 
 Each OpenRouter response logs one `OpenRouter usage:` line with prompt, cached,
 completion and reasoning tokens, cost, request latency, the observed output

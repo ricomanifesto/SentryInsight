@@ -168,7 +168,8 @@ def test_default_analysis_sends_expanded_output_allowance_to_same_model(monkeypa
     assert "error" not in result
     assert result["exploitation_report"] == "Complete report"
     [request] = requests
-    assert request["max_tokens"] == 32000
+    assert request["max_tokens"] == 96000
+    assert "reasoning" not in request
     assert request["model"] == "nvidia/nemotron-3.5-super-vl:free"
 
 
@@ -653,3 +654,458 @@ def test_a_usage_logging_failure_never_changes_the_request_outcome(monkeypatch):
 
     assert _generate(client) == "report"
     assert client.last_request["usage"] == {"completion_tokens": 10}
+
+
+def test_reasoning_max_tokens_is_optional_and_off_by_default():
+    seen = []
+
+    def handler(request):
+        seen.append(json.loads(request.content))
+        return completion()
+
+    default_client = OpenRouterClient(
+        api_key="secret-key",
+        max_tokens=96000,
+        transport=httpx.MockTransport(handler),
+    )
+    explicit_client = OpenRouterClient(
+        api_key="secret-key",
+        max_tokens=96000,
+        reasoning_max_tokens=24000,
+        transport=httpx.MockTransport(handler),
+    )
+
+    assert _generate(default_client) == "Generated report"
+    assert _generate(explicit_client) == "Generated report"
+    assert "reasoning" not in seen[0]
+    assert seen[0]["max_tokens"] == 96000
+    assert seen[1]["reasoning"] == {"max_tokens": 24000}
+
+    for bad in (0, -1, 96000, 96001, True, False, "24000", 24000.0):
+        with pytest.raises(ValueError, match="reasoning_max_tokens"):
+            OpenRouterClient(
+                api_key="secret-key",
+                max_tokens=96000,
+                reasoning_max_tokens=bad,  # type: ignore[arg-type]
+            )
+    with pytest.raises(ValueError, match="recovery_max_tokens"):
+        OpenRouterClient(
+            api_key="secret-key",
+            max_tokens=96000,
+            recovery_max_tokens=64000,
+        )
+
+
+def test_output_limit_recovery_raises_budget_without_capping_reasoning_and_logs_advisory(
+    no_retry_wait, caplog
+):
+    payloads = []
+    responses = [
+        httpx.Response(
+            200,
+            json={
+                "model": FREE_MODEL.removeprefix("openrouter/"),
+                "choices": [
+                    {
+                        "finish_reason": "length",
+                        "message": {"content": "private truncated draft"},
+                    }
+                ],
+                "usage": {
+                    "prompt_tokens": 74796,
+                    "completion_tokens": 96000,
+                    "total_tokens": 170796,
+                    "cost": 0,
+                    "completion_tokens_details": {"reasoning_tokens": 89000},
+                },
+            },
+        ),
+        httpx.Response(
+            200,
+            json={
+                "model": FREE_MODEL.removeprefix("openrouter/"),
+                "choices": [
+                    {
+                        "finish_reason": "stop",
+                        "message": {"content": "Complete recovered report"},
+                    }
+                ],
+                "usage": {
+                    "prompt_tokens": 74796,
+                    "completion_tokens": 102000,
+                    "completion_tokens_details": {"reasoning_tokens": 95000},
+                },
+            },
+        ),
+    ]
+
+    def handler(request):
+        payloads.append(json.loads(request.content))
+        return responses[len(payloads) - 1]
+
+    client = OpenRouterClient(
+        api_key="secret-key",
+        max_tokens=96000,
+        recovery_max_tokens=131072,
+        timeout=1800.0,
+        total_timeout=3600.0,
+        transport=httpx.MockTransport(handler),
+    )
+
+    with caplog.at_level("INFO", logger="src.core.openrouter_client"):
+        result = asyncio.run(
+            client.generate(
+                system_prompt="private system prompt",
+                user_prompt="private article contents",
+                model=parse_model_selection(FREE_MODEL),
+            )
+        )
+
+    assert result == "Complete recovered report"
+    assert len(payloads) == 2
+    assert payloads[0]["max_tokens"] == 96000
+    assert payloads[1]["max_tokens"] == 131072
+    assert payloads[1]["max_tokens"] >= payloads[0]["max_tokens"]
+    assert "reasoning" not in payloads[0]
+    assert "reasoning" not in payloads[1]
+    assert payloads[1]["messages"][0]["content"] == "private system prompt"
+    assert client.last_request["attempts"] == 2
+    assert client.last_request["state"] == "response_received"
+    no_retry_wait.assert_not_awaited()
+
+    usage_lines = [
+        json.loads(r.getMessage().split(": ", 1)[1])
+        for r in caplog.records
+        if "OpenRouter usage" in r.message
+    ]
+    assert len(usage_lines) == 2
+    assert usage_lines[0]["max_tokens"] == 96000
+    assert usage_lines[0]["timeout_seconds"] == 1800.0
+    assert usage_lines[0]["max_tokens_used_fraction"] == 1.0
+    assert usage_lines[1]["max_tokens"] == 131072
+    assert usage_lines[1]["timeout_seconds"] <= 1800.0
+    assert usage_lines[1]["max_tokens_used_fraction"] == round(102000 / 131072, 3)
+
+    [line] = [
+        r.getMessage()
+        for r in caplog.records
+        if "OpenRouter output-limit recovery advisory" in r.message
+    ]
+    advisory = json.loads(line.split(": ", 1)[1])
+    assert advisory["event"] == "output_limit_recovery"
+    assert advisory["attempt"] == 1
+    assert advisory["next_attempt"] == 2
+    assert advisory["max_attempts"] == 3
+    assert advisory["previous_max_tokens"] == 96000
+    assert advisory["recovery_max_tokens"] == 131072
+    assert advisory["reasoning_capped"] is False
+    assert advisory["attempt_timeout_seconds"] == 1800.0
+    assert advisory["next_attempt_timeout_seconds"] <= 1800.0
+    assert advisory["usage"]["reasoning_tokens"] == 89000
+    assert advisory["usage"]["completion_tokens"] == 96000
+    for private_text in (
+        "private truncated draft",
+        "private system prompt",
+        "private article contents",
+        "Complete recovered report",
+        "secret-key",
+    ):
+        assert private_text not in caplog.text
+
+
+def test_two_length_limited_responses_fail_with_output_limit_error(
+    no_retry_wait, caplog
+):
+    from src.core.analysis_errors import classify_analysis_error
+    from src.core.attempt_budget import AttemptBudgetError, MemoryAttemptBudget
+    from src.core.openrouter_client import OpenRouterOutputLimitExceeded
+
+    payloads = []
+
+    def handler(request):
+        payloads.append(json.loads(request.content))
+        return httpx.Response(
+            200,
+            json={
+                "model": FREE_MODEL.removeprefix("openrouter/"),
+                "choices": [
+                    {
+                        "finish_reason": "length",
+                        "message": {
+                            "content": f"private truncated attempt {len(payloads)}"
+                        },
+                    }
+                ],
+                "usage": {
+                    "prompt_tokens": 74796,
+                    "completion_tokens": payloads[-1]["max_tokens"],
+                    "completion_tokens_details": {"reasoning_tokens": 80000},
+                },
+            },
+        )
+
+    budget = MemoryAttemptBudget()
+    client = OpenRouterClient(
+        api_key="secret-key",
+        max_tokens=96000,
+        recovery_max_tokens=131072,
+        attempt_budget=budget,
+        transport=httpx.MockTransport(handler),
+    )
+
+    with pytest.raises(
+        OpenRouterOutputLimitExceeded, match="output token limit"
+    ) as raised:
+        asyncio.run(
+            client.generate(
+                system_prompt="private system prompt",
+                user_prompt="private article contents",
+                model=parse_model_selection(FREE_MODEL),
+            )
+        )
+
+    assert len(payloads) == 2
+    assert [p["max_tokens"] for p in payloads] == [96000, 131072]
+    assert all("reasoning" not in p for p in payloads)
+    no_retry_wait.assert_not_awaited()
+    assert classify_analysis_error(raised.value) == (
+        "model_output_limit_exceeded",
+        {"http_status": 200, "attempts": 2},
+    )
+    assert budget.disposition == "permanent_rejection"
+    with pytest.raises(AttemptBudgetError):
+        _generate(client)
+    diagnostics = "".join(traceback.format_exception(raised.value)) + caplog.text
+    for private_text in (
+        "private truncated attempt 1",
+        "private truncated attempt 2",
+        "private system prompt",
+        "private article contents",
+        "secret-key",
+    ):
+        assert private_text not in diagnostics
+
+
+@pytest.mark.parametrize("second_finishes", [True, False])
+def test_production_analysis_recovers_once_and_fails_on_second_length_limit(
+    second_finishes, monkeypatch, tmp_path
+):
+    from src.core import analyze, model_client
+
+    config = json.loads(
+        (Path(__file__).resolve().parents[1] / "config/config.json").read_text()
+    )
+    config["output_path"] = str(tmp_path / "index.md")
+    requests = []
+
+    def provider(request):
+        payload = json.loads(request.content)
+        requests.append(payload)
+        if len(requests) == 1 or not second_finishes:
+            return httpx.Response(
+                200,
+                json={
+                    "model": payload["model"],
+                    "choices": [
+                        {
+                            "finish_reason": "length",
+                            "message": {"content": "TRUNCATED_PARTIAL_MARKER"},
+                        }
+                    ],
+                    "usage": {
+                        "prompt_tokens": 74796,
+                        "completion_tokens": payload["max_tokens"],
+                        "completion_tokens_details": {"reasoning_tokens": 85000},
+                    },
+                },
+            )
+        return httpx.Response(
+            200,
+            json={
+                "model": payload["model"],
+                "choices": [
+                    {
+                        "finish_reason": "stop",
+                        "message": {"content": "Recovered report"},
+                    }
+                ],
+            },
+        )
+
+    def client_with_mock_transport(**kwargs):
+        return OpenRouterClient(transport=httpx.MockTransport(provider), **kwargs)
+
+    monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
+    monkeypatch.delenv("SENTRYINSIGHT_MODEL", raising=False)
+    monkeypatch.setattr(model_client, "OpenRouterClient", client_with_mock_transport)
+    monkeypatch.setattr(analyze, "build_model_client", model_client.build_model_client)
+
+    result = asyncio.run(
+        analyze.analyze_exploitation(
+            [
+                {
+                    "title": "Synthetic",
+                    "source": "Synthetic",
+                    "link": "https://example.test/report",
+                    "content": "A service advisory.",
+                }
+            ],
+            config,
+        )
+    )
+
+    assert len(requests) == 2
+    assert requests[0]["max_tokens"] == 96000
+    assert requests[1]["max_tokens"] == 131072
+    assert "reasoning" not in requests[0]
+    assert "reasoning" not in requests[1]
+    assert "TRUNCATED_PARTIAL_MARKER" not in json.dumps(result)
+    if second_finishes:
+        assert "error" not in result
+        assert result["exploitation_report"] == "Recovered report"
+    else:
+        assert result["error_class"] == "model_output_limit_exceeded"
+        assert result["error_detail"] == {"http_status": 200, "attempts": 2}
+
+
+def test_output_limit_recovery_respects_single_attempt_and_job_timeout_budget(
+    monkeypatch, caplog
+):
+    from src.core.analyze import analysis_timeout_budget
+    from src.core.openrouter_client import OpenRouterOutputLimitExceeded
+
+    single_calls = []
+
+    def single_handler(request):
+        single_calls.append(request)
+        return httpx.Response(
+            200,
+            json={
+                "model": FREE_MODEL.removeprefix("openrouter/"),
+                "choices": [
+                    {"finish_reason": "length", "message": {"content": "partial"}}
+                ],
+            },
+        )
+
+    single_client = OpenRouterClient(
+        api_key="secret-key",
+        max_tokens=96000,
+        recovery_max_tokens=131072,
+        max_attempts=1,
+        transport=httpx.MockTransport(single_handler),
+    )
+    with pytest.raises(OpenRouterOutputLimitExceeded) as raised:
+        _generate(single_client)
+    assert len(single_calls) == 1
+    assert raised.value.attempts == 1
+
+    # Simulate an attempt that leaves less than MIN_RECOVERY_TIMEOUT_SECONDS remaining.
+    clock = [1000.0]
+    monkeypatch.setattr(openrouter_client_module.time, "monotonic", lambda: clock[0])
+    timeout_calls = []
+
+    def slow_handler(request):
+        timeout_calls.append(request)
+        clock[0] += 100.0
+        return httpx.Response(
+            200,
+            json={
+                "model": FREE_MODEL.removeprefix("openrouter/"),
+                "choices": [
+                    {"finish_reason": "length", "message": {"content": "partial"}}
+                ],
+            },
+        )
+
+    bounded_client = OpenRouterClient(
+        api_key="secret-key",
+        max_tokens=96000,
+        recovery_max_tokens=131072,
+        timeout=1800.0,
+        total_timeout=180.0,
+        transport=httpx.MockTransport(slow_handler),
+    )
+    with caplog.at_level("WARNING", logger="src.core.openrouter_client"):
+        with pytest.raises(OpenRouterOutputLimitExceeded) as raised:
+            _generate(bounded_client)
+    assert len(timeout_calls) == 1
+    assert raised.value.attempts == 1
+    assert "timeout_budget_exhausted" in caplog.text
+
+    # When time remains, attempt 2's HTTP timeout is clamped to remaining budget.
+    clock[0] = 2000.0
+    observed_timeouts = []
+
+    def clamped_handler(request):
+        observed_timeouts.append(request.extensions["timeout"]["read"])
+        if len(observed_timeouts) == 1:
+            clock[0] += 2100.0
+            return httpx.Response(
+                200,
+                json={
+                    "model": FREE_MODEL.removeprefix("openrouter/"),
+                    "choices": [
+                        {"finish_reason": "length", "message": {"content": "partial"}}
+                    ],
+                },
+            )
+        return completion()
+
+    clamped_client = OpenRouterClient(
+        api_key="secret-key",
+        max_tokens=96000,
+        recovery_max_tokens=131072,
+        timeout=1800.0,
+        total_timeout=3600.0,
+        transport=httpx.MockTransport(clamped_handler),
+    )
+    assert _generate(clamped_client) == "Generated report"
+    assert observed_timeouts == [1800.0, 1500.0]
+
+    # Budget math keeps initial + recovery attempts well inside the 75-minute CI job.
+    per_request, total = analysis_timeout_budget(96000)
+    assert per_request == 1800.0
+    assert total == 3600.0
+    assert analysis_timeout_budget(32000) == (640.0, 1280.0)
+    workflow_text = (
+        Path(__file__).resolve().parents[1] / ".github/workflows/generate-report.yml"
+    ).read_text()
+    assert "timeout-minutes: 75" in workflow_text
+    assert total <= (75 - 15) * 60
+
+
+def test_analyze_rejects_invalid_reasoning_max_tokens_before_provider_call(
+    monkeypatch, tmp_path
+):
+    from src.core import analyze
+
+    called = []
+    monkeypatch.setattr(
+        analyze, "build_model_client", lambda **kwargs: called.append(kwargs)
+    )
+
+    result = asyncio.run(
+        analyze.analyze_exploitation(
+            [
+                {
+                    "title": "Synthetic",
+                    "source": "Synthetic",
+                    "link": "https://example.test/report",
+                    "content": "A service advisory.",
+                }
+            ],
+            {
+                "output_path": str(tmp_path / "index.md"),
+                "analysis": {
+                    "model": FREE_MODEL,
+                    "max_tokens": 96000,
+                    "reasoning_max_tokens": 96000,
+                },
+            },
+        )
+    )
+
+    assert not called
+    assert result["error_class"] == "analysis_exception"
+    assert "reasoning_max_tokens" in result["error"]

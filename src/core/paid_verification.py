@@ -140,10 +140,22 @@ class Verification:
             },
         }
 
-    async def assert_report(self, model: str, max_tokens: int) -> None:
+    async def assert_report(
+        self,
+        model: str,
+        max_tokens: int,
+        reasoning_max_tokens: int | None = None,
+    ) -> None:
         _require(
             model == self.profile["model"]
             and max_tokens == self.profile["reportOutput"]
+            and (
+                reasoning_max_tokens is None
+                or (
+                    type(reasoning_max_tokens) is int
+                    and 0 < reasoning_max_tokens < self.profile["reportOutput"]
+                )
+            )
         )
         result = await self._call("verification-report", [])
         _require(result == {"verified": True})
@@ -255,9 +267,19 @@ async def initialize_verification(
         and bool(os.environ.get(EVIDENCE))
     )
     analysis = config.get("analysis", {})
+    configured_output = analysis.get("max_tokens")
+    reasoning_max_tokens = analysis.get("reasoning_max_tokens")
+    # The free route's config may allow up to 131,072 output tokens, while this
+    # one-run paid profile still pins actual Kimi report requests to
+    # reportOutput (32,000) so the $7.956100 reservation remains bounded.
     _require(
-        analysis.get("max_tokens") == 32000
+        type(configured_output) is int
+        and 32000 <= configured_output <= 131072
         and analysis.get("max_input_tokens") == 200000
+        and (
+            reasoning_max_tokens is None
+            or (type(reasoning_max_tokens) is int and 0 < reasoning_max_tokens < 32000)
+        )
     )
     try:
         proof_path = Path(os.environ[EVIDENCE])

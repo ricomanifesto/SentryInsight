@@ -118,11 +118,24 @@ def test_generation_workflow_installs_the_locked_browser_runtime_before_validati
     generation_step = workflow.index("uv run python main.py")
     final_browser_step = workflow.rindex("npm run test:browser")
     assert generation_step < final_browser_step
-    assert "actions/upload-artifact@v4" in workflow
+    assert (
+        "actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f" in workflow
+    )
+    assert "actions/upload-artifact@v4" not in workflow
+    assert "astral-sh/setup-uv@v6" not in workflow
     assert "test-results/screenshots" in workflow
     assert "id: generated-report-evidence" in workflow
     assert "steps.generated-report-evidence.outputs.artifact-url" in workflow
     assert "GITHUB_STEP_SUMMARY" in workflow
+
+
+def test_no_workflow_uses_deprecated_node20_upload_or_setup_uv_actions():
+    workflows = sorted((REPO_ROOT / ".github" / "workflows").glob("*.yml"))
+    assert workflows
+    for path in workflows:
+        text = path.read_text()
+        assert "actions/upload-artifact@v4" not in text, path.name
+        assert "astral-sh/setup-uv@v6" not in text, path.name
 
 
 def test_pages_workflow_deploys_only_a_packaged_artifact_after_validation():

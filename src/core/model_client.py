@@ -31,7 +31,13 @@ class ReportModelClient(Protocol):
 
 
 def build_model_client(
-    *, timeout: float, max_tokens: int
+    *,
+    timeout: float,
+    max_tokens: int,
+    recovery_max_tokens: int | None = None,
+    reasoning_max_tokens: int | None = None,
+    total_timeout: float | None = None,
+    output_limit_recovery: bool | None = None,
 ) -> OpenCodeClient | OpenRouterClient:
     """Return the model client selected by the environment.
 
@@ -53,7 +59,11 @@ def build_model_client(
         return OpenRouterClient(
             api_key=api_key,
             max_tokens=max_tokens,
+            recovery_max_tokens=recovery_max_tokens,
+            reasoning_max_tokens=reasoning_max_tokens,
             timeout=timeout,
+            total_timeout=total_timeout,
+            output_limit_recovery=output_limit_recovery,
             attempt_budget=budget,
             on_request=(
                 (lambda value: record_request(receipt_path, value))

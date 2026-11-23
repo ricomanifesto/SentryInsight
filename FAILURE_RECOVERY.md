@@ -80,7 +80,8 @@ recovery controller.
 | Wait exceeds 30 seconds | Defer for review; no early retry or automatic restart |
 | Read/write timeout, interrupted response, bare transient status, malformed HTTP 200, conflicting response metadata | Hold for reconciliation; no automatic replay |
 | Authentication/payment/configuration error or wrong resolved model | Stop for repair; no provider, credential or price fallback |
-| Output limit or evidence/content validation failure | Preserve last-good output; correct the cause offline before another authorized request |
+| Output limit (`finish_reason=length`) | Reject partial output; allow at most one bounded recovery attempt (raising `max_tokens` to the free route's 131,072 ceiling without tightening reasoning) within the same three-attempt and wall-clock budgets, then preserve last-good output and advise `repair_required` |
+| Evidence/content validation failure | Preserve last-good output; correct the cause offline before another authorized request |
 | Ambiguous source evidence | Preserve the existing explicit source-review state and coverage |
 | Publication failure after validation | Investigate/recover existing artifacts through the publisher; do not regenerate |
 

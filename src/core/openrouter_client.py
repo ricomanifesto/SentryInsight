@@ -32,7 +32,26 @@ USAGE_KEYS = (
     "total_tokens",
     "cost",
 )
+MIN_RECOVERY_TIMEOUT_SECONDS = 120.0
+FREE_ROUTE_MAX_COMPLETION_TOKENS = 131072
 logger = logging.getLogger(__name__)
+
+
+def validate_reasoning_max_tokens(
+    reasoning_max_tokens: int | None, max_tokens: int
+) -> int | None:
+    """Validate an optional reasoning token ceiling against ``max_tokens``."""
+    if reasoning_max_tokens is None:
+        return None
+    if (
+        type(reasoning_max_tokens) is not int
+        or type(max_tokens) is not int
+        or not 0 < reasoning_max_tokens < max_tokens
+    ):
+        raise ValueError(
+            "reasoning_max_tokens must be an integer between 1 and max_tokens - 1"
+        )
+    return reasoning_max_tokens
 
 
 class OpenRouterError(RuntimeError):
@@ -73,8 +92,12 @@ class OpenRouterClient:
         *,
         api_key: str,
         max_tokens: int = 4000,
+        recovery_max_tokens: int | None = None,
+        reasoning_max_tokens: int | None = None,
         base_url: str = OPENROUTER_BASE_URL,
         timeout: float = 120.0,
+        total_timeout: float | None = None,
+        output_limit_recovery: bool | None = None,
         transport: httpx.AsyncBaseTransport | None = None,
         max_attempts: int = MAX_ATTEMPTS,
         attempt_budget: AttemptBudget | None = None,
@@ -82,10 +105,40 @@ class OpenRouterClient:
     ) -> None:
         if type(max_attempts) is not int or not 1 <= max_attempts <= MAX_ATTEMPTS:
             raise ValueError("max_attempts must be between 1 and 3")
+        if recovery_max_tokens is not None and (
+            type(recovery_max_tokens) is not int
+            or type(max_tokens) is not int
+            or recovery_max_tokens < max_tokens
+        ):
+            raise ValueError(
+                "recovery_max_tokens must be an integer greater than or equal to max_tokens"
+            )
+        validated_reasoning = validate_reasoning_max_tokens(
+            reasoning_max_tokens, max_tokens
+        )
+        if total_timeout is not None and (
+            type(total_timeout) not in (int, float)
+            or not math.isfinite(total_timeout)
+            or total_timeout <= 0
+        ):
+            raise ValueError("total_timeout must be a positive finite number")
+        if (
+            output_limit_recovery is not None
+            and type(output_limit_recovery) is not bool
+        ):
+            raise ValueError("output_limit_recovery must be a boolean")
         self.api_key = api_key
         self.max_tokens = max_tokens
+        self.recovery_max_tokens = recovery_max_tokens
+        self.reasoning_max_tokens = validated_reasoning
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
+        self.total_timeout = float(total_timeout) if total_timeout is not None else None
+        self.output_limit_recovery = (
+            recovery_max_tokens is not None
+            if output_limit_recovery is None
+            else output_limit_recovery
+        )
         self.transport = transport
         self.max_attempts = max_attempts
         self.verification = active_verification()
@@ -99,16 +152,28 @@ class OpenRouterClient:
         self.on_request = on_request
         self.last_generation: dict[str, str] | None = None
         self.last_request: dict = {}
+        self._last_attempt_max_tokens: int = max_tokens
+        self._last_attempt_timeout: float | None = None
 
-    def _payload(self, system_prompt, user_prompt, model_id):
-        payload = {
+    def _payload(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        model_id: str,
+        *,
+        max_tokens: int | None = None,
+        reasoning: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        payload: dict[str, Any] = {
             "model": model_id,
-            "max_tokens": self.max_tokens,
+            "max_tokens": self.max_tokens if max_tokens is None else max_tokens,
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
         }
+        if reasoning is not None:
+            payload["reasoning"] = dict(reasoning)
         if model_id.endswith(":free") or model_id == "openrouter/free":
             payload["provider"] = {
                 "allow_fallbacks": False,
@@ -117,6 +182,26 @@ class OpenRouterClient:
         if self.verification:
             payload["provider"] = self.verification.provider_policy("report")
         return payload
+
+    def _recovery_budget(self, current_max_tokens: int, model_id: str) -> int:
+        """Return the output token budget for the one recovery attempt (never lower)."""
+        if self.verification:
+            return current_max_tokens
+        if self.recovery_max_tokens is not None:
+            return max(current_max_tokens, self.recovery_max_tokens)
+        if model_id.endswith(":free") or model_id == "openrouter/free":
+            return max(current_max_tokens, FREE_ROUTE_MAX_COMPLETION_TOKENS)
+        return current_max_tokens
+
+    def _log_output_limit_advisory(self, advisory: dict[str, Any]) -> None:
+        """Log bounded recovery metadata without prompt or response text."""
+        try:
+            logger.warning(
+                "OpenRouter output-limit recovery advisory: %s",
+                json.dumps(advisory, sort_keys=True),
+            )
+        except Exception:  # noqa: BLE001 - logging must not alter delivery
+            pass
 
     def _snapshot(self):
         if self.on_request is not None:
@@ -151,10 +236,28 @@ class OpenRouterClient:
         if model is None or model.provider_id != "openrouter":
             raise OpenRouterError("OpenRouter calls require an openrouter/* model")
         self.last_generation = None
-        payload = self._payload(system_prompt, user_prompt, model.model_id)
+        current_max_tokens = self.max_tokens
+        current_reasoning: dict[str, Any] | None = (
+            {"max_tokens": self.reasoning_max_tokens}
+            if self.reasoning_max_tokens is not None
+            else None
+        )
+        payload = self._payload(
+            system_prompt,
+            user_prompt,
+            model.model_id,
+            max_tokens=current_max_tokens,
+            reasoning=current_reasoning,
+        )
         request_sha256 = hashlib.sha256(
             json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
         ).hexdigest()
+        output_limit_recovered = False
+        deadline = (
+            time.monotonic() + self.total_timeout
+            if self.total_timeout is not None
+            else None
+        )
         async with httpx.AsyncClient(
             base_url=self.base_url,
             timeout=self.timeout,
@@ -167,8 +270,15 @@ class OpenRouterClient:
         ) as client:
             while True:
                 if self.verification:
+                    current_reasoning_cap = (
+                        current_reasoning.get("max_tokens")
+                        if isinstance(current_reasoning, dict)
+                        else None
+                    )
                     await self.verification.assert_report(
-                        model.model_id, self.max_tokens
+                        model.model_id,
+                        current_max_tokens,
+                        reasoning_max_tokens=current_reasoning_cap,
                     )
                 reservation = await self.attempt_budget.reserve(
                     request_sha256, self.max_attempts
@@ -191,12 +301,22 @@ class OpenRouterClient:
                 disposition = "uncertain"
                 delay = 0.0
                 text = ""
+                recover_now = False
+                attempt_timeout = (
+                    min(self.timeout, max(0.0, deadline - time.monotonic()))
+                    if deadline is not None
+                    else self.timeout
+                )
+                self._last_attempt_max_tokens = current_max_tokens
+                self._last_attempt_timeout = round(attempt_timeout, 1)
                 try:
                     if self.verification:
                         self.verification.check_deadline()
                     started = time.monotonic()
                     try:
-                        response = await client.post("/chat/completions", json=payload)
+                        response = await client.post(
+                            "/chat/completions", json=payload, timeout=attempt_timeout
+                        )
                     except httpx.TransportError as exc:
                         unsent = isinstance(
                             exc,
@@ -236,6 +356,89 @@ class OpenRouterClient:
                         "resolved_model": resolved,
                     }
                     disposition = "response_received"
+                except OpenRouterOutputLimitExceeded as failure:
+                    error = failure
+                    self.last_request["provider_code"] = failure.provider_code
+                    remaining = (
+                        deadline - time.monotonic() if deadline is not None else None
+                    )
+                    min_recovery = min(MIN_RECOVERY_TIMEOUT_SECONDS, self.timeout)
+                    can_recover = (
+                        self.output_limit_recovery
+                        and not output_limit_recovered
+                        and attempt < self.max_attempts
+                    )
+                    has_time = remaining is None or remaining >= min_recovery
+                    if can_recover and has_time:
+                        next_max_tokens = self._recovery_budget(
+                            current_max_tokens, model.model_id
+                        )
+                        next_attempt_timeout = (
+                            min(self.timeout, remaining)
+                            if remaining is not None
+                            else self.timeout
+                        )
+                        self._log_output_limit_advisory(
+                            {
+                                "event": "output_limit_recovery",
+                                "attempt": attempt,
+                                "next_attempt": attempt + 1,
+                                "max_attempts": self.max_attempts,
+                                "previous_max_tokens": current_max_tokens,
+                                "recovery_max_tokens": next_max_tokens,
+                                "reasoning_capped": current_reasoning is not None,
+                                "attempt_timeout_seconds": round(attempt_timeout, 1),
+                                "next_attempt_timeout_seconds": round(
+                                    next_attempt_timeout, 1
+                                ),
+                                "usage": self.last_request.get("usage"),
+                                "elapsed_seconds": self.last_request.get(
+                                    "elapsed_seconds"
+                                ),
+                                "remaining_timeout_seconds": (
+                                    round(remaining, 1)
+                                    if remaining is not None
+                                    else None
+                                ),
+                            }
+                        )
+                        output_limit_recovered = True
+                        current_max_tokens = next_max_tokens
+                        payload = self._payload(
+                            system_prompt,
+                            user_prompt,
+                            model.model_id,
+                            max_tokens=current_max_tokens,
+                            reasoning=current_reasoning,
+                        )
+                        disposition = "retryable_rejection"
+                        delay = 0.0
+                        recover_now = True
+                    else:
+                        if can_recover and not has_time:
+                            self._log_output_limit_advisory(
+                                {
+                                    "event": "output_limit_recovery_skipped",
+                                    "reason": "timeout_budget_exhausted",
+                                    "attempt": attempt,
+                                    "max_attempts": self.max_attempts,
+                                    "previous_max_tokens": current_max_tokens,
+                                    "attempt_timeout_seconds": round(
+                                        attempt_timeout, 1
+                                    ),
+                                    "usage": self.last_request.get("usage"),
+                                    "elapsed_seconds": self.last_request.get(
+                                        "elapsed_seconds"
+                                    ),
+                                    "remaining_timeout_seconds": (
+                                        round(max(0.0, remaining), 1)
+                                        if remaining is not None
+                                        else None
+                                    ),
+                                }
+                            )
+                        disposition = failure.request_state
+                        delay = 0.0
                 except OpenRouterError as failure:
                     error = failure
                     disposition = failure.request_state
@@ -245,6 +448,13 @@ class OpenRouterClient:
                         not math.isfinite(delay) or delay > MAX_RETRY_DELAY
                     ):
                         disposition = "deferred_rejection"
+                    if (
+                        deadline is not None
+                        and disposition in {"not_sent", "retryable_rejection"}
+                        and deadline - time.monotonic() - delay
+                        < min(30.0, self.timeout)
+                    ):
+                        disposition = "deferred_rejection"
                 finally:
                     # Unexpected exceptions and cancellation retain uncertainty.
                     # A lost completion acknowledgement never permits a send.
@@ -252,6 +462,8 @@ class OpenRouterClient:
                 if error is None:
                     return text
                 error.attempts = attempt
+                if recover_now:
+                    continue
                 advice = retry_decision(
                     disposition, attempts=attempt, limit=self.max_attempts, delay=delay
                 )
@@ -290,9 +502,12 @@ class OpenRouterClient:
         usage = self.last_request.get("usage") or {}
         elapsed = self.last_request.get("elapsed_seconds")
         completion = usage.get("completion_tokens")
+        attempt_max_tokens = self._last_attempt_max_tokens
         summary = {
             "http_status": self.last_request.get("http_status"),
             "attempt": self.last_request.get("attempts"),
+            "max_tokens": attempt_max_tokens,
+            "timeout_seconds": self._last_attempt_timeout,
             "elapsed_seconds": elapsed,
             **{key: usage.get(key) for key in USAGE_KEYS},
             "output_tokens_per_second": (
@@ -301,8 +516,8 @@ class OpenRouterClient:
                 else None
             ),
             "max_tokens_used_fraction": (
-                round(completion / self.max_tokens, 3)
-                if type(completion) is int and self.max_tokens
+                round(completion / attempt_max_tokens, 3)
+                if type(completion) is int and attempt_max_tokens
                 else None
             ),
         }

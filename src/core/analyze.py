@@ -30,6 +30,11 @@ from .exploitation_coverage import (
 from .model_config import resolve_model, validate_model
 from .model_client import ReportModelClient, build_model_client
 from .opencode_client import OpenCodeUnavailable, parse_model_selection
+from .openrouter_client import (
+    FREE_ROUTE_MAX_COMPLETION_TOKENS,
+    validate_reasoning_max_tokens,
+)
+from .paid_verification import active_verification
 from .analysis_errors import classify_analysis_error
 from .derivations import derivation_scope
 from .article_prompt import (
@@ -53,6 +58,23 @@ logger = logging.getLogger(__name__)
 
 # Initialize tokenizer for token counting
 tokenizer = tiktoken.get_encoding("cl100k_base")
+
+# Observed free-route output rate is ~116 tokens/s (131k tokens ~= 19 min).
+# Cap each HTTP attempt at 30 min (tolerable down to ~53-73 tok/s) and total
+# initial + recovery wall-clock time at 60 min, leaving 15 min inside the
+# 75-minute CI job timeout for setup, validation, browser checks and publish.
+ANALYSIS_PER_REQUEST_TIMEOUT_CAP_SECONDS = 1800.0
+ANALYSIS_TOTAL_TIMEOUT_CAP_SECONDS = 3600.0
+
+
+def analysis_timeout_budget(max_tokens: int) -> tuple[float, float]:
+    """Return bounded (per_request_timeout, total_timeout) seconds for analysis."""
+    request_timeout = min(
+        ANALYSIS_PER_REQUEST_TIMEOUT_CAP_SECONDS,
+        max(120.0, float(max_tokens) / 50.0),
+    )
+    total_timeout = min(request_timeout * 2.0, ANALYSIS_TOTAL_TIMEOUT_CAP_SECONDS)
+    return request_timeout, total_timeout
 
 
 def filter_exploitation_articles(
@@ -104,7 +126,13 @@ async def _analyze_exploitation(
 
     # Initialize the AI model through OpenCode.
     model_name = resolve_model(config)
-    max_tokens = int(config.get("analysis", {}).get("max_tokens", 4000))
+    analysis_config = config.get("analysis", {})
+    verification = active_verification()
+    max_tokens = (
+        int(verification.profile["reportOutput"])
+        if verification is not None
+        else int(analysis_config.get("max_tokens", 4000))
+    )
     try:
         validate_model(model_name)
         model_selection = parse_model_selection(model_name)
@@ -112,6 +140,19 @@ async def _analyze_exploitation(
         logger.error(f"Invalid model configuration: {e}")
         return {
             "exploitation_report": f"# Error: Invalid Model\n\n{str(e)}",
+            "date": datetime.now(timezone.utc).date().isoformat(),
+            "error": str(e),
+            "error_class": "analysis_exception",
+            "error_detail": {},
+        }
+    try:
+        reasoning_max_tokens = validate_reasoning_max_tokens(
+            analysis_config.get("reasoning_max_tokens"), max_tokens
+        )
+    except ValueError as e:
+        logger.error(f"Invalid analysis configuration: {e}")
+        return {
+            "exploitation_report": f"# Error: Invalid Analysis Configuration\n\n{str(e)}",
             "date": datetime.now(timezone.utc).date().isoformat(),
             "error": str(e),
             "error_class": "analysis_exception",
@@ -193,12 +234,32 @@ async def _analyze_exploitation(
 
     # Call the AI model
     client = None
+    request_timeout, total_timeout = analysis_timeout_budget(max_tokens)
+    is_free_route = (
+        verification is None
+        and model_selection is not None
+        and model_selection.provider_id == "openrouter"
+        and (
+            model_selection.model_id.endswith(":free")
+            or model_selection.model_id == "openrouter/free"
+        )
+    )
+    recovery_max_tokens = (
+        max(max_tokens, FREE_ROUTE_MAX_COMPLETION_TOKENS)
+        if is_free_route
+        else max_tokens
+    )
     try:
         client = (
             model_client
             if model_client is not None
             else build_model_client(
-                timeout=max(120.0, float(max_tokens) / 20), max_tokens=max_tokens
+                timeout=request_timeout,
+                max_tokens=max_tokens,
+                recovery_max_tokens=recovery_max_tokens,
+                reasoning_max_tokens=reasoning_max_tokens,
+                total_timeout=total_timeout,
+                output_limit_recovery=True,
             )
         )
         exploitation_report = await client.generate(
