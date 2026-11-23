@@ -51,6 +51,36 @@ def test_free_route_failures_never_block_the_next_generation():
 
 
 @pytest.mark.parametrize(
+    "event_name", ["schedule", "repository_dispatch", "workflow_dispatch"]
+)
+def test_free_route_auto_readmit_covers_all_generation_triggers(event_name):
+    step = admit_step()
+    assert 'if [ "${PAID_VERIFICATION:-false}" = "true" ]; then' in step
+    script = (
+        'if [ "${PAID_VERIFICATION:-false}" = "true" ]; then\n'
+        "  exit 1\n"
+        "else\n"
+        '  case "$GENERATION_MODEL" in *:free) READMIT=true ;; esac\n'
+        "fi\n"
+        'printf %s "$READMIT"'
+    )
+    result = subprocess.run(
+        ["bash", "-c", script],
+        env={
+            "GITHUB_EVENT_NAME": event_name,
+            "GENERATION_MODEL": DEFAULT_MODEL,
+            "READMIT": "false",
+            "PAID_VERIFICATION": "false",
+            "PATH": "/usr/bin:/bin",
+        },
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert result.stdout == "true"
+
+
+@pytest.mark.parametrize(
     ("model", "requested", "readmit"),
     [
         ("openrouter/nvidia/nemotron-3.5-super-vl:free", "false", "true"),

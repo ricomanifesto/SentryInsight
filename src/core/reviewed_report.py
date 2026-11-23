@@ -11,6 +11,7 @@ from .derivations import derivation_scope
 from .exploitation_coverage import collect_exploitation_relevant_prompt_cves
 from .finding_evidence import (
     EvidenceError,
+    sanitize_vendor_links,
     validate_finding_evidence,
     validate_vendor_links,
 )
@@ -278,6 +279,10 @@ def _resolve_reviewed_analysis(
         on_reject=advise if advisory else None,
     )
     stage("finding_evidence")
+    if advisory:
+        # Neutralize invalid or unsupported vendor links before grouping so
+        # combining citations never legitimizes an unsupported link.
+        canonical = sanitize_vendor_links(canonical, catalog, on_drop=advise)
     grouped = group_related_findings(canonical, catalog)
     if grouped != canonical:
         # Combining citations must never legitimize a link that its original

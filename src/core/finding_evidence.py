@@ -2282,6 +2282,91 @@ def _validate_finding(
             )
 
 
+VENDOR_LINKS_FIELD = re.compile(
+    r"^(?P<prefix>-[ \t]+\*\*Vendor Links\*\*:[ \t]*)(?P<value>[^\r\n]*)$",
+    re.MULTILINE,
+)
+
+
+def sanitize_vendor_links(
+    report: str,
+    catalog: Mapping[str, ReportingSource],
+    *,
+    on_drop: Any = None,
+) -> str:
+    """Drop invalid or unsupported vendor links from findings without dropping the finding.
+
+    Valid, source-supported vendor links on the same finding are preserved. If no
+    supported links remain, the field is replaced with the explicit absence marker.
+    """
+    table = report_findings(report)
+    replacements: list[tuple[int, int, str]] = []
+    for row in table.rows:
+        keys = row.cited_keys
+        links = {link for key in keys if key in catalog for link in catalog[key].links}
+        for match in VENDOR_LINKS_FIELD.finditer(row.body):
+            value = match["value"].strip()
+            if not value or value == ABSENT:
+                continue
+            entries = [entry.strip() for entry in value.split(";")]
+            kept: list[str] = []
+            changed = False
+            for entry in entries:
+                if not entry:
+                    changed = True
+                    error = EvidenceError(
+                        "Unsupported vendor link",
+                        code="invalid_vendor_link",
+                        field="Vendor Links",
+                        expected=True,
+                        observed=False,
+                    )
+                    _identify(error, row, catalog)
+                    if on_drop is not None:
+                        on_drop(error)
+                    continue
+                try:
+                    normalized = normalize_reporting_url(entry)
+                except ReportingGroundingError:
+                    changed = True
+                    error = EvidenceError(
+                        "Unsupported vendor link",
+                        code="invalid_vendor_link",
+                        field="Vendor Links",
+                        expected=True,
+                        observed=False,
+                    )
+                    _identify(error, row, catalog)
+                    if on_drop is not None:
+                        on_drop(error)
+                    continue
+                if normalized not in links:
+                    changed = True
+                    error = EvidenceError(
+                        "Unsupported vendor link",
+                        code="unsupported_vendor_link",
+                        field="Vendor Links",
+                        expected=True,
+                        observed=False,
+                    )
+                    _identify(error, row, catalog)
+                    if on_drop is not None:
+                        on_drop(error)
+                    continue
+                if normalized not in kept:
+                    kept.append(normalized)
+            if changed:
+                replacement = "; ".join(kept) if kept else ABSENT
+                replacements.append(
+                    (
+                        row.body_start + match.start("value"),
+                        row.body_start + match.end("value"),
+                        replacement,
+                    )
+                )
+    return table.render(replacements) if replacements else report
+
+
 def validate_vendor_links(report: str, catalog: Mapping[str, ReportingSource]) -> None:
     """Every vendor link must be a supplied link of the finding's cited sources.
 

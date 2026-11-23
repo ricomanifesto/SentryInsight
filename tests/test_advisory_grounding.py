@@ -112,15 +112,194 @@ def test_quarantined_source_citation_still_blocks_in_advisory_mode():
         resolve_reviewed_analysis(result, advisory=True)
 
 
-def test_invented_vendor_link_still_blocks_in_advisory_mode():
+def test_invented_vendor_link_is_dropped_in_advisory_mode_and_blocks_in_strict():
+    bad_url = "https://evil.example/patch.exe"
+    strict_result = cve_result()
+    strict_result["exploitation_report"] = strict_result["exploitation_report"].replace(
+        "- **Vendor Links**: " + ABSENT,
+        f"- **Vendor Links**: {bad_url}",
+    )
+    with pytest.raises(EvidenceError) as raised:
+        resolve_reviewed_analysis(strict_result)
+    assert raised.value.code == "unsupported_vendor_link"
+
     result = with_versions(cve_result(), BOGUS)  # an earlier advisory reason
     result["exploitation_report"] = result["exploitation_report"].replace(
         "- **Vendor Links**: " + ABSENT,
-        "- **Vendor Links**: https://evil.example/patch.exe",
+        f"- **Vendor Links**: {bad_url}",
+    )
+    candidate = resolve_reviewed_analysis(result, advisory=True)
+    assert bad_url not in candidate.report
+    assert bad_url not in candidate.source
+    assert f"- **Vendor Links**: {ABSENT}" in candidate.report
+    artifact = parse_report_artifact(candidate.source)
+    assert len(artifact.findings) == 1
+    assert artifact.findings[0].vendor_links == ()
+    vendor_advisories = [
+        a
+        for a in candidate.advisories
+        if a["stage"] == "finding_evidence"
+        and a["codes"] == ["unsupported_vendor_link"]
+    ]
+    assert len(vendor_advisories) == 1
+    assert vendor_advisories[0]["field"] == "Vendor Links"
+    assert vendor_advisories[0]["finding_index"] == 1
+    assert all(bad_url not in json.dumps(a) for a in candidate.advisories)
+
+
+@pytest.mark.parametrize(
+    ("bad_link", "expected_code"),
+    [
+        ("https://evil.example/invented", "unsupported_vendor_link"),
+        ("javascript:alert(1)", "invalid_vendor_link"),
+        ("not-a-valid-url", "invalid_vendor_link"),
+    ],
+)
+def test_bad_vendor_link_dropped_while_keeping_supported_links_and_finding(
+    bad_link, expected_code
+):
+    advisory_link = "https://vendor.example/advisory"
+    article = source(f"{CVE} affects Gateway 7 and Gateway 8.", "good")
+    article["source_links"] = [advisory_link]
+    result = prepared_result([article])
+    result["exploitation_report"] = (
+        result["exploitation_report"]
+        .replace(
+            "### Synthetic campaign\n",
+            f"### Gateway ({CVE})\n- **CVE IDs**: {CVE}\n",
+        )
+        .replace(
+            "- **Vendor Links**: " + ABSENT,
+            f"- **Vendor Links**: {advisory_link}; {bad_link}",
+        )
     )
     with pytest.raises(EvidenceError) as raised:
-        resolve_reviewed_analysis(result, advisory=True)
-    assert raised.value.code == "unsupported_vendor_link"
+        resolve_reviewed_analysis(result)
+    assert raised.value.code == expected_code
+
+    candidate = resolve_reviewed_analysis(result, advisory=True)
+    assert advisory_link in candidate.report
+    assert bad_link not in candidate.report
+    assert bad_link not in candidate.source
+    artifact = parse_report_artifact(candidate.source)
+    assert artifact.findings[0].vendor_links == (advisory_link,)
+    dropped = [
+        a
+        for a in candidate.advisories
+        if a["stage"] == "finding_evidence" and a["codes"] == [expected_code]
+    ]
+    assert len(dropped) == 1
+    assert dropped[0]["field"] == "Vendor Links"
+    assert dropped[0]["finding_index"] == 1
+    assert all(bad_link not in json.dumps(a) for a in candidate.advisories)
+
+
+def test_grouping_cannot_legitimize_uncited_vendor_link_in_advisory_mode():
+    first = source(f"{CVE} is actively exploited.", "first")
+    first["source_links"] = ["https://first.example/advisory"]
+    second = source(f"{CVE} is actively exploited.", "second")
+    second["source_links"] = ["https://second.example/advisory"]
+    result = prepared_result([first, second])
+    keys = {
+        item["url"].rsplit("/", 1)[-1]: item["key"]
+        for item in result["reporting_sources"]
+    }
+    row_template = (
+        f"### Gateway ({CVE})\n"
+        "- **Description**: A service flaw.\n"
+        "- **Severity**: high\n"
+        "- **Exploitation Status**: active\n"
+        "- **Action**: monitor\n"
+        f"- **CVE IDs**: {CVE}\n"
+        "- **Reporting**: {key}\n"
+        f"- **Affected Versions**: {ABSENT}\n"
+        f"- **Exceptions**: {ABSENT}\n"
+        f"- **Recommended Actions**: {ABSENT}\n"
+        "- **Vendor Links**: {link}\n\n"
+    )
+    # First finding cites only "first" but tries to list "second"'s link;
+    # grouping merges both findings for the same CVE, so the link MUST be
+    # dropped before grouping rather than legitimized by the merged citation.
+    from src.core.report_findings import report_findings
+
+    original = result["exploitation_report"]
+    existing = report_findings(original).rows[0]
+    two_findings = row_template.format(
+        key=keys["first"], link="https://second.example/advisory"
+    ) + row_template.format(key=keys["second"], link=ABSENT)
+    result["exploitation_report"] = (
+        original[: existing.start] + two_findings + original[existing.end :]
+    )
+
+    candidate = resolve_reviewed_analysis(result, advisory=True)
+    assert "https://second.example/advisory" not in candidate.report
+    assert any(
+        a["stage"] == "finding_evidence"
+        and a["codes"] == ["unsupported_vendor_link"]
+        and a["finding_index"] == 1
+        for a in candidate.advisories
+    )
+
+
+def test_second_finding_position_is_recorded_on_dropped_vendor_link_and_version_field():
+    other = "CVE-2026-5678"
+    first = source(f"{CVE} is actively exploited.", "first")
+    second = source(f"{other} is actively exploited.", "second")
+    result = prepared_result([first, second])
+    keys = {
+        item["url"].rsplit("/", 1)[-1]: item["key"]
+        for item in result["reporting_sources"]
+    }
+    from src.core.report_findings import report_findings
+
+    original = result["exploitation_report"]
+    existing = report_findings(original).rows[0]
+    two_findings = (
+        f"### Gateway Alpha ({CVE})\n"
+        "- **Description**: First flaw.\n"
+        "- **Severity**: high\n"
+        "- **Exploitation Status**: active\n"
+        "- **Action**: monitor\n"
+        f"- **CVE IDs**: {CVE}\n"
+        f"- **Reporting**: {keys['first']}\n"
+        f"- **Affected Versions**: {ABSENT}\n"
+        f"- **Exceptions**: {ABSENT}\n"
+        f"- **Recommended Actions**: {ABSENT}\n"
+        f"- **Vendor Links**: {ABSENT}\n\n"
+        f"### Gateway Beta ({other})\n"
+        "- **Description**: Second flaw.\n"
+        "- **Severity**: high\n"
+        "- **Exploitation Status**: active\n"
+        "- **Action**: monitor\n"
+        f"- **CVE IDs**: {other}\n"
+        f"- **Reporting**: {keys['second']}\n"
+        f"- **Affected Versions**: {ABSENT}\n"
+        "- **Affected Versions Status**: supported\n"
+        f"- **Exceptions**: {ABSENT}\n"
+        f"- **Recommended Actions**: {ABSENT}\n"
+        "- **Vendor Links**: https://evil.example/second\n\n"
+    )
+    result["exploitation_report"] = (
+        original[: existing.start] + two_findings + original[existing.end :]
+    )
+
+    candidate = resolve_reviewed_analysis(result, advisory=True)
+    assert "https://evil.example/second" not in candidate.report
+    artifact = parse_report_artifact(candidate.source)
+    assert len(artifact.findings) == 2
+    assert artifact.findings[1].affected_versions_status.value == "not_stated"
+    assert any(
+        a["stage"] == "version_references"
+        and a["codes"] == ["invalid_version_reference_field"]
+        and a["finding_index"] == 2
+        for a in candidate.advisories
+    )
+    assert any(
+        a["stage"] == "finding_evidence"
+        and a["codes"] == ["unsupported_vendor_link"]
+        and a["finding_index"] == 2
+        for a in candidate.advisories
+    )
 
 
 def test_supplied_vendor_link_is_accepted_in_advisory_mode():
@@ -142,9 +321,10 @@ def test_supplied_vendor_link_is_accepted_in_advisory_mode():
     assert advisory_link in candidate.report
 
 
-def test_only_quality_codes_are_advisory():
+def test_only_quality_and_coverage_codes_are_advisory():
     issues = [
         ReportValidationIssue("executive_summary_readability", "x"),
+        ReportValidationIssue("missing_expected_cves", "x"),
         ReportValidationIssue("underpopulated_threat_actor_activities", "x"),
     ]
     assert blocking_issues(issues) == []
@@ -153,8 +333,11 @@ def test_only_quality_codes_are_advisory():
         "error_marker",
         "empty_report",
         "missing_section",
+        "duplicate_section",
+        "malformed_markdown",
         "removed_source_attribution",
-        "missing_expected_cves",
+        "virtual_event_promotion",
+        "missing_descriptive_finding_title",
     ):
         issue = ReportValidationIssue(code, "x")
         assert blocking_issues(issues + [issue]) == [issue]
@@ -177,15 +360,25 @@ def run_gate(report, config, *extra):
     )
 
 
-@pytest.mark.parametrize("mode", ["advisory", "strict"])
-def test_required_cve_coverage_blocks_publication_in_both_modes(tmp_path, mode):
-    config = tmp_path / "config.json"
-    config.write_text(json.dumps({"analysis": {"grounding": mode}}))
+def test_required_cve_coverage_blocks_in_strict_and_is_advisory_in_advisory(tmp_path):
     report = tmp_path / "index.md"
     report.write_text((ROOT / "index.md").read_text())
-    result = run_gate(report, config, "--expected-cve", "CVE-2099-0001")
-    assert result.returncode == 1, result.stdout
-    assert "CVE-2099-0001" in result.stdout
+
+    strict_config = tmp_path / "strict.json"
+    strict_config.write_text(json.dumps({"analysis": {"grounding": "strict"}}))
+    strict_result = run_gate(report, strict_config, "--expected-cve", "CVE-2099-0001")
+    assert strict_result.returncode == 1, strict_result.stdout
+    assert "CVE-2099-0001" in strict_result.stdout
+
+    advisory_config = tmp_path / "advisory.json"
+    advisory_config.write_text(json.dumps({"analysis": {"grounding": "advisory"}}))
+    advisory_result = run_gate(
+        report, advisory_config, "--expected-cve", "CVE-2099-0001"
+    )
+    assert advisory_result.returncode == 0, advisory_result.stdout
+    assert "Report content advisories (not blocking):" in advisory_result.stdout
+    assert "missing_expected_cves" in advisory_result.stdout
+    assert "CVE-2099-0001" in advisory_result.stdout
 
 
 def test_publication_gate_still_blocks_safety_issues_when_advisory(tmp_path):

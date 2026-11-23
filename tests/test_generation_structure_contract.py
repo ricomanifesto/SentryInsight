@@ -156,23 +156,50 @@ def test_repeated_sections_reject_before_finding_rewrites(
     assert result == before  # Neither outline nor second-copy content is discarded.
 
 
-@pytest.mark.parametrize("advisory", [False, True])
-@pytest.mark.parametrize("malformed", ["missing", "repeated", "host_status"])
-def test_malformed_version_fields_remain_blocking_without_content_repair(
-    advisory, malformed
-):
+@pytest.mark.parametrize("malformed", ["missing", "repeated", "host_status", "wrapped"])
+def test_malformed_version_fields_block_strict_and_drop_in_advisory(malformed):
+    from src.core.report_artifact import parse_report_artifact
+
     result = prepared_result()
     field = "- **Affected Versions**: " + ABSENT
     replacement = {
         "missing": "",
         "repeated": field + "\n" + field,
-        "host_status": field + "\n- **Affected Versions Status**: not_stated",
+        "host_status": field + "\n- **Affected Versions Status**: supported",
+        "wrapped": field + "\n  and Gateway 9.0",
     }[malformed]
     result["exploitation_report"] = result["exploitation_report"].replace(
         field, replacement
     )
     before = copy.deepcopy(result)
+    expected_code = (
+        "wrapped_version_reference"
+        if malformed == "wrapped"
+        else "invalid_version_reference_field"
+    )
     with pytest.raises(EvidenceError) as caught:
-        gate.resolve_reviewed_analysis(result, advisory=advisory)
-    assert caught.value.code == "invalid_version_reference_field"
+        gate.resolve_reviewed_analysis(result, advisory=False)
+    assert caught.value.code == expected_code
     assert result == before
+
+    candidate = gate.resolve_reviewed_analysis(result, advisory=True)
+    artifact = parse_report_artifact(candidate.source)
+    assert len(artifact.findings) == 1
+    assert "Gateway 9.0" not in candidate.report
+    if malformed == "host_status":
+        # Model-supplied status ("supported") was dropped; host derived "not_stated".
+        assert artifact.findings[0].affected_versions == ABSENT
+        assert artifact.findings[0].affected_versions_status.value == "not_stated"
+    else:
+        assert (
+            artifact.findings[0].affected_versions
+            == "Unresolved from supplied sources."
+        )
+        assert artifact.findings[0].affected_versions_status.value == "unresolved"
+    advisories = [
+        a
+        for a in candidate.advisories
+        if a["stage"] == "version_references" and expected_code in a["codes"]
+    ]
+    assert len(advisories) == 1
+    assert advisories[0]["finding_index"] == 1

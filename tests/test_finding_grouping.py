@@ -186,9 +186,19 @@ def test_grouping_cannot_launder_an_uncited_vendor_link(advisory):
     result["exploitation_report"] = (
         original[: row.start] + first + finding([keys[1]]) + original[row.end :]
     )
-    with pytest.raises(EvidenceError) as caught:
-        resolve_reviewed_analysis(result, advisory=advisory)
-    assert caught.value.code == "unsupported_vendor_link"
+    if not advisory:
+        with pytest.raises(EvidenceError) as caught:
+            resolve_reviewed_analysis(result, advisory=False)
+        assert caught.value.code == "unsupported_vendor_link"
+    else:
+        reviewed = resolve_reviewed_analysis(result, advisory=True)
+        assert vendor not in reviewed.report
+        assert any(
+            a["stage"] == "finding_evidence"
+            and a["codes"] == ["unsupported_vendor_link"]
+            and a["finding_index"] == 1
+            for a in reviewed.advisories
+        )
 
 
 def test_source_only_findings_have_no_invented_shared_identity():

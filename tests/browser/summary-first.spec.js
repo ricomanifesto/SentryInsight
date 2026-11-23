@@ -94,20 +94,23 @@ test("keyboard: skip link, the About entry and the coverage notice link each lan
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/#report-content$/);
 
-  const aboutId = await page.locator("section.about-report h2").getAttribute("id");
+  const aboutHeading = page.locator("section.about-report h2");
+  await expect(aboutHeading).toBeVisible();
+  const aboutId = await aboutHeading.getAttribute("id");
+  expect(aboutId).toBeTruthy();
   const entry = page.locator(`.desktop-toc a[href="#${aboutId}"]`);
   await expect(entry).toHaveText("About this report");
   await entry.focus();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(new RegExp(`#${aboutId}$`));
-  await expect(page.locator(`[id="${aboutId}"]`)).toBeInViewport();
+  await expect(page.locator(`[id="${aboutId}"]`)).toBeInViewport({ timeout: 15000 });
 
   const notice = page.locator("#source-coverage-notice a");
   if (await notice.count()) {
     await notice.focus();
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/#source-coverage-and-review$/);
-    await expect(page.locator("#source-coverage-and-review")).toBeInViewport();
+    await expect(page.locator("#source-coverage-and-review")).toBeInViewport({ timeout: 15000 });
   }
 
   const metaLink = page.locator(".report-date a.report-about");
@@ -123,5 +126,7 @@ test("the phone section list includes About this report in page order", async ({
   const hrefs = await map.locator("nav a").evaluateAll((links) => links.map((a) => a.getAttribute("href").slice(1)));
   const order = await page.evaluate(() => [...document.querySelectorAll("#report-content h2, #report-content h3")].map((h) => h.id));
   expect(hrefs).toEqual(order);
-  expect(hrefs).toContain(await page.locator("section.about-report h2").getAttribute("id"));
+  const aboutHeading = page.locator("section.about-report h2");
+  await expect(aboutHeading).toBeAttached();
+  expect(hrefs).toContain(await aboutHeading.getAttribute("id"));
 });

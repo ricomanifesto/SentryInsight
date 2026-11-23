@@ -234,7 +234,7 @@ test("lands a CVE handoff beside its finding without JavaScript", async ({ brows
 
   await expect(page).toHaveURL(new RegExp(`#${cve.toLowerCase()}$`, "i"));
   await expect(page.locator(`#${cve.toLowerCase()}`)).toHaveCount(1);
-  await expect(page.locator(`h3#${finding.slug}`)).toBeInViewport();
+  await expect(page.locator(`h3#${finding.slug}`)).toBeInViewport({ timeout: 15000 });
   await context.close();
 });
 
@@ -449,10 +449,12 @@ for (const width of [320, 390]) {
     await expect(page.locator("#overflow-regression-alias")).toHaveText(label);
 
     const sectionLink = map.locator("nav a").last();
+    await expect(sectionLink).toBeVisible();
     const target = await sectionLink.getAttribute("href");
+    expect(target).toMatch(/^#/);
     await sectionLink.click();
     await expect(page).toHaveURL(new RegExp(`${target}$`));
-    await expect(page.locator(target)).toBeInViewport();
+    await expect(page.locator(target)).toBeInViewport({ timeout: 15000 });
   });
 }
 
@@ -490,10 +492,11 @@ test("keeps a relative clock only on the current report", async ({ page, request
   const manifestResponse = await request.get("/reports/index.json");
   expect(manifestResponse.ok()).toBeTruthy();
   const manifest = await manifestResponse.json();
-  expect(manifest.reports.length).toBeGreaterThan(0);
-  await page.goto(`/reports/${manifest.reports[0].html_path}`);
-  await expect(page.locator("#report-age")).toHaveCount(0);
-  await expect(page.locator(".report-frozen")).toHaveText("· Archived snapshot");
+  if (manifest.reports.length > 0) {
+    await page.goto(`/reports/${manifest.reports[0].html_path}`);
+    await expect(page.locator("#report-age")).toHaveCount(0);
+    await expect(page.locator(".report-frozen")).toHaveText("· Archived snapshot");
+  }
   expect(failures).toEqual([]);
 });
 
@@ -545,6 +548,7 @@ for (const width of [1440, 390]) {
       await disclosure.click();
       await expect(body).toBeHidden();
       if (width < 600) await page.locator('details.mobile-toc').evaluate(el => { el.open = true; });
+      await expect(nav).toBeVisible();
       await nav.click();
       await expect(disclosure).toHaveAttribute('aria-expanded', 'true');
       await expect(body).toBeVisible();

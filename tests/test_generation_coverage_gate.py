@@ -24,7 +24,7 @@ CVE = "CVE-2026-1234"
 
 @pytest.mark.parametrize("advisory", [False, True])
 @pytest.mark.parametrize("narrative_mention", [False, True])
-def test_missing_required_cve_preserves_report_and_fingerprint(
+def test_missing_required_cve_blocks_strict_and_records_advisory_in_advisory_mode(
     advisory, narrative_mention, tmp_path
 ):
     articles = [
@@ -65,13 +65,23 @@ def test_missing_required_cve_preserves_report_and_fingerprint(
         "status": "started",
     }
     workflow = import_workflow_with_stubs()
-    failed = asyncio.run(workflow.generate_report(state))
-    assert failed["status"] == "failed"
-    assert failed["failure"]["codes"] == ["missing_expected_cves"]
-    assert failed["report_generated"] is False
-    for path, text in originals.items():
-        assert path.read_text() == text
-    assert not (tmp_path / "reports").exists()
+    outcome = asyncio.run(workflow.generate_report(state))
+    if not advisory:
+        assert outcome["status"] == "failed"
+        assert outcome["failure"]["codes"] == ["missing_expected_cves"]
+        assert outcome["report_generated"] is False
+        for path, text in originals.items():
+            assert path.read_text() == text
+        assert not (tmp_path / "reports").exists()
+    else:
+        assert outcome["status"] != "failed"
+        assert outcome["report_generated"] is True
+        advisories = outcome.get("grounding_advisories", [])
+        assert any(
+            a["stage"] == "report_content" and "missing_expected_cves" in a["codes"]
+            for a in advisories
+        )
+        assert parse_report_artifact(output.read_text()).findings
 
 
 @pytest.mark.parametrize("advisory", [False, True])

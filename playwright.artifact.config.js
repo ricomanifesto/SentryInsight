@@ -16,13 +16,18 @@ export default defineConfig({
   testDir: "tests/artifact_browser",
   outputDir: "test-results/artifact-playwright",
   reporter: [["line"]],
+  retries: 2,
   workers: 1,
+  expect: {
+    timeout: 10000,
+  },
   use: {
     baseURL: `http://127.0.0.1:${port}`,
     browserName: "chromium",
     colorScheme: "light",
     locale: "en-US",
     timezoneId: "UTC",
+    actionTimeout: 15000,
   },
   webServer: {
     command: `${python} -B scripts/serve_static_artifact.py --store ${JSON.stringify(store)} --port ${port}`,

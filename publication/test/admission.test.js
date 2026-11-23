@@ -654,3 +654,39 @@ test('trusted readmission creates a new digest episode without reviving stale re
   const records = await world.records();
   assert.ok(records.some((r) => r.stage === 'request_reserved' && r.token === oldReservation.token));
 });
+
+test('a failed digest run recorded unresolved never blocks subsequent readmitted schedule or dispatch runs', async (t) => {
+  const world = consumerWorld(t, 'SentryInsight');
+  const first = await world.admission().admit(dispatch(world.release.event, 900));
+  assert.equal(first.decision, 'admitted');
+  await world.admission().invoked({ admissionKey: first.admission_key, runId: '900' });
+  assert.equal(
+    await world.admission().complete({ admissionKey: first.admission_key, runId: '900', outcome: 'failed', binding: 'feed-bytes' }),
+    'unresolved',
+  );
+
+  // Without readmit, the next scheduled run is held as uncertain.
+  assert.equal((await world.admission().admit(scheduled(901))).decision, 'uncertain');
+
+  // With free-route auto-readmit, a scheduled run clears the unresolved digest key and proceeds.
+  const daily = await world.admission().admit(scheduled(902, { readmit: true }));
+  assert.equal(daily.decision, 'admitted');
+  await world.admission().invoked({ admissionKey: daily.admission_key, runId: '902' });
+  assert.equal(
+    await world.admission().complete({ admissionKey: daily.admission_key, runId: '902', outcome: 'failed' }),
+    'unresolved',
+  );
+
+  // And a subsequent repository_dispatch for a new release also clears the unresolved key and proceeds.
+  const nextRelease = digestRelease({
+    releaseRef: '7'.repeat(40),
+    sourceRevision: '6'.repeat(40),
+    feed: Buffer.from('<?xml version="1.0"?><rss version="2.0"><channel><title>Digest 2</title></channel></rss>\n'),
+    news: '[{"link":"https://example.com/b","title":"B"}]\n',
+  });
+  world.serving = nextRelease;
+  world.snapshot(nextRelease);
+  const nextDispatch = await world.admission().admit(dispatch(nextRelease.event, 903, { readmit: true }));
+  assert.equal(nextDispatch.decision, 'admitted');
+  await world.admission().invoked({ admissionKey: nextDispatch.admission_key, runId: '903' });
+});

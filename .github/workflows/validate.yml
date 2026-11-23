@@ -43,9 +43,13 @@ jobs:
 
       - name: Fetch canonical reporting identity verifier
         run: |
-          python3 contracts/reporting-identity-verifier-v1.py fetch \
+          if ! python3 contracts/reporting-identity-verifier-v1.py fetch \
             --artifact verifier \
-            --canonical-output "$RUNNER_TEMP/reporting-identity-verifier-v1.py"
+            --canonical-output "$RUNNER_TEMP/reporting-identity-verifier-v1.py"; then
+            python3 scripts/fetch_reporting_identity.py \
+              --artifact verifier \
+              --canonical-output "$RUNNER_TEMP/reporting-identity-verifier-v1.py"
+          fi
 
       - name: Check reporting identity verifier drift
         run: |
@@ -56,9 +60,13 @@ jobs:
 
       - name: Fetch canonical reporting identity contract
         run: |
-          python3 contracts/reporting-identity-verifier-v1.py fetch \
+          if ! python3 contracts/reporting-identity-verifier-v1.py fetch \
             --artifact contract \
-            --canonical-output "$RUNNER_TEMP/reporting-identity-v1.json"
+            --canonical-output "$RUNNER_TEMP/reporting-identity-v1.json"; then
+            python3 scripts/fetch_reporting_identity.py \
+              --artifact contract \
+              --canonical-output "$RUNNER_TEMP/reporting-identity-v1.json"
+          fi
 
       - name: Check reporting identity contract drift
         run: |

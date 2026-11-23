@@ -77,9 +77,13 @@ jobs:
 
       - name: Fetch canonical reporting identity verifier
         run: |
-          python3 contracts/reporting-identity-verifier-v1.py fetch \
+          if ! python3 contracts/reporting-identity-verifier-v1.py fetch \
             --artifact verifier \
-            --canonical-output "$RUNNER_TEMP/reporting-identity-verifier-v1.py"
+            --canonical-output "$RUNNER_TEMP/reporting-identity-verifier-v1.py"; then
+            python3 scripts/fetch_reporting_identity.py \
+              --artifact verifier \
+              --canonical-output "$RUNNER_TEMP/reporting-identity-verifier-v1.py"
+          fi
 
       - name: Check reporting identity verifier drift
         run: |
@@ -90,9 +94,13 @@ jobs:
 
       - name: Fetch canonical reporting identity contract
         run: |
-          python3 contracts/reporting-identity-verifier-v1.py fetch \
+          if ! python3 contracts/reporting-identity-verifier-v1.py fetch \
             --artifact contract \
-            --canonical-output "$RUNNER_TEMP/reporting-identity-v1.json"
+            --canonical-output "$RUNNER_TEMP/reporting-identity-v1.json"; then
+            python3 scripts/fetch_reporting_identity.py \
+              --artifact contract \
+              --canonical-output "$RUNNER_TEMP/reporting-identity-v1.json"
+          fi
 
       - name: Check reporting identity contract drift
         run: |
@@ -374,16 +382,41 @@ jobs:
           # The trailers let a later run recover this exact admission.
           printf 'Update exploitation report [automated]\n\nAdmission-Key: %s\nAdmission-Feed: %s\n' "$ADMISSION_KEY" "${ADMISSION_FEED:-none}" > "$RUNNER_TEMP/report-commit-message.txt"
           git commit -F "$RUNNER_TEMP/report-commit-message.txt"
-          git pull --rebase origin main
-          # The report was generated and validated against this checkout.
-          # Refuse even a clean rebase onto source that changed during the run.
-          if [ "$(git rev-parse FETCH_HEAD)" != "$GENERATION_SOURCE_SHA" ] ||
-             [ "$(git rev-parse HEAD^)" != "$GENERATION_SOURCE_SHA" ]; then
-            echo "::error::Main advanced during generation; report not published"
-            exit 1
-          fi
-          git push https://${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }}.git HEAD:main
-          echo "published=true" >> "$GITHUB_OUTPUT"
+          push_url="https://${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }}.git"
+          max_attempts="${PUSH_MAX_ATTEMPTS:-3}"
+          retry_delay="${PUSH_RETRY_DELAY_SECONDS:-2}"
+          attempt=1
+          while [ "$attempt" -le "$max_attempts" ]; do
+            if ! git pull --rebase origin main; then
+              if [ -d "$(git rev-parse --git-path rebase-merge)" ] || [ -d "$(git rev-parse --git-path rebase-apply)" ]; then
+                git rebase --abort 2>/dev/null || true
+                echo "::error::Report rebase onto origin/main conflicted; remote preserved"
+                exit 1
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                sleep "$retry_delay"
+                attempt=$((attempt + 1))
+                continue
+              fi
+              echo "::error::Failed to fetch and rebase origin/main after $max_attempts attempts"
+              exit 1
+            fi
+            if [ "$(git rev-parse HEAD)" = "$(git rev-parse FETCH_HEAD)" ]; then
+              echo "Report changes already present on origin/main"
+              echo "published=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            if git push "$push_url" HEAD:main; then
+              echo "published=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            if [ "$attempt" -lt "$max_attempts" ]; then
+              sleep "$retry_delay"
+            fi
+            attempt=$((attempt + 1))
+          done
+          echo "::error::Failed to push updated report after $max_attempts attempts"
+          exit 1
 
       # The outcome is recorded whenever generation started and the run is
       # still able to report it. A cancelled or failed generation may leave

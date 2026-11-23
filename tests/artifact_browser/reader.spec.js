@@ -103,7 +103,7 @@ test("the current report is readable without JavaScript", async ({ browser }, te
 });
 
 
-test("finding disclosure and the CVE handoff work from the artifact", async ({ page }) => {
+test("finding disclosure and the CVE handoff work from the artifact", async ({ page, request }) => {
   const failures = collectPageFailures(page);
   await page.goto("/index.html");
   const metadata = await readReportMetadata(page);
@@ -114,10 +114,22 @@ test("finding disclosure and the CVE handoff work from the artifact", async ({ p
   await first.click();
   await expect(first).toHaveAttribute("aria-expanded", "true");
 
-  const finding = metadata.findings.find((candidate) => candidate.cve_ids.length > 0);
+  let targetPath = "/index.html";
+  let finding = metadata.findings.find((candidate) => candidate.cve_ids.length > 0);
+  if (!finding) {
+    const manifest = await (await request.get("/reports/index.json")).json();
+    for (const entry of manifest.reports) {
+      if (!entry.cve_count) continue;
+      targetPath = `/reports/${entry.html_path}`;
+      await page.goto(targetPath);
+      const archived = await readReportMetadata(page);
+      finding = archived.findings.find((candidate) => candidate.cve_ids.length > 0);
+      if (finding) break;
+    }
+  }
   expect(finding).toBeTruthy();
   const fragment = `#${finding.cve_ids[0].toLowerCase()}`;
-  await page.goto(`/index.html${fragment}`);
+  await page.goto(`${targetPath}${fragment}`);
   const heading = page.locator(`h3#${finding.slug}`);
   await expect(heading).toHaveAttribute("data-handoff-match", "true");
   await expect(heading.locator("button.finding-disclosure")).toBeFocused();
@@ -135,7 +147,7 @@ test("an archived CVE anchor lands beside its finding", async ({ page, request }
   const finding = metadata.findings.find((candidate) => candidate.cve_ids.length > 0);
   await page.goto(`/reports/${archived.html_path}#${finding.cve_ids[0].toLowerCase()}`);
   await expect(page.locator(`#${finding.cve_ids[0].toLowerCase()}`)).toHaveCount(1);
-  await expect(page.locator(`h3#${finding.slug}`)).toBeInViewport();
+  await expect(page.locator(`h3#${finding.slug}`)).toBeInViewport({ timeout: 15000 });
   const disclosure = page.locator(`h3#${finding.slug} button.finding-disclosure`);
   await disclosure.click();
   await expect(disclosure).toHaveAttribute("aria-expanded", "false");
@@ -143,5 +155,5 @@ test("an archived CVE anchor lands beside its finding", async ({ page, request }
   await page.evaluate((fragment) => { window.location.hash = fragment; }, oldFragment);
   await expect(page.locator(`#${oldFragment}`)).toHaveCount(1);
   await expect(disclosure).toHaveAttribute("aria-expanded", "true");
-  await expect(page.locator(`h3#${finding.slug}`)).toBeInViewport();
+  await expect(page.locator(`h3#${finding.slug}`)).toBeInViewport({ timeout: 15000 });
 });

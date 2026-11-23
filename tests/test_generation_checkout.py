@@ -131,7 +131,7 @@ class GitWorld:
             check=False,
         )
 
-    def publish(self, repo, source, event_sha):
+    def publish(self, repo, source, event_sha, **extra_env):
         output = self.root / "publish-output"
         result = self.run_step(
             repo,
@@ -142,6 +142,8 @@ class GitWorld:
             RUNNER_TEMP=str(self.root),
             ADMISSION_KEY="digest:" + "a" * 40,
             ADMISSION_FEED="https://example.invalid/commit-addressed-feed.xml",
+            PUSH_RETRY_DELAY_SECONDS="0",
+            **extra_env,
         )
         return result, output.read_text() if output.exists() else ""
 
@@ -196,20 +198,34 @@ def test_checkout_revision_is_recorded_before_generation(world):
     )
 
 
-@pytest.mark.parametrize("path", ["index.md", "src/new-code.py"])
-def test_main_advance_during_generation_preserves_remote_and_refuses_push(world, path):
+def test_conflicting_main_report_advance_aborts_rebase_and_preserves_remote(world):
     source = world.git(world.writer, "rev-parse", "HEAD")
     job = world.checkout(MAIN, source)
     world.write_report(job, "unpublished generated report")
-    advanced = world.advance(path, "concurrent update")
+    advanced = world.advance("index.md", "concurrent update")
     result, output = world.publish(job, source, source)
     assert result.returncode != 0
     assert "published=true" not in output
     assert world.git(world.remote, "rev-parse", "main") == advanced
-    assert world.git(world.remote, "show", f"main:{path}") == "concurrent update"
-    if path != "index.md":
-        assert world.git(world.remote, "show", "main:index.md") == "initial report"
-        assert "Main advanced during generation" in result.stdout + result.stderr
+    assert world.git(world.remote, "show", "main:index.md") == "concurrent update"
+
+
+def test_non_conflicting_main_advance_rebases_and_publishes(world):
+    source = world.git(world.writer, "rev-parse", "HEAD")
+    job = world.checkout(MAIN, source)
+    world.write_report(job, "generated report after concurrent code update")
+    advanced = world.advance("src/new-code.py", "concurrent update")
+    result, output = world.publish(job, source, source)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "published=true" in output
+    assert world.git(world.remote, "rev-parse", "main^") == advanced
+    assert (
+        world.git(world.remote, "show", "main:src/new-code.py") == "concurrent update"
+    )
+    assert (
+        world.git(world.remote, "show", "main:index.md")
+        == "generated report after concurrent code update"
+    )
 
 
 def test_generation_keeps_its_shared_lock_event_binding_and_publication_gates():
@@ -228,17 +244,16 @@ def test_generation_keeps_its_shared_lock_event_binding_and_publication_gates():
     assert workflow["jobs"]["resume-publication"]["with"] == {"invocation": "resume"}
 
 
-def test_an_already_applied_report_cannot_hide_a_new_main_revision(world):
+def test_an_already_applied_report_reports_unpublished_and_preserves_main(world):
     source = world.git(world.writer, "rev-parse", "HEAD")
     job = world.checkout(MAIN, source)
     world.write_report(job, "same generated report")
     world.write_report(world.writer, "same generated report")
     advanced = world.advance("src/new-code.py", "concurrent code update")
     result, output = world.publish(job, source, source)
-    assert result.returncode != 0
-    assert "published=true" not in output
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "published=false" in output
     assert world.git(world.remote, "rev-parse", "main") == advanced
-    assert "Main advanced during generation" in result.stdout + result.stderr
 
 
 def test_generation_binds_budget_diagnostics_and_tracing_to_the_checkout():
@@ -250,10 +265,10 @@ def test_generation_binds_budget_diagnostics_and_tracing_to_the_checkout():
     assert "GITHUB_SHA" not in env
 
 
-def test_non_force_push_preserves_main_if_it_advances_after_the_rebase_check(world):
+def test_push_race_with_non_conflicting_main_advance_rebases_and_retries_push(world):
     source = world.git(world.writer, "rev-parse", "HEAD")
     job = world.checkout(MAIN, source)
-    world.write_report(job, "unpublished generated report")
+    world.write_report(job, "generated report surviving push race")
     (world.writer / "concurrent-code.py").write_text("concurrent code update")
     advanced = world.commit(world.writer, "Update arriving immediately before push")
     world.git(world.writer, "push", "origin", "HEAD:refs/heads/concurrent-update")
@@ -261,12 +276,14 @@ def test_non_force_push_preserves_main_if_it_advances_after_the_rebase_check(wor
     assert real_git
     shim_dir = world.root / "bin"
     shim_dir.mkdir()
+    marker = world.root / "raced-once"
     shim = shim_dir / "git"
-    # Advance only the fixture's file remote, after the workflow's pull/guard
-    # and immediately before its actual non-force push starts.
+    # Advance the remote once immediately before the first push attempt so that
+    # push fails non-fast-forward and the workflow must fetch, rebase and retry.
     shim.write_text(
         "#!/bin/sh\n"
-        'if [ "$1" = push ] && [ "$3" = HEAD:main ]; then\n'
+        f'if [ "$1" = push ] && [ "$3" = HEAD:main ] && [ ! -f {shlex.quote(str(marker))} ]; then\n'
+        f"  touch {shlex.quote(str(marker))}\n"
         f"  {shlex.quote(real_git)} --git-dir={shlex.quote(str(world.remote))} "
         f"update-ref refs/heads/main {shlex.quote(advanced)} || exit 1\n"
         "fi\n"
@@ -275,8 +292,44 @@ def test_non_force_push_preserves_main_if_it_advances_after_the_rebase_check(wor
     shim.chmod(0o700)
     world.env["PATH"] = str(shim_dir) + os.pathsep + world.env["PATH"]
     result, output = world.publish(job, source, source)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert marker.exists()
+    assert "published=true" in output
+    assert world.git(world.remote, "rev-parse", "main^") == advanced
+    assert (
+        world.git(world.remote, "show", "main:concurrent-code.py")
+        == "concurrent code update"
+    )
+    assert (
+        world.git(world.remote, "show", "main:index.md")
+        == "generated report surviving push race"
+    )
+
+
+def test_persistent_push_failure_stops_after_bounded_retries_without_force(world):
+    source = world.git(world.writer, "rev-parse", "HEAD")
+    job = world.checkout(MAIN, source)
+    world.write_report(job, "unpublished generated report")
+    real_git = shutil.which("git")
+    assert real_git
+    shim_dir = world.root / "bin"
+    shim_dir.mkdir()
+    counter = world.root / "push-attempts"
+    shim = shim_dir / "git"
+    shim.write_text(
+        "#!/bin/sh\n"
+        'if [ "$1" = push ] && [ "$3" = HEAD:main ]; then\n'
+        f"  echo attempt >> {shlex.quote(str(counter))}\n"
+        '  echo "transient push error" >&2\n'
+        "  exit 1\n"
+        "fi\n"
+        f'exec {shlex.quote(real_git)} "$@"\n'
+    )
+    shim.chmod(0o700)
+    world.env["PATH"] = str(shim_dir) + os.pathsep + world.env["PATH"]
+    result, output = world.publish(job, source, source)
     assert result.returncode != 0
     assert "published=true" not in output
-    assert world.git(world.remote, "rev-parse", "main") == advanced
+    assert len(counter.read_text().splitlines()) == 3
+    assert world.git(world.remote, "rev-parse", "main") == source
     assert world.git(world.remote, "show", "main:index.md") == "initial report"
-    assert "fetch first" in result.stderr or "non-fast-forward" in result.stderr

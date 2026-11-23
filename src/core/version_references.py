@@ -44,6 +44,14 @@ VERSION_FIELD = re.compile(
     r"^(?P<prefix>-[ \t]+\*\*Affected Versions\*\*:[ \t]*)(?P<value>[^\r\n]*)$",
     re.MULTILINE,
 )
+STATE_FIELD_LINE = re.compile(
+    rf"^-[ \t]+\*\*{re.escape(STATE_FIELD)}\*\*:[ \t]*[^\r\n]*(?:\r?\n|$)",
+    re.MULTILINE,
+)
+REPORTING_FIELD_LINE = re.compile(
+    r"^-[ \t]+\*\*Reporting\*\*:[ \t]*[^\r\n]*(?:\r?\n|$)",
+    re.MULTILINE,
+)
 REFERENCE = re.compile(r"(?:unresolved-version|version)-[0-9a-f]{32}")
 VERSION_SHAPE = re.compile(
     r"\b(?:v\d+|\d+(?:\.(?:\d+|x|\*))+(?:[a-z][\w.-]*)?|\d+[ru]\d[\w.-]*|"
@@ -516,21 +524,64 @@ def validate_resolved_version_status(
         )
 
 
-def _unresolved_fallback(row: FindingRow, fields):
-    """Advisory grounding: mark one clean version field unresolved, or refuse."""
-    matches = list(VERSION_FIELD.finditer(row.body))
-    if len(matches) != 1 or STATE_FIELD in fields:
-        return None
-    field = matches[0]
-    tail = row.body[field.end() :]
-    next_field = FIELD.search(tail)
-    if tail[: next_field.start() if next_field else len(tail)].strip():
-        return None
-    return (
-        row.body_start + field.start("value"),
-        row.body_start + field.end("value"),
-        f"{UNRESOLVED}\n- **{STATE_FIELD}**: {VersionEvidenceStatus.UNRESOLVED.value}",
+def _unresolved_fallback_body(body: str) -> str:
+    """Advisory grounding: drop malformed version fields and emit unresolved state."""
+    cleaned = STATE_FIELD_LINE.sub("", body)
+    unresolved_block = (
+        f"- **Affected Versions**: {UNRESOLVED}\n"
+        f"- **{STATE_FIELD}**: {VersionEvidenceStatus.UNRESOLVED.value}"
     )
+    matches = list(VERSION_FIELD.finditer(cleaned))
+    if not matches:
+        reporting = REPORTING_FIELD_LINE.search(cleaned)
+        if reporting:
+            insert = unresolved_block + "\n"
+            if not reporting.group(0).endswith("\n"):
+                insert = "\n" + insert
+            return cleaned[: reporting.end()] + insert + cleaned[reporting.end() :]
+        prefix = "" if not cleaned or cleaned.endswith("\n") else "\n"
+        return cleaned + prefix + unresolved_block + "\n"
+
+    # Replace the first Affected Versions field (and any wrapped continuation)
+    # with the canonical unresolved pair, and drop duplicate version fields.
+    spans: list[tuple[int, int, str]] = []
+    for idx, field in enumerate(matches):
+        tail = cleaned[field.end() :]
+        next_field = FIELD.search(tail)
+        span_end = field.end() + next_field.start() if next_field else len(cleaned)
+        if idx == 0:
+            trailing_newline = (
+                "\n"
+                if next_field is not None
+                or cleaned[field.end() : span_end].endswith("\n")
+                else ""
+            )
+            replacement = (
+                f"{field['prefix']}{UNRESOLVED}\n"
+                f"- **{STATE_FIELD}**: {VersionEvidenceStatus.UNRESOLVED.value}"
+                f"{trailing_newline}"
+            )
+        else:
+            replacement = ""
+        spans.append((field.start(), span_end, replacement))
+    updated = cleaned
+    for start, end, replacement in reversed(spans):
+        updated = updated[:start] + replacement + updated[end:]
+    return updated
+
+
+def _attach_row_identity(
+    exc: EvidenceError,
+    row: FindingRow,
+    cves: tuple[str, ...],
+    keys: tuple[str, ...],
+    catalog: Mapping[str, ReportingSource],
+) -> EvidenceError:
+    exc.finding_index = row.index
+    exc.cves = cves
+    exc.source_keys = tuple(key for key in keys if key in catalog)
+    exc.finding_sha256 = row.sha256
+    return exc
 
 
 def resolve_version_references(
@@ -561,25 +612,44 @@ def _resolve_version_references(
     scopes = cve_scope_index(catalog)
     replacements = []
     for row in table.rows:
-        fields = row.fields()
+        body = row.body
         cves = tuple(sorted(row.cves))
         keys = row.cited_keys
+        state_dropped = False
         try:
             pairs = row.pairs
-            matches = list(VERSION_FIELD.finditer(row.body))
+            fields = row.fields()
+            if STATE_FIELD in fields:
+                if on_reject is None:
+                    raise _reject(
+                        "invalid_version_reference_field",
+                        "Version evidence status is host-owned",
+                    )
+                on_reject(
+                    _attach_row_identity(
+                        _reject(
+                            "invalid_version_reference_field",
+                            "Version evidence status is host-owned",
+                        ),
+                        row,
+                        cves,
+                        keys,
+                        catalog,
+                    )
+                )
+                body = STATE_FIELD_LINE.sub("", body)
+                state_dropped = True
+                pairs = tuple(FIELD.findall(body))
+                fields = dict(pairs)
+            matches = list(VERSION_FIELD.finditer(body))
             if len(pairs) != len(fields) or len(matches) != 1:
                 raise _reject(
                     "invalid_version_reference_field",
                     "Expected one version reference field",
                 )
-            if STATE_FIELD in fields:
-                raise _reject(
-                    "invalid_version_reference_field",
-                    "Version evidence status is host-owned",
-                )
             scope = _finding_scope(catalog, cves, keys, scopes)
             field = matches[0]
-            tail = row.body[field.end() :]
+            tail = body[field.end() :]
             next_field = FIELD.search(tail)
             if tail[: next_field.start() if next_field else len(tail)].strip():
                 raise _reject(
@@ -640,25 +710,27 @@ def _resolve_version_references(
                         )
                     rendered = "; ".join(dict.fromkeys(item.text for item in selected))
             rendered += f"\n- **{STATE_FIELD}**: {scope.state}"
-            replacements.append(
-                (
-                    row.body_start + field.start("value"),
-                    row.body_start + field.end("value"),
-                    rendered,
+            if state_dropped:
+                updated_body = (
+                    body[: field.start("value")] + rendered + body[field.end("value") :]
                 )
-            )
+                replacements.append((row.body_start, row.end, updated_body))
+            else:
+                replacements.append(
+                    (
+                        row.body_start + field.start("value"),
+                        row.body_start + field.end("value"),
+                        rendered,
+                    )
+                )
         except EvidenceError as exc:
-            exc.finding_index = row.index
-            exc.cves = cves
-            exc.source_keys = tuple(key for key in keys if key in catalog)
-            exc.finding_sha256 = row.sha256
+            _attach_row_identity(exc, row, cves, keys, catalog)
             if on_reject is None:
                 raise
-            fallback = _unresolved_fallback(row, fields)
-            if fallback is None:
-                raise
             on_reject(exc)
-            replacements.append(fallback)
+            replacements.append(
+                (row.body_start, row.end, _unresolved_fallback_body(body))
+            )
     if not replacements:
         raise _reject("missing_finding_section", "No finding version references")
     report = table.render(replacements)

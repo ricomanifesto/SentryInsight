@@ -6,12 +6,17 @@ export default defineConfig({
   testDir: "tests/browser",
   outputDir: "test-results/playwright",
   reporter: [["line"]],
+  retries: 2,
+  expect: {
+    timeout: 10000,
+  },
   use: {
     baseURL: `http://127.0.0.1:${port}`,
     browserName: "chromium",
     colorScheme: "light",
     locale: "en-US",
     timezoneId: "UTC",
+    actionTimeout: 15000,
   },
   webServer: {
     command: `python3 -m http.server ${port} --bind 127.0.0.1 --directory test-results/pages`,

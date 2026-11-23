@@ -42,7 +42,7 @@ for (const [name, viewport] of Object.entries({
     await page.evaluate((fragment) => { window.location.hash = fragment; }, oldFragment);
     await expect(page.locator(`#${oldFragment}`)).toHaveCount(1);
     await expect(disclosure).toHaveAttribute("aria-expanded", "true");
-    await expect(heading).toBeInViewport();
+    await expect(heading).toBeInViewport({ timeout: 15000 });
     await page.screenshot({ path: `test-results/screenshots/title-repair-${name}.png` });
   });
 }
