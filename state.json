@@ -6238,6 +6238,12 @@
       "run_id": "45173523072",
       "source_revision": "dde9ce258987da07c28392ee94feb827f0f930a8",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "digest:dde9ce258987da07c28392ee94feb827f0f930a8",
+      "at": "2026-11-23T12:25:28.187Z",
+      "run_id": "45173523072",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
