@@ -6574,6 +6574,17 @@
       "at": "2026-11-24T08:56:57.664Z",
       "run_id": "45359973301",
       "stage": "invoked"
+    },
+    {
+      "admission_key": "run:45359973301",
+      "at": "2026-11-24T08:57:06.362Z",
+      "attempt": 1,
+      "limit": 3,
+      "request_sha256": "4b0b5189a200eb568ff50b5cdab28b13b505fe3c5f039fd053654dd80e00cc3e",
+      "revision": "b9969f86e365109b309064a0dd8e050e04f413eb",
+      "run_id": "45359973301",
+      "stage": "request_reserved",
+      "token": "d113d880e50c0009ecb936091e067a12"
     }
   ],
   "schema_version": 1,
