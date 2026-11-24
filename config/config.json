@@ -4,6 +4,7 @@
     "analysis": {
         "model": "openrouter/nvidia/nemotron-3.5-super-vl:free",
         "grounding": "advisory",
+        "min_findings": 1,
         "max_tokens": 96000,
         "max_input_tokens": 200000,
         "triage": {

@@ -162,7 +162,7 @@ def build_run_snapshot(state: Mapping[str, Any] | None) -> dict[str, Any]:
             count_limit,
         )
     failure = state.get("failure") or {}
-    return {
+    snapshot: dict[str, Any] = {
         "schema": SCHEMA,
         "status": state.get("status"),
         "failure_codes": list(failure.get("codes") or []),
@@ -170,6 +170,14 @@ def build_run_snapshot(state: Mapping[str, Any] | None) -> dict[str, Any]:
         "source_outcomes": source_outcomes(state, articles),
         "dropped_articles": dropped,
     }
+    repair_attempts = state.get("repair_attempts")
+    if isinstance(repair_attempts, list) and repair_attempts:
+        from src.core.failure_receipt import sanitize_attempts
+
+        sanitized = sanitize_attempts(repair_attempts)
+        if sanitized:
+            snapshot["attempts"] = sanitized
+    return snapshot
 
 
 def write_run_snapshot(

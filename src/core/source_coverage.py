@@ -74,8 +74,59 @@ def _counts(plan: dict[str, Any], cited: Sequence[str]) -> dict[str, int]:
     }
 
 
+MAX_DROPPED_FINDINGS = 16
+_DROPPED_RULE_PATTERN = re.compile(r"^[a-z0-9_]{1,64}$")
+_DROPPED_FIELD_PATTERN = re.compile(r"^[A-Za-z0-9 _-]{1,64}$")
+
+
+def _normalize_dropped_findings(
+    dropped_findings: Sequence[dict[str, Any]] | None,
+) -> list[dict[str, Any]]:
+    if not dropped_findings:
+        return []
+    normalized: list[dict[str, Any]] = []
+    for entry in dropped_findings:
+        _require(isinstance(entry, dict))
+        _require(
+            set(entry)
+            == {"finding_index", "rule", "field", "repair_attempts", "source_keys"}
+        )
+        finding_index = entry["finding_index"]
+        rule = entry["rule"]
+        field = entry["field"]
+        repair_attempts = entry["repair_attempts"]
+        source_keys = entry["source_keys"]
+        _require(type(finding_index) is int and 1 <= finding_index <= 1_000_000)
+        _require(isinstance(rule, str) and bool(_DROPPED_RULE_PATTERN.fullmatch(rule)))
+        _require(
+            field is None
+            or (
+                isinstance(field, str) and bool(_DROPPED_FIELD_PATTERN.fullmatch(field))
+            )
+        )
+        _require(type(repair_attempts) is int and 0 <= repair_attempts <= 6)
+        _require(
+            isinstance(source_keys, list)
+            and all(isinstance(key, str) and bool(key) for key in source_keys)
+        )
+        normalized.append(
+            {
+                "finding_index": finding_index,
+                "rule": rule,
+                "field": field,
+                "repair_attempts": repair_attempts,
+                "source_keys": sorted(set(source_keys)),
+            }
+        )
+    _require(len(normalized) <= MAX_DROPPED_FINDINGS)
+    return normalized
+
+
 def make_source_coverage(
-    plan: dict[str, Any], cited_keys: Sequence[str]
+    plan: dict[str, Any],
+    cited_keys: Sequence[str],
+    *,
+    dropped_findings: Sequence[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     validate_review_packet(plan)
     cited = sorted(set(cited_keys))
@@ -85,16 +136,17 @@ def make_source_coverage(
         "cited_source_keys": cited,
         "counts": _counts(plan, cited),
     }
+    normalized_dropped = _normalize_dropped_findings(dropped_findings)
+    if normalized_dropped:
+        coverage["dropped_findings"] = normalized_dropped
     coverage["coverage_id"] = digest(coverage)
     return validate_source_coverage(coverage)
 
 
 def validate_source_coverage(coverage: Any) -> dict[str, Any]:
     _require(isinstance(coverage, dict))
-    _require(
-        set(coverage)
-        == {"schema_version", "plan", "cited_source_keys", "counts", "coverage_id"}
-    )
+    base_keys = {"schema_version", "plan", "cited_source_keys", "counts", "coverage_id"}
+    _require(set(coverage) in (base_keys, base_keys | {"dropped_findings"}))
     _require(
         type(coverage["schema_version"]) is int and coverage["schema_version"] == 1
     )
@@ -108,6 +160,13 @@ def validate_source_coverage(coverage: Any) -> dict[str, Any]:
     _require(cited == sorted(set(cited)))
     eligible = {row["key"] for row in plan["sources"] if row["state"] == "eligible"}
     _require(set(cited) <= eligible)
+    if "dropped_findings" in coverage:
+        raw_dropped = coverage["dropped_findings"]
+        _require(isinstance(raw_dropped, list) and bool(raw_dropped))
+        normalized = _normalize_dropped_findings(raw_dropped)
+        _require(raw_dropped == normalized)
+        for entry in normalized:
+            _require(set(entry["source_keys"]) <= eligible)
     counts = coverage["counts"]
     _require(
         isinstance(counts, dict)
@@ -170,12 +229,36 @@ def coverage_markdown(coverage: dict[str, Any]) -> str:
         "These are source counts, not finding counts. Held or rejected sources do not establish findings. "
         "An unrepresented source has not been declared irrelevant or reviewed. "
         "This report covers the eligible evidence, not a complete product advisory.",
-        "",
-        "Linked labels below are article titles, not asserted report findings.",
-        "",
-        "| Source article | Disposition |",
-        "| --- | --- |",
     ]
+    dropped = coverage.get("dropped_findings") or []
+    if dropped:
+        summary_items = [
+            (
+                f"finding #{entry['finding_index']} ({entry['rule']}"
+                + (f" on {entry['field']}" if entry["field"] else "")
+                + f", {entry['repair_attempts']} repair attempt(s))"
+            )
+            for entry in dropped
+        ]
+        lines.extend(
+            [
+                "",
+                (
+                    f"**Degraded publication.** {len(dropped)} finding(s) failed validation "
+                    f"after bounded repair and were omitted: {'; '.join(summary_items)}. "
+                    "Sources cited only by omitted findings remain unrepresented."
+                ),
+            ]
+        )
+    lines.extend(
+        [
+            "",
+            "Linked labels below are article titles, not asserted report findings.",
+            "",
+            "| Source article | Disposition |",
+            "| --- | --- |",
+        ]
+    )
     for row in coverage["plan"]["sources"]:
         label = _label(row["publisher"] + " — " + row["title"])
         state = source_disposition(row, coverage["cited_source_keys"])
@@ -201,11 +284,16 @@ def coverage_notice_html(coverage: dict[str, Any]) -> str:
         if counts["cited_sources"] < counts["input_sources"]
         else "Source coverage"
     )
+    dropped = coverage.get("dropped_findings") or []
+    dropped_notice = (
+        f" {len(dropped)} finding(s) omitted after repair failure." if dropped else ""
+    )
     return (
         '<p id="source-coverage-notice" class="vendor-guidance" role="note">'
         f"<strong>{heading}.</strong> "
         f"{counts['cited_sources']} of {counts['input_sources']} input sources are cited. "
-        f"{counts['review_required_sources']} await review; {counts['rejected_sources']} failed source validation. "
+        f"{counts['review_required_sources']} await review; {counts['rejected_sources']} failed source validation."
+        f"{dropped_notice} "
         '<a href="#source-coverage-and-review">Review source dispositions</a>.</p>'
     )
 
@@ -214,6 +302,7 @@ def coverage_html(coverage: dict[str, Any]) -> str:
     """Controlled markup: all source labels/URLs are escaped, never parsed as HTML."""
     validate_source_coverage(coverage)
     counts = coverage["counts"]
+    dropped = coverage.get("dropped_findings") or []
     parts = [
         '<section aria-labelledby="source-coverage-and-review">',
         '<h2 id="source-coverage-and-review">Source Coverage and Review</h2>',
@@ -222,9 +311,25 @@ def coverage_html(coverage: dict[str, Any]) -> str:
         "<p>These are source counts, not finding counts. Held or rejected sources do not establish findings. "
         "An unrepresented source has not been declared irrelevant or reviewed. "
         "This report covers the eligible evidence, not a complete product advisory.</p>",
+    ]
+    if dropped:
+        summary_items = [
+            html.escape(
+                f"finding #{entry['finding_index']} ({entry['rule']}"
+                + (f" on {entry['field']}" if entry["field"] else "")
+                + f", {entry['repair_attempts']} repair attempt(s))"
+            )
+            for entry in dropped
+        ]
+        parts.append(
+            f"<p><strong>Degraded publication.</strong> {len(dropped)} finding(s) failed validation "
+            f"after bounded repair and were omitted: {'; '.join(summary_items)}. "
+            "Sources cited only by omitted findings remain unrepresented.</p>"
+        )
+    parts.append(
         '<table width="100%"><caption>Linked article titles and source dispositions</caption>'
         '<thead><tr><th scope="col">Source article</th><th scope="col">Disposition</th></tr></thead><tbody>',
-    ]
+    )
     for row in coverage["plan"]["sources"]:
         label = html.escape(row["publisher"] + " — " + row["title"])
         url = html.escape(row["url"], quote=True)

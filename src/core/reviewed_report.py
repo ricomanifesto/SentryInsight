@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Callable, Mapping
+from typing import Any, Callable, Mapping, Sequence
 
 from .article_policy import contains_virtual_event_tag
 from .article_prompt import format_article_summary
@@ -167,6 +167,7 @@ def resolve_reviewed_analysis(
     *,
     on_stage: Callable[[str], None] | None = None,
     advisory: bool = False,
+    dropped_findings: Sequence[dict[str, Any]] = (),
 ) -> ReviewedReport:
     """Validate every finding; optionally observe fixed stage names, never text.
 
@@ -176,7 +177,12 @@ def resolve_reviewed_analysis(
     bounded reasons in ``advisories`` and publishes the report.
     """
     with derivation_scope():
-        return _resolve_reviewed_analysis(result, on_stage=on_stage, advisory=advisory)
+        return _resolve_reviewed_analysis(
+            result,
+            on_stage=on_stage,
+            advisory=advisory,
+            dropped_findings=dropped_findings,
+        )
 
 
 def _validate_finding_identities(report: str) -> None:
@@ -211,6 +217,7 @@ def _resolve_reviewed_analysis(
     *,
     on_stage: Callable[[str], None] | None,
     advisory: bool,
+    dropped_findings: Sequence[dict[str, Any]] = (),
 ) -> ReviewedReport:
     from .validation_diagnostics import validation_diagnostic
 
@@ -334,7 +341,9 @@ def _resolve_reviewed_analysis(
     if issues:
         raise ReviewedReportValidationError(issues)
     stage("source_coverage")
-    coverage = make_source_coverage(plan.packet, cited)
+    coverage = make_source_coverage(
+        plan.packet, cited, dropped_findings=dropped_findings
+    )
     stage("report_artifact")
     report_date = str(
         result.get("date") or datetime.now(timezone.utc).date().isoformat()

@@ -33,7 +33,6 @@ from .observability import (
 )
 from .report_artifact import (
     ReportArtifactError,
-    parse_report_artifact,
 )
 from .reporting import (
     ReportingGroundingError,
@@ -57,7 +56,13 @@ from .source_review import (
     write_review_packet,
     digest,
 )
-from .reviewed_report import resolve_reviewed_analysis, ReviewedReportValidationError
+from .reviewed_report import ReviewedReportValidationError, resolve_reviewed_analysis
+from .failure_classifier import classify_rule
+from .report_repair import (
+    InsufficientValidFindingsError,
+    attempt_record,
+    validate_and_repair_report,
+)
 from .validation_diagnostics import validation_diagnostic, sanitize_diagnostic
 from .publication_transaction import (
     PublicationError,
@@ -95,6 +100,8 @@ class ExploitationAnalysisState(TypedDict):
     source_review_count: NotRequired[int]
     grounding_advisories: NotRequired[list[dict]]
     triage: NotRequired[dict]
+    repair_attempts: NotRequired[list[dict]]
+    dropped_findings: NotRequired[list[dict]]
 
 
 def _advisory_grounding(config: Mapping[str, Any]) -> bool:
@@ -270,6 +277,16 @@ async def analyze_articles(
         if isinstance(error_class, str) and error_class in ANALYSIS_ERROR_CLASSES:
             codes.append(error_class)
         _record_failure(state, "analysis", codes)
+        # The original request is the only attempt; analysis failures are
+        # transient (already retried by the client) or fail fast, never repaired.
+        state["repair_attempts"] = [
+            attempt_record(
+                attempt=1,
+                kind="original",
+                classified=classify_rule(codes[-1]),
+                outcome="rejected",
+            )
+        ]
         state["status"] = "failed"
         return state
 
@@ -327,15 +344,50 @@ async def generate_report(
         ensure_no_pending_publication(root)
         write_review_packet(plan.packet, root / ".sentryinsight-review")
         reporting_catalog = plan.eligible_catalog
-        candidate = resolve_reviewed_analysis(
-            analysis_results, on_stage=observe_stage, advisory=advisory
+        # Only a draft from this run's own unverified original request may be
+        # repaired; paid verification never repairs.
+        outcome = await validate_and_repair_report(
+            analysis_results=analysis_results,
+            plan=plan,
+            config=config,
+            advisory=advisory,
+            repair_enabled=active_verification() is None
+            and analysis_results.get("repair_eligible") is True,
+            resolve=resolve_reviewed_analysis,
         )
+        state["repair_attempts"] = list(outcome.attempts)
+        state["dropped_findings"] = list(outcome.dropped_findings)
+        report = outcome.final_report
+        validation_stage = outcome.validation_stage
+        if outcome.error is not None:
+            raise outcome.error
+        candidate, artifact = outcome.candidate, outcome.artifact
+        if candidate is None or artifact is None:
+            raise SourceReviewError("invalid_review_candidate")
+        for entry in outcome.dropped_findings:
+            # Bounded labels only; the drop is also disclosed in source coverage.
+            logger.warning(
+                "Finding omitted after bounded repair: %s", json.dumps(entry)
+            )
         for reason in candidate.advisories:
             # Bounded categories only; the report publishes despite these.
             logger.warning("Report grounding advisory: %s", json.dumps(reason))
         state["grounding_advisories"] = list(candidate.advisories)
         report_source = candidate.source
-        artifact = parse_report_artifact(report_source)
+    except InsufficientValidFindingsError as exc:
+        logger.error("Report degradation blocked publication: %s", exc.code)
+        state["report_validation_errors"] = [exc.code]
+        _record_failure(state, "report_validation", [exc.code])
+        state["failure_diagnostic"] = sanitize_diagnostic(
+            {
+                "stage": "report_validation",
+                "codes": [exc.code],
+                "expected": exc.required,
+                "observed": exc.remaining,
+            }
+        )
+        state["status"] = "failed"
+        return state
     except (SourceReviewError, PublicationError, OSError) as exc:
         code = (
             exc.code

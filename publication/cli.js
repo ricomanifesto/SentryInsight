@@ -129,6 +129,7 @@ async function main() {
   }
 
   if (['admit', 'invoked', 'complete', 'request-reserve', 'request-finish',
+    'repair-reserve', 'repair-finish',
     'verification-reserve', 'verification-triage', 'verification-report'].includes(command)) {
     const admission = createAdmission({
       repoRoot: REPO_ROOT,
@@ -178,6 +179,15 @@ async function main() {
         : await admission.finishRequest({ ...args, attempt: Number(options.attempt), token: options.token, disposition: options.disposition, retryAfterSeconds: Number(options.retry_after) });
       // The Python bridge consumes this bounded response. Do not copy opaque
       // reservation handles into Actions outputs or step summaries.
+      process.stdout.write(`${JSON.stringify(result)}\n`);
+      return;
+    }
+    if (command === 'repair-reserve' || command === 'repair-finish') {
+      if (git.run(['rev-parse', 'HEAD']).trim() !== options.revision) throw new Error('repair source revision mismatch');
+      const args = { admissionKey: options.key, runId: options.run_id, revision: options.revision,
+        requestSha256: options.request_sha256, maxRepairs: Number(options.max_repairs) };
+      const result = command === 'repair-reserve' ? await admission.reserveRepair(args)
+        : await admission.finishRepair({ ...args, slot: Number(options.slot), token: options.token, disposition: options.disposition, retryAfterSeconds: Number(options.retry_after) });
       process.stdout.write(`${JSON.stringify(result)}\n`);
       return;
     }

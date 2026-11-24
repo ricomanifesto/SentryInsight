@@ -54,8 +54,31 @@ _RECEIPT_FIELDS = frozenset(
         "request",
         "diagnostic",
         "retry",
+        "attempts",
+        "dropped_findings",
     }
 )
+MAX_ATTEMPT_LINES = 16
+MAX_DROPPED_LINES = 8
+_ATTEMPT_KINDS = frozenset(
+    {"original", "repair_finding", "repair_section", "repair_report", "drop_finding"}
+)
+_FAILURE_CLASSES = frozenset({"repairable", "transient", "fail_fast"})
+_ATTEMPT_OUTCOMES = frozenset(
+    {
+        "validated",
+        "rejected",
+        "repaired",
+        "splice_rejected",
+        "repair_request_failed",
+        "budget_refused",
+        "dropped_and_validated",
+        "dropped_revalidation_failed",
+        "blocked_min_findings",
+    }
+)
+_SAFE_RULE_PATTERN = r"[a-z0-9_]{1,64}"
+_SAFE_FIELD_PATTERN = r"[A-Za-z0-9 _-]{1,64}"
 
 
 class FailureReceiptError(RuntimeError):
@@ -153,6 +176,70 @@ def decision_for(status, diagnostic, request, report_generated):
     return advice
 
 
+def sanitize_attempts(value: object) -> list[dict]:
+    """Keep only bounded, allowlisted per-attempt receipt lines; never text or secrets."""
+    if type(value) is not list:
+        return []
+    sanitized: list[dict] = []
+    for raw in value[:MAX_ATTEMPT_LINES]:
+        if type(raw) is not dict:
+            continue
+        attempt = _integer(raw.get("attempt"), 1, MAX_ATTEMPT_LINES)
+        kind = raw.get("kind")
+        outcome = raw.get("outcome")
+        if (
+            attempt is None
+            or type(kind) is not str
+            or kind not in _ATTEMPT_KINDS
+            or type(outcome) is not str
+            or outcome not in _ATTEMPT_OUTCOMES
+        ):
+            continue
+        failure_class = raw.get("failure_class")
+        if type(failure_class) is not str or failure_class not in _FAILURE_CLASSES:
+            failure_class = None
+        sanitized.append(
+            {
+                "attempt": attempt,
+                "kind": kind,
+                "failure_class": failure_class,
+                "rule": _label(raw.get("rule"), _SAFE_RULE_PATTERN),
+                "finding_index": _integer(raw.get("finding_index"), 1, 1_000_000),
+                "field": _label(raw.get("field"), _SAFE_FIELD_PATTERN),
+                "outcome": outcome,
+                "request_sha256": _label(raw.get("request_sha256"), r"[a-f0-9]{64}"),
+            }
+        )
+    return sanitized
+
+
+def sanitize_dropped_findings(value: object) -> list[dict]:
+    """Bounded dropped-finding disclosures: labels and counts, never text.
+
+    Source keys stay in host-owned source coverage, keeping the receipt small.
+    """
+    if type(value) is not list:
+        return []
+    sanitized: list[dict] = []
+    for raw in value[:MAX_DROPPED_LINES]:
+        if type(raw) is not dict:
+            continue
+        finding_index = _integer(raw.get("finding_index"), 1, 1_000_000)
+        rule = _label(raw.get("rule"), _SAFE_RULE_PATTERN)
+        repair_attempts = _integer(raw.get("repair_attempts"), 0, 6)
+        if finding_index is None or rule is None or repair_attempts is None:
+            continue
+        sanitized.append(
+            {
+                "finding_index": finding_index,
+                "rule": rule,
+                "field": _label(raw.get("field"), _SAFE_FIELD_PATTERN),
+                "repair_attempts": repair_attempts,
+            }
+        )
+    return sanitized
+
+
 def make_receipt(
     state: dict | None, *, request=None, started=False, environ=None
 ) -> dict:
@@ -183,6 +270,10 @@ def make_receipt(
     identity["source_revision"] = _label(
         env.get("SENTRYINSIGHT_SOURCE_REVISION", env.get("GITHUB_SHA")), r"[a-f0-9]{40}"
     )
+    attempts = [] if started else sanitize_attempts(state.get("repair_attempts"))
+    dropped = (
+        [] if started else sanitize_dropped_findings(state.get("dropped_findings"))
+    )
     return {
         "schema_version": 1,
         **identity,
@@ -194,6 +285,8 @@ def make_receipt(
         "request": request,
         "diagnostic": diagnostic,
         "retry": decision_for(status, diagnostic, request, generated),
+        "attempts": attempts,
+        "dropped_findings": dropped,
     }
 
 
@@ -208,6 +301,8 @@ def validate_receipt(value) -> dict:
         "status": value["status"],
         "report_generated": value["report_generated"],
         "source_review_plan": {"plan_id": value["plan_id"]},
+        "repair_attempts": value["attempts"],
+        "dropped_findings": value["dropped_findings"],
     }
     if value["diagnostic"] is not None:
         state["failure_diagnostic"] = value["diagnostic"]

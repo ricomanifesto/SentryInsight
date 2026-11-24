@@ -39,7 +39,8 @@ The body is strict JSON, at most 64 KiB:
     "source_commit": "<40 hex> | null",
     "outcome": "succeeded | failed",
     "reason": "<token> | null",
-    "source_outcomes": {"<link>": "executed | filtered | review_required | source_rejected", "…": "…"} | null
+    "source_outcomes": {"<link>": "executed | filtered | review_required | source_rejected", "…": "…"} | null,
+    "attempts": [{"attempt": 1, "kind": "original", "failure_class": null, "rule": null, "finding_index": null, "field": null, "outcome": "validated", "request_sha256": "<64 hex> | null"}]
   },
   "artifact": {"files": [{"path": "index.md", "sha256": "<an uploaded blob>", "bytes": 1234}]} | null
 }
@@ -56,6 +57,7 @@ The body is strict JSON, at most 64 KiB:
 - A `succeeded` run names its `source_commit` and an artifact, and has no `reason`.
 - A `failed` run names a `reason`, has no artifact and reports no source outcomes.
 - `source_outcomes`, when reported, names every snapshot link exactly once: `executed` when the source was given to the model, otherwise the reason it was not (`filtered`, `review_required`, `source_rejected`). `null` means the producer did not establish them, and the export then says `not_reported`.
+- `attempts` is optional: 1 to 16 bounded generation lines, one per original, repair or degradation attempt. Each has exactly the keys shown, with fixed labels for `kind` (`original`, `repair_finding`, `repair_section`, `repair_report`, `drop_finding`), `failure_class` (`repairable`, `transient`, `fail_fast` or null) and `outcome`; `rule` and `field` are short labels; `finding_index` is a positive integer or null; `request_sha256` is a digest or null. No candidate or source text is accepted. The lines are part of the fact record and are kept in the `projected` audit event.
 - No run-completion time is accepted. The store records when it recorded the run; it does not claim when the producer's run completed.
 
 **The artifact:** the listing follows the artifact rules in `contracts/execution-service.md`: path grammar, segment order, sizes and the digest over path, NUL, file digest and newline. Every part must be an uploaded blob of the listed length.

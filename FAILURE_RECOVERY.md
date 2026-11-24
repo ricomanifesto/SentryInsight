@@ -38,7 +38,8 @@ publication decision.
 
 Production uses the existing `publication-admission` compare-and-set store. Every
 HTTP attempt reserves a slot before transmission, including the initial request
-and internal client retries. The limit remains three total attempts. Reservations
+and internal client retries. The limit remains three total attempts per original
+request episode. Reservations
 bind the admission/run identity, source revision and a hash of the exact request
 (including prompt, model, routing and token limit). A different request, revision,
 limit or owner cannot reuse that episode. These operational records persist on
@@ -71,6 +72,49 @@ ordinary restarts cannot. Diagnostic advice alone
 cannot bypass them. There is no additional workflow retry loop or scheduled
 recovery controller.
 
+## Informed repair
+
+Once the original request episode records `response_received`, it accepts no
+further send. A draft that then fails validation may receive a separate,
+bounded repair, which never reopens that episode:
+
+- A classifier maps every failure to one class. `repairable`: a named contract,
+  validation or grounding rule. `transient`: a timeout, 408, 429, 5xx or
+  network error, already retried inside the original episode. `fail_fast`:
+  authentication, quota, configuration, model identity, source or Reporting
+  identity, site safety, integrity, the output-token limit, and anything
+  unrecognized. Only `repairable` failures are repaired.
+- Each repair request reserves its own slot in the same `publication-admission`
+  store, under `repair_reserved`/`repair_finished` records distinct from the
+  original episode's, bound to its own `request_sha256`. The store refuses a
+  repair slot unless the original episode's latest completion is
+  `response_received`, while another repair slot is unfinished, after six slots
+  in the admitted run, or when the run holds a paid-verification reservation.
+  Paid verification never repairs.
+- A finding-level failure regenerates only that finding's block. The request
+  carries the rule code, the field, the offending draft value (at most 400
+  characters), fixed guidance for a valid value, and only the material from
+  the original request for the sources that finding already cited. A repaired
+  block may keep or narrow its own citations, never add one. A failure
+  outside findings repairs its section; a report-level failure such as a
+  repeated section gets one full regeneration. Limits: three rounds per finding
+  or section, one full regeneration, six repair requests and 20 minutes of
+  repair requests per run.
+- After every splice or drop, the complete validation and grounding pipeline
+  runs again at its unchanged bar.
+- A finding that still fails after its rounds, or once the run's repair
+  requests are spent, is omitted. The omission is disclosed in the generation
+  receipt and in host-owned source coverage; sources cited only by omitted
+  findings show as not represented, never as cited. The report publishes only
+  while at least `analysis.min_findings` (default 1) findings remain.
+  Identity, integrity and site-safety failures always block the whole report.
+- Every attempt (original, repair or omission) adds one bounded line to the
+  generation receipt, the step summary and the report-history projection:
+  attempt number, kind, class, rule, finding number, field, outcome and request
+  digest. Lines carry no candidate, prompt or source text. Deploy the history
+  Worker's projection validator before a producer that sends these lines; an
+  older Worker refuses the projection, which the workflow reports as a warning.
+
 ## Decisions
 
 | Observation | Behavior |
@@ -81,7 +125,8 @@ recovery controller.
 | Read/write timeout, interrupted response, bare transient status, malformed HTTP 200, conflicting response metadata | Hold for reconciliation; no automatic replay |
 | Authentication/payment/configuration error or wrong resolved model | Stop for repair; no provider, credential or price fallback |
 | Output limit (`finish_reason=length`) | Reject partial output; allow at most one bounded recovery attempt (raising `max_tokens` to the free route's 131,072 ceiling without tightening reasoning) within the same three-attempt and wall-clock budgets, then preserve last-good output and advise `repair_required` |
-| Evidence/content validation failure | Preserve last-good output; correct the cause offline before another authorized request |
+| Repairable evidence, content or artifact validation failure | Informed repair as above, then full revalidation; omit and disclose a finding that stays invalid when at least `min_findings` remain, otherwise preserve last-good output |
+| Identity, integrity or site-safety failure | Fail fast without repair or omission; preserve last-good output |
 | Ambiguous source evidence | Preserve the existing explicit source-review state and coverage |
 | Publication failure after validation | Investigate/recover existing artifacts through the publisher; do not regenerate |
 

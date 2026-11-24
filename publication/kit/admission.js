@@ -30,6 +30,7 @@ const { createGit } = require('./git');
 const { LAYOUT, SHA1, SHA256, releaseKeyOf } = require('./release');
 const { createStore } = require('./store');
 const { createRequestBudget } = require('./request-budget');
+const { createRepairBudget } = require('./repair-budget');
 const { createVerificationBudget } = require('./verification-budget');
 
 const DIGEST_REPOSITORY = 'ricomanifesto/SentryDigest';
@@ -361,6 +362,7 @@ function createAdmission({
     return admittedIndex;
   }
   const requests = createRequestBudget({ store, now, requireOwner });
+  const repairs = createRepairBudget({ store, requireOwner });
   const verification = createVerificationBudget({ store, now, requireOwner(records, key, run) {
     const index = requireOwner(records, key, run);
     if (consumer !== 'SentryInsight' || records[index].event !== 'workflow_dispatch'
@@ -369,7 +371,7 @@ function createAdmission({
     }
     return index;
   } });
-  return { admit, complete, invoked, ...requests,
+  return { admit, complete, invoked, ...requests, ...repairs,
     reserveVerification: verification.reserve, claimVerificationTriage: verification.claimTriage,
     assertVerificationReport: verification.assertReport, readState: () => store.read() };
 }

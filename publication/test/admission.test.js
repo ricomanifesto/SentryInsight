@@ -8,6 +8,7 @@ const { createAdmission, findAdmissionReport, snapshotFeedUrl } = require('../ki
 const { canonicalJson } = require('../kit/canonical');
 const { loadSiteConfig } = require('../kit/config');
 const { createGit } = require('../kit/git');
+const { createRepairBudget } = require('../kit/repair-budget');
 const { LAYOUT, buildDescriptor } = require('../kit/release');
 const { GIT_ENV, git, sha256, siteConfig, tempDir } = require('./helpers');
 const { createWorld } = require('./world');
@@ -689,4 +690,56 @@ test('a failed digest run recorded unresolved never blocks subsequent readmitted
   const nextDispatch = await world.admission().admit(dispatch(nextRelease.event, 903, { readmit: true }));
   assert.equal(nextDispatch.decision, 'admitted');
   await world.admission().invoked({ admissionKey: nextDispatch.admission_key, runId: '903' });
+});
+
+const repairIdentity = (bound, digit = 'c', extra = {}) => ({
+  admissionKey: bound.admissionKey, runId: bound.runId, revision: bound.revision,
+  requestSha256: digit.repeat(64), maxRepairs: 6, ...extra,
+});
+async function respondedWorld(t) {
+  const { world, bound } = await requestWorld(t);
+  const reservation = await world.admission().reserveRequest(bound);
+  await world.admission().finishRequest({ ...bound, ...reservation, disposition: 'response_received', retryAfterSeconds: 0 });
+  return { world, bound };
+}
+
+test('repair slots need a received original response and never reopen the original episode', async (t) => {
+  const { world, bound } = await requestWorld(t);
+  await assert.rejects(world.admission().reserveRepair(repairIdentity(bound)), /received original response/);
+  const reservation = await world.admission().reserveRequest(bound);
+  await world.admission().finishRequest({ ...bound, ...reservation, disposition: 'response_received', retryAfterSeconds: 0 });
+  const slot = await world.admission().reserveRepair(repairIdentity(bound));
+  assert.equal(slot.slot, 1);
+  await world.admission().finishRepair({ ...repairIdentity(bound), slot: slot.slot, token: slot.token, disposition: 'response_received', retryAfterSeconds: 0 });
+  // The original episode stays closed after repairs.
+  await assert.rejects(world.admission().reserveRequest(bound), /held/);
+  const stages = (await world.records()).map((r) => r.stage);
+  assert.equal(stages.filter((s) => s === 'request_reserved').length, 1);
+  assert.equal(stages.filter((s) => s === 'repair_reserved').length, 1);
+});
+
+test('repair budget caps six slots per run, one at a time, each bound to its own digest', async (t) => {
+  const { world, bound } = await respondedWorld(t);
+  const digits = ['1', '2', '3', '4', '5', '6'];
+  for (const [index, digit] of digits.entries()) {
+    const identity = repairIdentity(bound, digit);
+    const slot = await world.admission().reserveRepair(identity);
+    assert.equal(slot.slot, index + 1);
+    assert.equal(slot.request_sha256, digit.repeat(64));
+    await assert.rejects(world.admission().reserveRepair(repairIdentity(bound, '7')), /unfinished slot/);
+    await assert.rejects(world.admission().finishRepair({ ...repairIdentity(bound, '8'), slot: slot.slot, token: slot.token, disposition: 'response_received', retryAfterSeconds: 0 }), /not owned/);
+    await world.admission().finishRepair({ ...identity, slot: slot.slot, token: slot.token, disposition: 'response_received', retryAfterSeconds: 0 });
+  }
+  await assert.rejects(world.admission().reserveRepair(repairIdentity(bound, '9')), /exhausted/);
+  await assert.rejects(world.admission().reserveRepair(repairIdentity(bound, '9', { maxRepairs: 7 })), /limit/);
+  await assert.rejects(world.admission().reserveRepair(repairIdentity(bound, '9', { runId: '801' })), /owned/);
+});
+
+test('repair slots are refused during paid verification', async (t) => {
+  const { world, bound } = await respondedWorld(t);
+  const records = await world.records();
+  records.push({ stage: 'verification_reserved', admission_key: bound.admissionKey, run_id: bound.runId, at: new Date().toISOString() });
+  const replay = createRepairBudget({ store: { append: async (decide) => ({ value: decide(records).value }) },
+    requireOwner: (rows, key) => rows.findLastIndex((r) => r.admission_key === key && r.stage === 'admitted') });
+  await assert.rejects(replay.reserveRepair(repairIdentity(bound)), /paid verification/);
 });

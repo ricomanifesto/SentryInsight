@@ -113,6 +113,7 @@ def projection_request(
     outcome: str,
     reason: str | None,
     source_outcomes: Mapping[str, str] | None,
+    attempts: Sequence[Mapping[str, Any]] | None = None,
 ) -> dict[str, Any]:
     listing = None
     if files is not None:
@@ -123,21 +124,26 @@ def projection_request(
             ),
             key=lambda f: _segments_key(f["path"]),
         )
+    run_payload: dict[str, Any] = {
+        "execution_id": execution_id,
+        "source_commit": source_commit,
+        "outcome": outcome,
+        "reason": reason,
+        "source_outcomes": (None if source_outcomes is None else dict(source_outcomes)),
+    }
+    if attempts:
+        from src.core.failure_receipt import sanitize_attempts
+
+        sanitized = sanitize_attempts(list(attempts))
+        if sanitized:
+            run_payload["attempts"] = sanitized
     return {
         "schema": PROJECTION_SCHEMA,
         "pipeline": pipeline,
         "policy_id": policy_id,
         "source_revision": source_revision,
         "snapshot_sha256": sha256(snapshot),
-        "run": {
-            "execution_id": execution_id,
-            "source_commit": source_commit,
-            "outcome": outcome,
-            "reason": reason,
-            "source_outcomes": (
-                None if source_outcomes is None else dict(source_outcomes)
-            ),
-        },
+        "run": run_payload,
         "artifact": None if listing is None else {"files": listing},
     }
 
@@ -279,6 +285,7 @@ def plan_run(
         reason=reason,
         # Only a published run carries established source outcomes.
         source_outcomes=run_snapshot.get("source_outcomes") if succeeded else None,
+        attempts=run_snapshot.get("attempts"),
     )
     return snapshot, files if succeeded else None, request
 

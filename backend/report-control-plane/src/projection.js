@@ -29,6 +29,29 @@ const OUTCOMES = new Set(["succeeded", "failed"]);
 // reason the producer established (contracts/projection.md).
 export const SOURCE_OUTCOMES = new Set(["executed", "filtered", "review_required", "source_rejected"]);
 const FACTS_DOMAIN = "report-control-plane/projection-facts/1\n";
+const ATTEMPT_KINDS = new Set(["original", "repair_finding", "repair_section", "repair_report", "drop_finding"]);
+const FAILURE_CLASSES = new Set(["repairable", "transient", "fail_fast"]);
+const ATTEMPT_OUTCOMES = new Set([
+  "validated", "rejected", "repaired", "splice_rejected", "repair_request_failed",
+  "budget_refused", "dropped_and_validated", "dropped_revalidation_failed", "blocked_min_findings",
+]);
+const SAFE_RULE = /^[a-z0-9_]{1,64}$/;
+const SAFE_FIELD = /^[A-Za-z0-9 _-]{1,64}$/;
+
+function validateAttempts(attempts) {
+  if (!Array.isArray(attempts) || attempts.length === 0 || attempts.length > 16) refuse("run_invalid");
+  for (const item of attempts) {
+    exactKeys(item, ["attempt", "kind", "failure_class", "rule", "finding_index", "field", "outcome", "request_sha256"]);
+    if (!Number.isInteger(item.attempt) || item.attempt < 1 || item.attempt > 16) refuse("run_invalid");
+    if (typeof item.kind !== "string" || !ATTEMPT_KINDS.has(item.kind)) refuse("run_invalid");
+    if (!(item.failure_class === null || (typeof item.failure_class === "string" && FAILURE_CLASSES.has(item.failure_class)))) refuse("run_invalid");
+    if (!(item.rule === null || (typeof item.rule === "string" && SAFE_RULE.test(item.rule)))) refuse("run_invalid");
+    if (!(item.finding_index === null || (Number.isInteger(item.finding_index) && item.finding_index >= 1 && item.finding_index <= 1000000))) refuse("run_invalid");
+    if (!(item.field === null || (typeof item.field === "string" && SAFE_FIELD.test(item.field)))) refuse("run_invalid");
+    if (typeof item.outcome !== "string" || !ATTEMPT_OUTCOMES.has(item.outcome)) refuse("run_invalid");
+    if (!(item.request_sha256 === null || (typeof item.request_sha256 === "string" && HEX64.test(item.request_sha256)))) refuse("run_invalid");
+  }
+}
 
 export class ProjectionRefused extends Error {
   constructor(status, reason) {
@@ -89,7 +112,13 @@ export function parseProjection(bytes) {
   }
   if (typeof value.snapshot_sha256 !== "string" || !HEX64.test(value.snapshot_sha256)) refuse("snapshot_invalid");
   const run = value.run;
-  exactKeys(run, ["execution_id", "source_commit", "outcome", "reason", "source_outcomes"]);
+  const runKeys = ["execution_id", "source_commit", "outcome", "reason", "source_outcomes"];
+  if (run !== null && typeof run === "object" && !Array.isArray(run) && Object.hasOwn(run, "attempts")) {
+    exactKeys(run, [...runKeys, "attempts"]);
+    validateAttempts(run.attempts);
+  } else {
+    exactKeys(run, runKeys);
+  }
   if (typeof run.execution_id !== "string" || !ID_TOKEN.test(run.execution_id)) refuse("run_invalid");
   if (!(run.source_commit === null || (typeof run.source_commit === "string" && COMMIT.test(run.source_commit)))) refuse("run_invalid");
   if (!OUTCOMES.has(run.outcome)) refuse("run_invalid");
@@ -314,7 +343,11 @@ export async function project(env, principal, bytes) {
       operationId: id,
       kind: "projected",
       token: projection.run.outcome,
-      detail: { articles: parsed.articles.length, executed: executedCount, files: artifact?.file_count ?? 0 },
+      // Bounded per-attempt generation lines (labels, counts, digests), when reported.
+      detail: {
+        articles: parsed.articles.length, executed: executedCount, files: artifact?.file_count ?? 0,
+        ...(projection.run.attempts ? { attempts: projection.run.attempts } : {}),
+      },
       at,
     }),
   );

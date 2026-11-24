@@ -17,6 +17,7 @@ from .openrouter_client import OPENROUTER_API_KEY_ENV_VAR, OpenRouterClient
 from .attempt_budget import AdmissionAttemptBudget, AttemptBudgetError
 from .failure_receipt import ENV_PATH, record_request
 from .paid_verification import active_verification
+from .repair_budget import RepairBudget, RepairBudgetError, RepairSlotAttemptBudget
 
 
 class ReportModelClient(Protocol):
@@ -72,3 +73,35 @@ def build_model_client(
             ),
         )
     return OpenCodeClient(timeout=timeout)
+
+
+def build_repair_client(
+    *,
+    repair_budget: RepairBudget,
+    timeout: float,
+    max_tokens: int,
+    reasoning_max_tokens: int | None = None,
+) -> OpenRouterClient:
+    """Return a single-send OpenRouter client bound to one separate repair slot.
+
+    Repair needs the production client: without an API key, or during paid
+    verification, no repair request is built.
+    """
+    if active_verification() is not None:
+        raise RepairBudgetError(
+            "Repair requests are forbidden during paid verification"
+        )
+    api_key = os.getenv(OPENROUTER_API_KEY_ENV_VAR, "").strip()
+    durable = os.getenv("SENTRYINSIGHT_ATTEMPT_STORE")
+    if not api_key or (durable and (durable != "admission" or not os.getenv(ENV_PATH))):
+        raise RepairBudgetError("Repair requires the production client and store")
+    return OpenRouterClient(
+        api_key=api_key,
+        max_tokens=max_tokens,
+        reasoning_max_tokens=reasoning_max_tokens,
+        timeout=timeout,
+        total_timeout=timeout,
+        output_limit_recovery=False,
+        max_attempts=1,
+        attempt_budget=RepairSlotAttemptBudget(repair_budget),
+    )

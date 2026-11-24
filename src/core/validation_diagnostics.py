@@ -289,6 +289,7 @@ WORKFLOW_CODES = (
         "invalid_publication_stage",
         "filesystem_error",
         "archive_conflict",
+        "insufficient_valid_findings",
     }
 )
 

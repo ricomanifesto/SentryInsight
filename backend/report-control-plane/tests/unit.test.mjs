@@ -175,3 +175,37 @@ test("the projection facts digest covers every accepted field, and nothing else 
   unknown.run.source_outcomes["https://example.test/a"] = "skipped";
   assert.throws(() => parseProjection(enc(JSON.stringify(unknown))), ProjectionRefused);
 });
+
+test("projected generation attempt lines are bounded labels in the fact record", async () => {
+  const { factsDigest, parseProjection, ProjectionRefused } = await import("../src/projection.js");
+  const line = {
+    attempt: 1, kind: "original", failure_class: "repairable", rule: "malformed_markdown",
+    finding_index: 2, field: null, outcome: "rejected", request_sha256: sha("request"),
+  };
+  const request = {
+    schema: "report-control-plane/projection/1",
+    pipeline: "reports",
+    policy_id: "production",
+    source_revision: "actions:1:1",
+    snapshot_sha256: sha("snapshot"),
+    run: {
+      execution_id: "actions-run-1-1", source_commit: sha("commit").slice(0, 40), outcome: "succeeded",
+      reason: null, source_outcomes: null,
+      attempts: [line, { ...line, attempt: 2, kind: "repair_finding", outcome: "repaired", request_sha256: sha("repair") }],
+    },
+    artifact: { files: [{ path: "index.md", sha256: sha("report"), bytes: 9 }] },
+  };
+  const parsed = parseProjection(enc(JSON.stringify(request)));
+  assert.equal(parsed.run.attempts.length, 2);
+  const changed = structuredClone(request);
+  changed.run.attempts[1].outcome = "splice_rejected";
+  assert.notEqual(await factsDigest(parseProjection(enc(JSON.stringify(changed)))), await factsDigest(parsed));
+  for (const bad of [
+    [], Array(17).fill(line), [{ ...line, excerpt: "model text" }], [{ ...line, rule: "Free text rule" }],
+    [{ ...line, kind: "retry" }], [{ ...line, outcome: "published" }], [{ ...line, request_sha256: "x" }],
+  ]) {
+    const refused = structuredClone(request);
+    refused.run.attempts = bad;
+    assert.throws(() => parseProjection(enc(JSON.stringify(refused))), ProjectionRefused);
+  }
+});
