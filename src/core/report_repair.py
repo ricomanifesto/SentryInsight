@@ -13,7 +13,8 @@ grounding pipeline runs again at its unchanged bar.
 
 Limits: three rounds per finding or section, at most one full-report
 regeneration, and six repair requests per run in total. A finding still
-failing after its rounds is dropped and disclosed; the report publishes only
+failing after its rounds is dropped and disclosed; a finding never degrades
+only because attempted repairs got no response. The report publishes only
 while at least ``analysis.min_findings`` findings remain. Identity, integrity
 and site-safety failures always block, and repair is disabled during paid
 verification.
@@ -31,6 +32,7 @@ from typing import Any, Callable, Mapping
 
 from .article_prompt import format_article_summary
 from .attempt_budget import AttemptBudgetError
+from .cve import extract_cve_ids
 from .exploitation_prompt import (
     ANALYSIS_SYSTEM_PROMPT,
     build_exploitation_prompt,
@@ -38,7 +40,11 @@ from .exploitation_prompt import (
     version_scope_emission,
 )
 from .failure_classifier import ClassifiedFailure, classify_failure
-from .finding_evidence import EvidenceError, build_finding_detail_context
+from .finding_evidence import (
+    UNICODE_DASH_RE,
+    EvidenceError,
+    build_finding_detail_context,
+)
 from .model_client import build_repair_client
 from .model_config import resolve_model, validate_model
 from .opencode_client import ModelSelection, parse_model_selection
@@ -54,6 +60,7 @@ from .repair_budget import (
 )
 from .report_artifact import (
     Action,
+    CVE_ID_PATTERN,
     ExploitationStatus,
     ReportArtifact,
     ReportArtifactError,
@@ -324,22 +331,6 @@ def _prepared(report: str) -> str | None:
         return None
 
 
-def _malformed_rows(report: str) -> list[FindingRow]:
-    """Raw finding rows whose normalized text still fails the markdown rule."""
-    prepared = _prepared(report)
-    raw_rows = report_findings(report).rows
-    if prepared is None:
-        return []
-    prepared_rows = report_findings(prepared).rows
-    if len(raw_rows) != len(prepared_rows):
-        return []
-    return [
-        raw
-        for raw, normalized in zip(raw_rows, prepared_rows)
-        if malformed_bold_list_detail(normalized.text) is not None
-    ]
-
-
 def _sections(report: str) -> list[tuple[str, int, int]]:
     matches = list(_SECTION_RE.finditer(report))
     return [
@@ -363,12 +354,6 @@ def _locate_finding(report: str, rejection: _Rejection) -> FindingRow | None:
     if not rows:
         return None
     rule = rejection.classified.rule
-    if rule == "malformed_markdown":
-        failing = _malformed_rows(report)
-        excerpt = rejection.diagnostic.get("markdown_excerpt")
-        if isinstance(excerpt, str) and excerpt.strip():
-            failing = [row for row in failing if excerpt.strip() in row.text] or failing
-        return failing[0] if failing else None
     if rule == "missing_descriptive_finding_title":
         for row in rows:
             name = re.sub(r"\bCVE-\d{4}-\d{4,}\b", "", row.title, flags=re.I)
@@ -397,29 +382,57 @@ def _locate_finding(report: str, rejection: _Rejection) -> FindingRow | None:
     return None
 
 
+def _locate_markdown(report: str, rejection: _Rejection) -> _Unit:
+    """Target the exact failed token, not an unrelated malformed block."""
+    broad = _Unit("report")
+    prepared = _prepared(report)
+    excerpt = rejection.diagnostic.get("markdown_excerpt")
+    reason = rejection.diagnostic.get("markdown_reason")
+    if prepared is None or not isinstance(excerpt, str) or not excerpt or not reason:
+        return broad
+
+    candidates: list[tuple[int, _Unit]] = []
+
+    def consider(unit: _Unit, start: int, end: int) -> None:
+        detail = malformed_bold_list_detail(prepared[start:end])
+        if detail is not None and (detail.reason, detail.excerpt) == (reason, excerpt):
+            candidates.append((prepared.count("\n", 0, start) + detail.line, unit))
+
+    raw_rows = report_findings(report).rows
+    normalized_rows = report_findings(prepared).rows
+    if len(raw_rows) == len(normalized_rows):
+        for raw, normalized in zip(raw_rows, normalized_rows):
+            consider(_Unit("finding", row=raw), normalized.start, normalized.end)
+
+    raw_sections = {h: (start, end) for h, start, end in _sections(report)}
+    for heading, start, end in _sections(prepared):
+        if heading != FINDINGS_HEADING and heading in raw_sections:
+            begin, finish = raw_sections[heading]
+            consider(
+                _Unit("section", heading=heading, start=begin, end=finish), start, end
+            )
+
+    # Later normalization can shift lines. Use exact positional proof when
+    # available or a unique categorized excerpt; otherwise don't guess a unit.
+    line = rejection.diagnostic.get("markdown_line")
+    exact = [unit for num, unit in candidates if num == line]
+    if len(exact) == 1:
+        return exact[0]
+    return candidates[0][1] if len(candidates) == 1 else broad
+
+
 def _locate_section(report: str, rejection: _Rejection) -> _Unit | None:
-    rule = rejection.classified.rule
-    sections = _sections(report)
-    if rule == "removed_source_attribution":
-        for heading, start, end in sections:
+    if rejection.classified.rule == "removed_source_attribution":
+        for heading, start, end in _sections(report):
             if heading.lower() == "## source attribution":
                 return _Unit("section", heading=heading, start=start, end=end)
-        return None
-    prepared = _prepared(report) if rule == "malformed_markdown" else None
-    if prepared is None:
-        return None
-    prepared_sections = {h: prepared[s:e] for h, s, e in _sections(prepared)}
-    for heading, start, end in sections:
-        text = prepared_sections.get(heading)
-        if heading == FINDINGS_HEADING or text is None:
-            continue
-        if malformed_bold_list_detail(text) is not None:
-            return _Unit("section", heading=heading, start=start, end=end)
     return None
 
 
 def _target(report: str, rejection: _Rejection) -> _Unit:
     """The smallest unit to repair: one finding, one section, else the report."""
+    if rejection.classified.rule == "malformed_markdown":
+        return _locate_markdown(report, rejection)
     if rejection.classified.scope in {"finding", "section"}:
         row = _locate_finding(report, rejection)
         if row is not None:
@@ -518,6 +531,8 @@ def build_finding_repair_prompt(
         "its `- **Field**: value` lines, in this shape:\n"
         f"{FINDING_TEMPLATE}\n"
         f"Reporting may cite only these keys: {', '.join(cited)}.\n"
+        "Keep exactly the complete CVE identifiers already assigned to this "
+        "finding. Remove malformed fragments; never substitute or add IDs.\n"
         "Below is the only source material allowed: the sources this finding "
         "cites, as originally supplied.\n\n"
         f"{material}"
@@ -557,6 +572,21 @@ def build_report_repair_prompt(rejection: _Rejection, plan: SourceReviewPlan) ->
     )
 
 
+def _complete_finding_cves(row: FindingRow) -> frozenset[str]:
+    """Keep complete identities even when repairing their surrounding syntax."""
+    values = [
+        value
+        for name, value in row.pairs
+        if name.strip().rstrip(":").strip().casefold() in {"cve id", "cve ids"}
+    ]
+    visible = visible_candidate_text(" ".join([row.heading, *values]))
+    return frozenset(
+        cve
+        for cve in extract_cve_ids(UNICODE_DASH_RE.sub("-", visible))
+        if CVE_ID_PATTERN.fullmatch(cve)
+    )
+
+
 def _splice_finding(
     report: str, row: FindingRow, text: str, cited: list[str]
 ) -> str | None:
@@ -572,6 +602,8 @@ def _splice_finding(
         return None
     try:
         visible_candidate_text(block, reject_host_namespace=True)
+        if _complete_finding_cves(row) != _complete_finding_cves(repaired[0]):
+            return None
     except SourceReviewError:
         return None
     return report_findings(report).render(
@@ -788,9 +820,19 @@ async def validate_and_repair_report(
             )
         if row is not None and origin is not None:
             rounds = finding_rounds.get(origin, 0)
-            if rounds >= MAX_REPAIR_ROUNDS_PER_FINDING and not answered.get(origin):
-                return done(rejection)
             if rounds >= MAX_REPAIR_ROUNDS_PER_FINDING or not sender.available:
+                if rounds and not answered.get(origin):
+                    # The global cap may run out before this finding reaches
+                    # its own cap. Transport failures alone cannot justify
+                    # omitting a finding that was sent for repair.
+                    if not sender.available:
+                        record(
+                            "repair_finding",
+                            classified,
+                            "budget_refused",
+                            finding_index=origin,
+                        )
+                    return done(rejection)
                 # Degrade: drop this finding, disclose it, revalidate in full.
                 cited = {_clean_key(k) for k in row.cited_keys}
                 dropped.append(
