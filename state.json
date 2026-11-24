@@ -6728,6 +6728,12 @@
       "run_attempt": "1",
       "run_id": "45408698879",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "run:45408698879",
+      "at": "2026-11-24T14:02:51.203Z",
+      "run_id": "45408698879",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
