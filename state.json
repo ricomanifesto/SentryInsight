@@ -6963,6 +6963,19 @@
       "run_id": "45489160709",
       "stage": "request_reserved",
       "token": "7805216fd0a74e66070530877c5fd9a5"
+    },
+    {
+      "admission_key": "digest:229fbfa2c684a52664d0ec856345efcfdbcb5958",
+      "at": "2026-11-24T21:19:36.115Z",
+      "attempt": 1,
+      "disposition": "retryable_rejection",
+      "limit": 3,
+      "request_sha256": "25ff25aeb08fc871f7427cf8aecf193719b0438197fb8444f5f615ae4474e496",
+      "retry_after": 1,
+      "revision": "89db8d7514518721800f3c75e55adab8ed743c46",
+      "run_id": "45489160709",
+      "stage": "request_finished",
+      "token": "7805216fd0a74e66070530877c5fd9a5"
     }
   ],
   "schema_version": 1,
