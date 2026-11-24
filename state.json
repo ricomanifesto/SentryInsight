@@ -6470,6 +6470,17 @@
       "at": "2026-11-24T00:36:45.233Z",
       "run_id": "45297804877",
       "stage": "invoked"
+    },
+    {
+      "admission_key": "digest:c3ef5dc5c3ace8c30b4f185d46cd333647e27318",
+      "at": "2026-11-24T00:36:55.372Z",
+      "attempt": 1,
+      "limit": 3,
+      "request_sha256": "0f50c474820fe3da70381ac4093ac2134bf83722b97b59d9d300d086ba020ad8",
+      "revision": "9c67452d993462b1dd6ced5d9ea79e4e2441f6e8",
+      "run_id": "45297804877",
+      "stage": "request_reserved",
+      "token": "a58831e19acdc0456241550d9b784528"
     }
   ],
   "schema_version": 1,
