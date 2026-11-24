@@ -6516,6 +6516,12 @@
       "run_attempt": "1",
       "run_id": "45342305774",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "run:45342305774",
+      "at": "2026-11-24T06:45:24.866Z",
+      "run_id": "45342305774",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
