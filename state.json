@@ -7000,6 +7000,16 @@
       "run_id": "45489160709",
       "stage": "request_finished",
       "token": "ad6a9f1e812df693e0f4cb6e8a5faf8e"
+    },
+    {
+      "admission_key": "digest:229fbfa2c684a52664d0ec856345efcfdbcb5958",
+      "at": "2026-11-24T21:23:22.349Z",
+      "binding": "feed-bytes",
+      "digest_content_digest": "fcf57422b700036c2951540f3912862d0a7de068a2ac6a628b99681aeb77a196",
+      "outcome": "published",
+      "release_key": "6cda5df8ec7e955b37b3d930a3e5efe810b6c779458bf0e3d22132c26fcd00d3",
+      "run_id": "45489160709",
+      "stage": "completed"
     }
   ],
   "schema_version": 1,
