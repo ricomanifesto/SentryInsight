@@ -190,3 +190,36 @@ def test_markdown_fields_require_matching_content_code():
     assert "markdown_reason" not in clean
     assert "markdown_line" not in clean
     assert "markdown_excerpt" not in clean
+
+
+def test_artifact_rejection_retains_allowlisted_reason_field_and_index_only():
+    from src.core.report_artifact import ReportArtifactError
+
+    error = ReportArtifactError(
+        PRIVATE,
+        reason="invalid_triage_value",
+        field="Severity",
+        finding_index=2,
+    )
+    diagnostic = validation_diagnostic("report_artifact", error)
+    assert diagnostic["codes"] == ["artifact_rejected"]
+    assert diagnostic["artifact_reason"] == "invalid_triage_value"
+    assert diagnostic["field"] == "Severity"
+    assert diagnostic["finding_index"] == 2
+    assert sanitize_diagnostic(diagnostic) == diagnostic
+    assert PRIVATE not in json.dumps(diagnostic)
+
+
+@pytest.mark.parametrize("bad_reason", [PRIVATE, {"text": PRIVATE}, 1, None])
+def test_untrusted_artifact_reason_is_omitted(bad_reason):
+    from src.core.report_artifact import ReportArtifactError
+
+    error = ReportArtifactError(PRIVATE, reason=bad_reason)
+    diagnostic = validation_diagnostic("report_artifact", error)
+    assert "artifact_reason" not in diagnostic
+    assert "artifact_reason" not in sanitize_diagnostic(
+        {"codes": ["artifact_rejected"], "artifact_reason": bad_reason}
+    )
+    assert "artifact_reason" not in sanitize_diagnostic(
+        {"codes": ["active_content"], "artifact_reason": "invalid_triage_value"}
+    )

@@ -44,6 +44,19 @@ DIGEST_ARCHIVE_ROOTS = tuple(
 class ReportArtifactError(ValueError):
     """Raised when a report does not satisfy the published artifact contract."""
 
+    def __init__(
+        self,
+        message: str,
+        *,
+        reason: str | None = None,
+        field: str | None = None,
+        finding_index: int | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.reason = reason
+        self.field = field
+        self.finding_index = finding_index
+
 
 class Severity(str, Enum):
     CRITICAL = "critical"
@@ -115,11 +128,15 @@ class ReportArtifact:
         )
 
 
-def slugify(value: str) -> str:
+def slugify(value: str, *, finding_index: int | None = None) -> str:
     """Return a stable, human-readable HTML fragment identifier."""
     slug = normalize_heading_identity(value)
     if not slug:
-        raise ReportArtifactError("Heading cannot produce an empty slug")
+        raise ReportArtifactError(
+            "Heading cannot produce an empty slug",
+            reason="empty_finding_slug",
+            finding_index=finding_index,
+        )
     # Bare CVE fragments belong to the stable cross-site handoff targets.
     # A model may use only a CVE as its finding title; keep that heading distinct.
     if CVE_ID_PATTERN.fullmatch(slug):
@@ -130,7 +147,10 @@ def slugify(value: str) -> str:
 def _parse_front_matter(source: str) -> tuple[dict[str, str], str]:
     lines = source.splitlines()
     if not lines or lines[0].strip() != "---":
-        raise ReportArtifactError("Report must start with metadata front matter")
+        raise ReportArtifactError(
+            "Report must start with metadata front matter",
+            reason="invalid_front_matter",
+        )
 
     try:
         closing_index = next(
@@ -139,21 +159,33 @@ def _parse_front_matter(source: str) -> tuple[dict[str, str], str]:
             if line.strip() == "---"
         )
     except StopIteration as exc:
-        raise ReportArtifactError("Report metadata front matter is not closed") from exc
+        raise ReportArtifactError(
+            "Report metadata front matter is not closed",
+            reason="invalid_front_matter",
+        ) from exc
 
     metadata: dict[str, str] = {}
     for line in lines[1:closing_index]:
         if not line.strip():
             continue
         if ":" not in line:
-            raise ReportArtifactError(f"Invalid report metadata line: {line}")
+            raise ReportArtifactError(
+                f"Invalid report metadata line: {line}",
+                reason="invalid_front_matter",
+            )
         key, value = line.split(":", 1)
         key = key.strip()
         value = value.strip()
         if not key or not value:
-            raise ReportArtifactError(f"Invalid report metadata line: {line}")
+            raise ReportArtifactError(
+                f"Invalid report metadata line: {line}",
+                reason="invalid_front_matter",
+            )
         if key in metadata:
-            raise ReportArtifactError(f"Duplicate report metadata field: {key}")
+            raise ReportArtifactError(
+                f"Duplicate report metadata field: {key}",
+                reason="invalid_front_matter",
+            )
         metadata[key] = value
 
     body = "\n".join(lines[closing_index + 1 :]).lstrip()
@@ -163,7 +195,10 @@ def _parse_front_matter(source: str) -> tuple[dict[str, str], str]:
 def _required_metadata(metadata: dict[str, str], key: str) -> str:
     value = metadata.get(key, "").strip()
     if not value:
-        raise ReportArtifactError(f"Missing required report metadata: {key}")
+        raise ReportArtifactError(
+            f"Missing required report metadata: {key}",
+            reason="missing_metadata",
+        )
     return value
 
 
@@ -171,74 +206,130 @@ def _parse_timestamp(value: str) -> datetime:
     try:
         parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
     except ValueError as exc:
-        raise ReportArtifactError("generated_at must be an ISO 8601 timestamp") from exc
+        raise ReportArtifactError(
+            "generated_at must be an ISO 8601 timestamp",
+            reason="invalid_metadata",
+        ) from exc
     if parsed.tzinfo is None or parsed.utcoffset() is None:
-        raise ReportArtifactError("generated_at must include a timezone")
+        raise ReportArtifactError(
+            "generated_at must include a timezone",
+            reason="invalid_metadata",
+        )
     return parsed
 
 
-def _parse_enum(enum_type: type[EnumType], field: str, value: str) -> EnumType:
+def _parse_enum(
+    enum_type: type[EnumType],
+    field: str,
+    value: str,
+    *,
+    finding_index: int | None = None,
+    reason: str = "invalid_triage_value",
+) -> EnumType:
     try:
         return enum_type(value.casefold())
     except ValueError as exc:
         allowed = ", ".join(item.value for item in enum_type)
         raise ReportArtifactError(
-            f"{field} must be one of: {allowed}; received {value!r}"
+            f"{field} must be one of: {allowed}; received {value!r}",
+            reason=reason,
+            field=field,
+            finding_index=finding_index,
         ) from exc
 
 
-def _parse_cves(value: str) -> tuple[str, ...]:
+def _parse_cves(value: str, *, finding_index: int | None = None) -> tuple[str, ...]:
     candidates = [candidate.strip().upper() for candidate in value.split(",")]
     if not candidates or any(not candidate for candidate in candidates):
-        raise ReportArtifactError("CVE IDs must contain complete identifiers")
+        raise ReportArtifactError(
+            "CVE IDs must contain complete identifiers",
+            reason="invalid_cve_ids",
+            field="CVE IDs",
+            finding_index=finding_index,
+        )
     invalid = [
         candidate for candidate in candidates if not CVE_ID_PATTERN.fullmatch(candidate)
     ]
     if invalid:
         raise ReportArtifactError(
-            "CVE IDs must use complete CVE-YYYY-NNNN identifiers: " + ", ".join(invalid)
+            "CVE IDs must use complete CVE-YYYY-NNNN identifiers: "
+            + ", ".join(invalid),
+            reason="invalid_cve_ids",
+            field="CVE IDs",
+            finding_index=finding_index,
         )
     return tuple(dict.fromkeys(candidates))
 
 
-def _parse_reporting(value: str) -> tuple[ReportingReference, ...]:
+def _parse_reporting(
+    value: str, *, finding_index: int | None = None
+) -> tuple[ReportingReference, ...]:
     inline = MarkdownIt("commonmark").parseInline(value)
     children = inline[0].children if inline else None
     if not children:
-        raise ReportArtifactError("Reporting must contain at least one source link")
+        raise ReportArtifactError(
+            "Reporting must contain at least one source link",
+            reason="invalid_reporting_field",
+            field="Reporting",
+            finding_index=finding_index,
+        )
 
     references: list[ReportingReference] = []
     index = 0
     while index < len(children):
         if children[index].type != "link_open":
             raise ReportArtifactError(
-                "Reporting must be a comma-separated list of Markdown source links"
+                "Reporting must be a comma-separated list of Markdown source links",
+                reason="invalid_reporting_field",
+                field="Reporting",
+                finding_index=finding_index,
             )
         href = children[index].attrGet("href") or ""
         index += 1
         label_parts: list[str] = []
         while index < len(children) and children[index].type != "link_close":
             if children[index].type != "text":
-                raise ReportArtifactError("Reporting link labels must be plain text")
+                raise ReportArtifactError(
+                    "Reporting link labels must be plain text",
+                    reason="invalid_reporting_field",
+                    field="Reporting",
+                    finding_index=finding_index,
+                )
             label_parts.append(children[index].content)
             index += 1
         if index >= len(children):
-            raise ReportArtifactError("Reporting contains an unclosed source link")
+            raise ReportArtifactError(
+                "Reporting contains an unclosed source link",
+                reason="invalid_reporting_field",
+                field="Reporting",
+                finding_index=finding_index,
+            )
         index += 1
         label = "".join(label_parts).strip()
         if " — " not in label:
             raise ReportArtifactError(
-                "Reporting link labels must use 'Publisher — Title'"
+                "Reporting link labels must use 'Publisher — Title'",
+                reason="invalid_reporting_field",
+                field="Reporting",
+                finding_index=finding_index,
             )
         publisher, title = (part.strip() for part in label.split(" — ", 1))
         if not publisher or not title:
             raise ReportArtifactError(
-                "Reporting link labels must name a publisher and title"
+                "Reporting link labels must name a publisher and title",
+                reason="invalid_reporting_field",
+                field="Reporting",
+                finding_index=finding_index,
             )
         try:
             url = normalize_reporting_url(href)
         except ReportingGroundingError as exc:
-            raise ReportArtifactError(str(exc)) from exc
+            raise ReportArtifactError(
+                str(exc),
+                reason="invalid_reporting_field",
+                field="Reporting",
+                finding_index=finding_index,
+            ) from exc
         references.append(
             ReportingReference(
                 publisher=publisher,
@@ -250,12 +341,22 @@ def _parse_reporting(value: str) -> tuple[ReportingReference, ...]:
         if index < len(children):
             separator = children[index]
             if separator.type != "text" or not re.fullmatch(r",\s*", separator.content):
-                raise ReportArtifactError("Reporting links must be separated by commas")
+                raise ReportArtifactError(
+                    "Reporting links must be separated by commas",
+                    reason="invalid_reporting_field",
+                    field="Reporting",
+                    finding_index=finding_index,
+                )
             index += 1
 
     urls = [reference.url for reference in references]
     if len(urls) != len(set(urls)):
-        raise ReportArtifactError("Reporting contains duplicate source links")
+        raise ReportArtifactError(
+            "Reporting contains duplicate source links",
+            reason="invalid_reporting_field",
+            field="Reporting",
+            finding_index=finding_index,
+        )
     return tuple(references)
 
 
@@ -266,7 +367,10 @@ def _active_exploitation_section(body: str) -> str:
         re.MULTILINE | re.DOTALL,
     )
     if not match:
-        raise ReportArtifactError("Missing Active Exploitation Details section")
+        raise ReportArtifactError(
+            "Missing Active Exploitation Details section",
+            reason="missing_active_exploitation_section",
+        )
     return match.group("section")
 
 
@@ -280,11 +384,15 @@ def _parse_findings(
     section = _active_exploitation_section(body)
     matches = list(HEADING_PATTERN.finditer(section))
     if not matches:
-        raise ReportArtifactError("Active Exploitation Details must include findings")
+        raise ReportArtifactError(
+            "Active Exploitation Details must include findings",
+            reason="missing_findings",
+        )
 
     findings: list[Finding] = []
     seen_slugs: set[str] = set()
     for index, match in enumerate(matches):
+        finding_number = index + 1
         title = match.group(1).strip()
         block_end = (
             matches[index + 1].start() if index + 1 < len(matches) else len(section)
@@ -295,14 +403,29 @@ def _parse_findings(
             field = field_match.group(1)
             canonical_field = "CVE IDs" if field in {"CVE ID", "CVE IDs"} else field
             if canonical_field in fields:
-                raise ReportArtifactError(f"{title}: duplicate {canonical_field} field")
+                raise ReportArtifactError(
+                    f"{title}: duplicate {canonical_field} field",
+                    reason="duplicate_finding_field",
+                    field=canonical_field,
+                    finding_index=finding_number,
+                )
             fields[canonical_field] = field_match.group(2).strip()
 
         for required in ("Severity", "Exploitation Status", "Action"):
             if required not in fields:
-                raise ReportArtifactError(f"{title}: missing required {required} field")
+                raise ReportArtifactError(
+                    f"{title}: missing required {required} field",
+                    reason="missing_required_field",
+                    field=required,
+                    finding_index=finding_number,
+                )
         if require_reporting and "Reporting" not in fields:
-            raise ReportArtifactError(f"{title}: missing required Reporting field")
+            raise ReportArtifactError(
+                f"{title}: missing required Reporting field",
+                reason="missing_required_field",
+                field="Reporting",
+                finding_index=finding_number,
+            )
 
         if require_details:
             for name in (
@@ -312,7 +435,12 @@ def _parse_findings(
                 "Vendor Links",
             ):
                 if not fields.get(name):
-                    raise ReportArtifactError(f"{title}: missing required {name} field")
+                    raise ReportArtifactError(
+                        f"{title}: missing required {name} field",
+                        reason="missing_required_field",
+                        field=name,
+                        finding_index=finding_number,
+                    )
         vendor_links = ()
         if (
             fields.get("Vendor Links")
@@ -324,13 +452,26 @@ def _parse_findings(
                     for link in fields["Vendor Links"].split(";")
                 )
             except ReportingGroundingError as exc:
-                raise ReportArtifactError(str(exc)) from exc
+                raise ReportArtifactError(
+                    str(exc),
+                    reason="invalid_vendor_link",
+                    field="Vendor Links",
+                    finding_index=finding_number,
+                ) from exc
 
-        cve_ids = _parse_cves(fields["CVE IDs"]) if "CVE IDs" in fields else ()
+        cve_ids = (
+            _parse_cves(fields["CVE IDs"], finding_index=finding_number)
+            if "CVE IDs" in fields
+            else ()
+        )
         version_status = None
         if require_version_status:
             version_status = _parse_enum(
-                VersionEvidenceStatus, STATE_FIELD, fields.get(STATE_FIELD, "")
+                VersionEvidenceStatus,
+                STATE_FIELD,
+                fields.get(STATE_FIELD, ""),
+                finding_index=finding_number,
+                reason="invalid_version_status",
             )
             value = fields.get("Affected Versions")
             # Advisory grounding may leave any finding's versions unresolved,
@@ -344,28 +485,49 @@ def _parse_findings(
                 and value in {ABSENT, UNRESOLVED}
             ):
                 raise ReportArtifactError(
-                    f"{title}: inconsistent affected-version evidence state"
+                    f"{title}: inconsistent affected-version evidence state",
+                    reason="invalid_version_status",
+                    field=STATE_FIELD,
+                    finding_index=finding_number,
                 )
         elif STATE_FIELD in fields:
             raise ReportArtifactError(
-                "Affected Versions Status requires schema_version 4"
+                "Affected Versions Status requires schema_version 4",
+                reason="invalid_version_status",
+                field=STATE_FIELD,
+                finding_index=finding_number,
             )
-        slug = slugify(title)
+        slug = slugify(title, finding_index=finding_number)
         if slug in seen_slugs:
-            raise ReportArtifactError(f"Duplicate finding slug: {slug}")
+            raise ReportArtifactError(
+                f"Duplicate finding slug: {slug}",
+                reason="duplicate_finding_slug",
+                finding_index=finding_number,
+            )
         seen_slugs.add(slug)
 
         findings.append(
             Finding(
                 title=title,
                 slug=slug,
-                severity=_parse_enum(Severity, "Severity", fields["Severity"]),
+                severity=_parse_enum(
+                    Severity,
+                    "Severity",
+                    fields["Severity"],
+                    finding_index=finding_number,
+                ),
                 exploitation_status=_parse_enum(
                     ExploitationStatus,
                     "Exploitation Status",
                     fields["Exploitation Status"],
+                    finding_index=finding_number,
                 ),
-                action=_parse_enum(Action, "Action", fields["Action"]),
+                action=_parse_enum(
+                    Action,
+                    "Action",
+                    fields["Action"],
+                    finding_index=finding_number,
+                ),
                 affected_versions=fields.get("Affected Versions"),
                 affected_versions_status=version_status,
                 exceptions=fields.get("Exceptions"),
@@ -373,7 +535,7 @@ def _parse_findings(
                 vendor_links=vendor_links,
                 cve_ids=cve_ids,
                 reporting=(
-                    _parse_reporting(fields["Reporting"])
+                    _parse_reporting(fields["Reporting"], finding_index=finding_number)
                     if "Reporting" in fields
                     else ()
                 ),
@@ -390,14 +552,23 @@ def parse_report_artifact(source: str) -> ReportArtifact:
     try:
         schema_version = int(_required_metadata(metadata, "schema_version"))
     except ValueError as exc:
-        raise ReportArtifactError("schema_version must be an integer") from exc
+        raise ReportArtifactError(
+            "schema_version must be an integer",
+            reason="invalid_metadata",
+        ) from exc
     if schema_version not in {1, 2, 3, 4, 5}:
-        raise ReportArtifactError(f"Unsupported schema_version: {schema_version}")
+        raise ReportArtifactError(
+            f"Unsupported schema_version: {schema_version}",
+            reason="invalid_metadata",
+        )
 
     try:
         report_date = date.fromisoformat(_required_metadata(metadata, "report_date"))
     except ValueError as exc:
-        raise ReportArtifactError("report_date must use YYYY-MM-DD") from exc
+        raise ReportArtifactError(
+            "report_date must use YYYY-MM-DD",
+            reason="invalid_metadata",
+        ) from exc
     generated_at = _parse_timestamp(_required_metadata(metadata, "generated_at"))
     digest_issue_url: str | None = None
     if schema_version >= 2:
@@ -409,7 +580,8 @@ def parse_report_artifact(source: str) -> ReportArtifact:
         if digest_issue_url not in accepted_digest_urls:
             raise ReportArtifactError(
                 "digest_issue_url must identify the report date SentryDigest archive: "
-                f"{expected_digest_url}"
+                f"{expected_digest_url}",
+                reason="invalid_metadata",
             )
     coverage = None
     finding_body = body
@@ -420,9 +592,15 @@ def parse_report_artifact(source: str) -> ReportArtifact:
             )
             finding_body = split_source_coverage(body, coverage)
         except SourceReviewError:
-            raise ReportArtifactError("Invalid source coverage") from None
+            raise ReportArtifactError(
+                "Invalid source coverage",
+                reason="invalid_source_coverage",
+            ) from None
     elif "source_coverage" in metadata or COVERAGE_HEADING in body:
-        raise ReportArtifactError("Source coverage requires schema_version 5")
+        raise ReportArtifactError(
+            "Source coverage requires schema_version 5",
+            reason="invalid_source_coverage",
+        )
     findings = _parse_findings(
         finding_body,
         require_reporting=schema_version >= 2,
@@ -439,11 +617,13 @@ def parse_report_artifact(source: str) -> ReportArtifact:
         )
         if cited != coverage["cited_source_keys"]:
             raise ReportArtifactError(
-                "Source coverage does not match finding references"
+                "Source coverage does not match finding references",
+                reason="source_coverage_mismatch",
             )
     if partial_cve := PARTIAL_CVE_PATTERN.search(finding_body):
         raise ReportArtifactError(
-            f"Report contains a partial CVE identifier: {partial_cve.group(0)}"
+            f"Report contains a partial CVE identifier: {partial_cve.group(0)}",
+            reason="partial_cve_identifier",
         )
 
     return ReportArtifact(

@@ -160,5 +160,68 @@ def test_version_three_requires_per_finding_details():
         "generated_at: 2026-08-13T13:21:22Z",
         "generated_at: 2026-08-13T13:21:22Z\ndigest_issue_url: https://ricomanifesto.github.io/SentryDigest/archive/2026-08-13/",
     )
-    with pytest.raises(ReportArtifactError, match="Reporting|Affected Versions"):
+    with pytest.raises(ReportArtifactError, match="Reporting|Affected Versions") as exc:
         parse_report_artifact(source)
+    assert exc.value.reason == "missing_required_field"
+    assert exc.value.finding_index == 1
+
+
+@pytest.mark.parametrize(
+    ("mutator", "expected_reason", "expected_field", "expected_index"),
+    [
+        (
+            lambda text: text.replace("**Severity**: critical", "**Severity**: urgent"),
+            "invalid_triage_value",
+            "Severity",
+            1,
+        ),
+        (
+            lambda text: text.replace(
+                "CVE-2026-1234, CVE-2026-12345678", "Not assigned"
+            ),
+            "invalid_cve_ids",
+            "CVE IDs",
+            1,
+        ),
+        (
+            lambda text: text.replace(
+                "### Vulnerability without an assigned CVE",
+                "### Example vulnerability (CVE-2026-1234)",
+            ),
+            "duplicate_finding_slug",
+            None,
+            2,
+        ),
+        (
+            lambda text: text.replace(
+                "- **Action**: patch", "- **Action**: patch\n- **Action**: monitor"
+            ),
+            "duplicate_finding_field",
+            "Action",
+            1,
+        ),
+        (
+            lambda text: text.replace("CVE-2026-1234", "CVE-2026-123", 1),
+            "partial_cve_identifier",
+            None,
+            None,
+        ),
+        (
+            lambda text: text.replace(
+                "- **Severity**: critical\n",
+                "",
+            ),
+            "missing_required_field",
+            "Severity",
+            1,
+        ),
+    ],
+)
+def test_report_artifact_errors_carry_fixed_reasons_and_locations(
+    mutator, expected_reason, expected_field, expected_index
+):
+    with pytest.raises(ReportArtifactError) as caught:
+        parse_report_artifact(mutator(REPORT))
+    assert caught.value.reason == expected_reason
+    assert caught.value.field == expected_field
+    assert caught.value.finding_index == expected_index

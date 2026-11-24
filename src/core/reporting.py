@@ -194,7 +194,7 @@ def deserialize_reporting_catalog(
 
 def _markdown_label(source: ReportingSource) -> str:
     label = f"{source.publisher} — {source.title}"
-    return label.replace("\\", "\\\\").replace("[", "\\[").replace("]", "\\]")
+    return re.sub(r"([\\`*_\[\]<>~])", r"\\\1", label)
 
 
 def _resolve_finding(row: FindingRow, catalog: Mapping[str, ReportingSource]) -> str:

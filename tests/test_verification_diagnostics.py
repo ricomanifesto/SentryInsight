@@ -87,6 +87,10 @@ def test_real_rejections_keep_exception_type_and_gain_only_safe_categories(
     diagnostic = validation_diagnostic(stages[-1], observed.value)
     assert diagnostic["stage"] == stage
     assert diagnostic["codes"] == [code]
+    if code == "artifact_rejected":
+        assert diagnostic["artifact_reason"] == "invalid_triage_value"
+        assert diagnostic["field"] == "Severity"
+        assert diagnostic["finding_index"] == 1
     if code == "malformed_markdown":
         assert isinstance(diagnostic["markdown_line"], int)
         assert diagnostic["markdown_line"] >= 1

@@ -981,13 +981,39 @@ WHOLE_BOLD_LIST_ITEM_PATTERN = re.compile(
 BOLD_COLON_NO_SPACE_PATTERN = re.compile(
     r"^(?P<head>[ \t]*(?:[-+*]|\d+[.)])[ \t]+\*\*(?P<label>[^*\n]+):\*\*)(?P<rest>[^\s*:\n][^\n]*)$"
 )
+CANONICAL_FINDING_FIELDS = (
+    "Description",
+    "Impact",
+    "Status",
+    "Severity",
+    "Exploitation Status",
+    "Action",
+    "CVE IDs",
+    "CVE ID",
+    "Reporting",
+    "Affected Versions Status",
+    "Affected Versions",
+    "Exceptions",
+    "Recommended Actions",
+    "Vendor Links",
+)
+CANONICAL_FIELD_COLON_INSIDE_PATTERN = re.compile(
+    r"^(?P<prefix>-[ \t]+)\*\*(?P<name>"
+    + "|".join(re.escape(name) for name in CANONICAL_FINDING_FIELDS)
+    + r"):\*\*[ \t]*(?P<rest>[^\n]*)$"
+)
+BOLD_INNER_SPACE_LABEL_PATTERN = re.compile(
+    r"^(?P<prefix>[ \t]*(?:[-+*]|\d+[.)])[ \t]+)\*\*(?P<label>[^*\n]+)\*\*"
+    r"(?P<sep>:[ \t]+|[ \t]+[—–-][ \t]+)(?P<rest>[^\n]+)$"
+)
 ANY_LIST_MARKER_PATTERN = re.compile(r"^[ \t]*(?:[-+*]|\d+[.)])[ \t]+")
 
 
-def _split_bold_label_description(body: str) -> tuple[str, str] | None:
-    """Split an unambiguous 'Label: Description' span outside links and inline code."""
+def _split_bold_label_description(body: str) -> tuple[str, str, str] | None:
+    """Split an unambiguous 'Label: Description' or 'Label — Description' span outside links and inline code."""
     in_code = False
     bracket_depth = 0
+    dash_split: tuple[str, str, str] | None = None
     for index, character in enumerate(body):
         if character == "`" and not has_odd_backslash_escape(body, index):
             in_code = not in_code
@@ -1012,9 +1038,27 @@ def _split_bold_label_description(body: str) -> tuple[str, str] | None:
                 and has_meaningful_list_suffix(label)
                 and has_meaningful_list_suffix(description)
             ):
-                return label, description
+                return label, ": ", description
             return None
-    return None
+        elif (
+            dash_split is None
+            and bracket_depth == 0
+            and character in ("—", "–")
+            and index > 0
+            and index + 1 < len(body)
+            and body[index - 1] in (" ", "\t")
+            and body[index + 1] in (" ", "\t")
+        ):
+            label = body[:index].strip()
+            description = body[index + 1 :].strip()
+            if (
+                label
+                and description
+                and has_meaningful_list_suffix(label)
+                and has_meaningful_list_suffix(description)
+            ):
+                dash_split = (label, f" {character} ", description)
+    return dash_split
 
 
 def _next_nonblank_index(lines: list[str], start: int) -> int | None:
@@ -1068,6 +1112,35 @@ def normalize_bold_list_items(markdown: str) -> str:
             index += 1
             continue
 
+        canonical_field_match = CANONICAL_FIELD_COLON_INSIDE_PATTERN.match(line_content)
+        if canonical_field_match:
+            rest = canonical_field_match["rest"].strip()
+            if rest:
+                lines[index] = (
+                    f"{canonical_field_match['prefix']}"
+                    f"**{canonical_field_match['name']}**: {rest}{ending}"
+                )
+                index += 1
+                continue
+
+        inner_space_match = BOLD_INNER_SPACE_LABEL_PATTERN.match(line_content)
+        if inner_space_match:
+            raw_label = inner_space_match["label"]
+            trimmed_label = raw_label.strip()
+            rest = inner_space_match["rest"].strip()
+            if (
+                raw_label != trimmed_label
+                and trimmed_label
+                and has_meaningful_list_suffix(trimmed_label)
+                and has_meaningful_list_suffix(rest)
+            ):
+                lines[index] = (
+                    f"{inner_space_match['prefix']}**{trimmed_label}**"
+                    f"{inner_space_match['sep']}{inner_space_match['rest']}{ending}"
+                )
+                index += 1
+                continue
+
         no_space_match = BOLD_COLON_NO_SPACE_PATTERN.match(line_content)
         if (
             no_space_match
@@ -1090,9 +1163,9 @@ def normalize_bold_list_items(markdown: str) -> str:
             if not has_more_indented_follower:
                 split = _split_bold_label_description(whole_match["body"])
                 if split is not None:
-                    label, description = split
+                    label, separator, description = split
                     lines[index] = (
-                        f"{whole_match['prefix']}**{label}**: {description}{ending}"
+                        f"{whole_match['prefix']}**{label}**{separator}{description}{ending}"
                     )
                     index += 1
                     continue

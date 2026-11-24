@@ -380,9 +380,11 @@ async def generate_report(
         state["status"] = "failed"
         return state
     except ReportArtifactError as exc:
+        diagnostic = validation_diagnostic(validation_stage, exc)
+        logger.error("Report artifact validation failed: %s", json.dumps(diagnostic))
         state["report_validation_errors"] = ["report_artifact_invalid"]
         _record_failure(state, "report_artifact", ["report_artifact_invalid"])
-        state["failure_diagnostic"] = validation_diagnostic(validation_stage, exc)
+        state["failure_diagnostic"] = diagnostic
         state["status"] = "failed"
         return state
 

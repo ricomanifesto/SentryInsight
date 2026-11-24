@@ -491,3 +491,216 @@ def test_truly_empty_bold_bullet_still_blocks_advisory_with_line_and_excerpt():
     assert issue.markdown_reason == "missing_bold_label_description"
     assert isinstance(issue.markdown_line, int) and issue.markdown_line >= 1
     assert issue.markdown_excerpt == "- **FishMonger**:"
+
+
+def test_reporting_title_with_markdown_punctuation_round_trips_cleanly():
+    article = source("A service advisory.", "punct")
+    article["title"] = "Flaw in _internal_ *parser* `binary_tool` <v2> ~beta"
+    result = prepared_result([article])
+    for advisory in (False, True):
+        candidate = resolve_reviewed_analysis(result, advisory=advisory)
+        artifact = parse_report_artifact(candidate.source)
+        assert artifact.findings[0].reporting[0].title == article["title"]
+
+
+def test_colon_inside_bold_canonical_finding_fields_normalize_before_parsing():
+    result = prepared_result()
+    result["exploitation_report"] = (
+        result["exploitation_report"]
+        .replace("- **Severity**: unknown", "- **Severity:** unknown")
+        .replace("- **Action**: monitor", "- **Action:** monitor")
+        .replace("- **Exceptions**: " + ABSENT, "- **Exceptions:** " + ABSENT)
+        .replace("- **Vendor Links**: " + ABSENT, "- **Vendor Links:** " + ABSENT)
+    )
+    candidate = resolve_reviewed_analysis(result, advisory=True)
+    artifact = parse_report_artifact(candidate.source)
+    assert len(artifact.findings) == 1
+    assert artifact.findings[0].severity.value == "unknown"
+    assert artifact.findings[0].action.value == "monitor"
+
+
+@pytest.mark.parametrize(
+    "omitted_line",
+    [
+        "- **Severity**: unknown\n",
+        "- **Exploitation Status**: unknown\n",
+        "- **Action**: monitor\n",
+        "- **Exceptions**: " + ABSENT + "\n",
+        "- **Recommended Actions**: " + ABSENT + "\n",
+        "- **Vendor Links**: " + ABSENT + "\n",
+    ],
+)
+def test_omitted_required_finding_fields_block_strict_and_fallback_in_advisory(
+    omitted_line,
+):
+    from src.core.report_artifact import ReportArtifactError
+
+    strict = prepared_result()
+    strict["exploitation_report"] = strict["exploitation_report"].replace(
+        omitted_line, ""
+    )
+    with pytest.raises((EvidenceError, ReportArtifactError)):
+        resolve_reviewed_analysis(strict, advisory=False)
+
+    advisory_input = prepared_result()
+    advisory_input["exploitation_report"] = advisory_input[
+        "exploitation_report"
+    ].replace(omitted_line, "")
+    candidate = resolve_reviewed_analysis(advisory_input, advisory=True)
+    artifact = parse_report_artifact(candidate.source)
+    assert len(artifact.findings) == 1
+    assert any("missing_detail_field" in a["codes"] for a in candidate.advisories)
+
+
+@pytest.mark.parametrize(
+    ("old", "new", "attr", "expected_value"),
+    [
+        ("- **Severity**: unknown", "- **Severity**: `high`.", "severity", "high"),
+        (
+            "- **Severity**: unknown",
+            "- **Severity**: High (CVSS 8.8)",
+            "severity",
+            "high",
+        ),
+        (
+            "- **Severity**: unknown",
+            "- **Severity**: informational",
+            "severity",
+            "unknown",
+        ),
+        (
+            "- **Exploitation Status**: unknown",
+            "- **Exploitation Status**: not observed",
+            "exploitation_status",
+            "not_observed",
+        ),
+        (
+            "- **Exploitation Status**: unknown",
+            "- **Exploitation Status**: actively exploited",
+            "exploitation_status",
+            "unknown",
+        ),
+        ("- **Action**: monitor", "- **Action**: **patch**.", "action", "patch"),
+        ("- **Action**: monitor", "- **Action**: patch / mitigate", "action", "none"),
+    ],
+)
+def test_triage_enum_slips_block_strict_and_normalize_conservatively_in_advisory(
+    old, new, attr, expected_value
+):
+    from src.core.report_artifact import ReportArtifactError
+
+    strict = prepared_result()
+    strict["exploitation_report"] = strict["exploitation_report"].replace(old, new)
+    with pytest.raises((EvidenceError, ReportArtifactError)):
+        resolve_reviewed_analysis(strict, advisory=False)
+
+    advisory_input = prepared_result()
+    advisory_input["exploitation_report"] = advisory_input[
+        "exploitation_report"
+    ].replace(old, new)
+    candidate = resolve_reviewed_analysis(advisory_input, advisory=True)
+    artifact = parse_report_artifact(candidate.source)
+    assert getattr(artifact.findings[0], attr).value == expected_value
+
+
+@pytest.mark.parametrize(
+    "placeholder",
+    [
+        "- **CVE IDs**: None",
+        "- **CVE IDs**: N/A",
+        "- **CVE IDs**: Not stated in supplied sources.",
+        "- **CVE IDs**: Unassigned",
+    ],
+)
+def test_placeholder_cve_ids_on_non_cve_finding_are_dropped_in_advisory(placeholder):
+    from src.core.report_artifact import ReportArtifactError
+
+    strict = prepared_result()
+    strict["exploitation_report"] = strict["exploitation_report"].replace(
+        "- **Reporting**:", f"{placeholder}\n- **Reporting**:"
+    )
+    with pytest.raises((EvidenceError, ReportArtifactError)):
+        resolve_reviewed_analysis(strict, advisory=False)
+
+    advisory_input = prepared_result()
+    advisory_input["exploitation_report"] = advisory_input[
+        "exploitation_report"
+    ].replace("- **Reporting**:", f"{placeholder}\n- **Reporting**:")
+    candidate = resolve_reviewed_analysis(advisory_input, advisory=True)
+    artifact = parse_report_artifact(candidate.source)
+    assert artifact.findings[0].cve_ids == ()
+
+
+def test_formatted_cve_ids_normalize_in_advisory_while_partial_cves_still_block():
+    from src.core.report_artifact import ReportArtifactError
+
+    other = "CVE-2026-5678"
+    article = source(f"{CVE} and {other} affect Gateway.", "good")
+    result = prepared_result([article])
+    result["exploitation_report"] = result["exploitation_report"].replace(
+        "### Synthetic campaign\n",
+        f"### Gateway flaws ({CVE})\n- **CVE IDs**: `{CVE}`; `{other}`,\n",
+    )
+    candidate = resolve_reviewed_analysis(result, advisory=True)
+    artifact = parse_report_artifact(candidate.source)
+    assert artifact.findings[0].cve_ids == (CVE, other)
+
+    partial = prepared_result()
+    partial["exploitation_report"] = partial["exploitation_report"].replace(
+        "- **Reporting**:", "- **CVE IDs**: CVE-2026-123\n- **Reporting**:"
+    )
+    with pytest.raises(ReportArtifactError) as caught:
+        resolve_reviewed_analysis(partial, advisory=True)
+    assert caught.value.reason == "invalid_cve_ids"
+
+
+def test_duplicate_finding_fields_and_slugs_are_resolved_deterministically_in_advisory():
+    from src.core.report_findings import report_findings
+
+    first = source("First cloud router incident.", "first")
+    first["source_links"] = ["https://vendor.example/first"]
+    second = source("Second cloud router incident.", "second")
+    second["source_links"] = ["https://vendor.example/second"]
+    result = prepared_result([first, second])
+    keys = {
+        item["url"].rsplit("/", 1)[-1]: item["key"]
+        for item in result["reporting_sources"]
+    }
+    original = result["exploitation_report"]
+    existing = report_findings(original).rows[0]
+    two_findings = (
+        "### Cloud Router Flaw\n"
+        "- **Description**: First incident.\n"
+        "- **Severity**: high\n"
+        "- **Severity**: high\n"
+        "- **Exploitation Status**: unknown\n"
+        "- **Action**: monitor\n"
+        f"- **Reporting**: {keys['first']}\n"
+        f"- **Affected Versions**: {ABSENT}\n"
+        f"- **Exceptions**: {ABSENT}\n"
+        "- **Recommended Actions**: Rotate keys.\n"
+        "- **Recommended Actions**: Update firmware.\n"
+        "- **Vendor Links**: https://vendor.example/first\n"
+        "- **Vendor Links**: https://evil.example/invented\n\n"
+        "### Cloud Router Flaw\n"
+        "- **Description**: Second incident.\n"
+        "- **Severity**: medium\n"
+        "- **Exploitation Status**: unknown\n"
+        "- **Action**: monitor\n"
+        f"- **Reporting**: {keys['second']}\n"
+        f"- **Affected Versions**: {ABSENT}\n"
+        f"- **Exceptions**: {ABSENT}\n"
+        f"- **Recommended Actions**: {ABSENT}\n"
+        f"- **Vendor Links**: {ABSENT}\n\n"
+    )
+    result["exploitation_report"] = (
+        original[: existing.start] + two_findings + original[existing.end :]
+    )
+    candidate = resolve_reviewed_analysis(result, advisory=True)
+    artifact = parse_report_artifact(candidate.source)
+    assert len(artifact.findings) == 2
+    assert artifact.findings[0].slug == "cloud-router-flaw"
+    assert artifact.findings[1].slug == "cloud-router-flaw-2"
+    assert artifact.findings[0].vendor_links == ("https://vendor.example/first",)
+    assert "https://evil.example/invented" not in candidate.source
+    assert "Rotate keys.; Update firmware." == artifact.findings[0].recommended_actions

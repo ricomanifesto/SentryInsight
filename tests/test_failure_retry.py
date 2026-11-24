@@ -560,3 +560,48 @@ def test_malformed_markdown_failure_receipt_retains_line_and_excerpt(tmp_path):
     assert diag["markdown_excerpt"] == "- **Mitigation:**"
     assert value["retry"]["action"] == "repair_required"
     assert last_good.read_text() == "last-good marker"
+
+
+def test_artifact_rejection_receipt_and_log_keep_fixed_reason_without_text(
+    tmp_path, caplog
+):
+    from src.core.source_review import prepare_source_review, digest, PLAN_KEY
+    from test_generation_verification import articles
+    from test_reviewed_report import prepared_result
+    from test_workflow_guards import import_workflow_with_stubs
+
+    inputs = articles()
+    plan = prepare_source_review(inputs)
+    result = prepared_result(inputs)
+    result["exploitation_report"] = result["exploitation_report"].replace(
+        "**Severity**: unknown", "**Severity**: urgent-private-marker"
+    )
+    result["request_metadata"] = request_state()
+    last_good = tmp_path / "index.md"
+    last_good.write_text("last-good marker")
+    state = {
+        "status": "analyzed",
+        "analysis_results": result,
+        "filtered_articles": inputs,
+        PLAN_KEY: plan.packet,
+        "articles_fingerprint": digest(
+            {"generation_schema": 5, "plan_id": plan.packet["plan_id"]}
+        ),
+        "config": {"output_path": str(last_good)},
+    }
+    rejected = asyncio.run(import_workflow_with_stubs().generate_report(state))
+    assert rejected["status"] == "failed"
+    path = tmp_path / "receipt.json"
+    write_receipt(path, make_receipt(rejected, environ={}))
+    value = read_receipt(path)
+    diag = value["diagnostic"]
+    assert diag["stage"] == "report_artifact"
+    assert diag["codes"] == ["artifact_rejected"]
+    assert diag["artifact_reason"] == "invalid_triage_value"
+    assert diag["field"] == "Severity"
+    assert diag["finding_index"] == 1
+    assert value["retry"]["action"] == "repair_required"
+    assert "urgent-private-marker" not in path.read_text()
+    assert "urgent-private-marker" not in caplog.text
+    assert "invalid_triage_value" in caplog.text
+    assert last_good.read_text() == "last-good marker"

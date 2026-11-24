@@ -86,6 +86,41 @@ test("nothing page-level precedes the first section, and About this report holds
   }
 });
 
+async function waitForScrollSettled(page) {
+  await page.evaluate(
+    () =>
+      new Promise((resolve) => {
+        const toc = document.querySelector(".desktop-toc");
+        let lastY = window.scrollY;
+        let lastToc = toc ? toc.scrollTop : 0;
+        let stableFrames = 0;
+        let frames = 0;
+        const step = () => {
+          frames += 1;
+          const y = window.scrollY;
+          const tocTop = toc ? toc.scrollTop : 0;
+          if (y === lastY && tocTop === lastToc) {
+            stableFrames += 1;
+            if (stableFrames >= 3 || frames >= 120) {
+              resolve();
+              return;
+            }
+          } else {
+            stableFrames = 0;
+            lastY = y;
+            lastToc = tocTop;
+          }
+          if (frames >= 120) {
+            resolve();
+            return;
+          }
+          window.requestAnimationFrame(step);
+        };
+        window.requestAnimationFrame(step);
+      }),
+  );
+}
+
 test("keyboard: skip link, the About entry and the coverage notice link each land where they say", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/index.html");
@@ -93,6 +128,7 @@ test("keyboard: skip link, the About entry and the coverage notice link each lan
   await expect(page.locator(".skip-link")).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/#report-content$/);
+  await waitForScrollSettled(page);
 
   const aboutHeading = page.locator("section.about-report h2");
   await expect(aboutHeading).toBeVisible();
@@ -100,16 +136,24 @@ test("keyboard: skip link, the About entry and the coverage notice link each lan
   expect(aboutId).toBeTruthy();
   const entry = page.locator(`.desktop-toc a[href="#${aboutId}"]`);
   await expect(entry).toHaveText("About this report");
+  await entry.scrollIntoViewIfNeeded();
   await entry.focus();
+  await expect(entry).toBeFocused();
+  await waitForScrollSettled(page);
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(new RegExp(`#${aboutId}$`));
+  await waitForScrollSettled(page);
   await expect(page.locator(`[id="${aboutId}"]`)).toBeInViewport({ timeout: 15000 });
 
   const notice = page.locator("#source-coverage-notice a");
   if (await notice.count()) {
+    await notice.scrollIntoViewIfNeeded();
     await notice.focus();
+    await expect(notice).toBeFocused();
+    await waitForScrollSettled(page);
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/#source-coverage-and-review$/);
+    await waitForScrollSettled(page);
     await expect(page.locator("#source-coverage-and-review")).toBeInViewport({ timeout: 15000 });
   }
 

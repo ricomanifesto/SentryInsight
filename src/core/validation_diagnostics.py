@@ -29,6 +29,7 @@ FIELDS = frozenset(
         "Exceptions",
         "Recommended Actions",
         "Vendor Links",
+        "Severity",
         "Exploitation Status",
         "Reporting",
         "CVE IDs",
@@ -85,6 +86,27 @@ CONTENT_CODES = frozenset("""
     missing_descriptive_finding_title
     """.split())
 MARKDOWN_REASONS = frozenset({"invalid_bold_label", "missing_bold_label_description"})
+ARTIFACT_REASONS = frozenset(
+    {
+        "empty_finding_slug",
+        "invalid_front_matter",
+        "missing_metadata",
+        "invalid_metadata",
+        "invalid_source_coverage",
+        "missing_active_exploitation_section",
+        "missing_findings",
+        "duplicate_finding_field",
+        "missing_required_field",
+        "invalid_triage_value",
+        "invalid_cve_ids",
+        "invalid_reporting_field",
+        "invalid_vendor_link",
+        "invalid_version_status",
+        "duplicate_finding_slug",
+        "source_coverage_mismatch",
+        "partial_cve_identifier",
+    }
+)
 MAX_MARKDOWN_LINE = 1_000_000
 MAX_MARKDOWN_EXCERPT_CHARS = 200
 MAX_ISSUES = 8
@@ -146,6 +168,7 @@ def validation_diagnostic(stage: str, error: Exception) -> dict:
     markdown_reason = None
     markdown_line = None
     markdown_excerpt = None
+    artifact_reason = None
     if isinstance(error, EvidenceError):
         codes = [_known(error.code, EVIDENCE_CODES, UNKNOWN_CODE)]
         field = _known(error.field, FIELDS, "") or None
@@ -199,7 +222,15 @@ def validation_diagnostic(stage: str, error: Exception) -> dict:
         codes = ["reporting_identity_rejected"]
     elif isinstance(error, ReportArtifactError):
         codes = ["artifact_rejected"]
+        artifact_reason = (
+            _known(getattr(error, "reason", None), ARTIFACT_REASONS, "") or None
+        )
+        field = _known(getattr(error, "field", None), FIELDS, "") or None
+        finding_index = _bounded_positive_int(
+            getattr(error, "finding_index", None), MAX_FINDING_INDEX
+        )
     return {
+        **({"artifact_reason": artifact_reason} if artifact_reason else {}),
         **({"markdown_reason": markdown_reason} if markdown_reason else {}),
         **({"markdown_line": markdown_line} if markdown_line is not None else {}),
         **(
@@ -268,6 +299,15 @@ def sanitize_diagnostic(value: object) -> dict:
     codes = raw_codes if type(raw_codes) is list else []
     index = value.get("finding_index")
     has_malformed_markdown = "malformed_markdown" in codes[:MAX_ISSUES]
+    has_artifact_rejection = any(
+        type(code) is str and code in {"artifact_rejected", "report_artifact_invalid"}
+        for code in codes[:MAX_ISSUES]
+    )
+    artifact_reason = (
+        _known(value.get("artifact_reason"), ARTIFACT_REASONS, "")
+        if has_artifact_rejection
+        else ""
+    )
     markdown_reason = (
         _known(value.get("markdown_reason"), MARKDOWN_REASONS, "")
         if has_malformed_markdown
@@ -284,6 +324,7 @@ def sanitize_diagnostic(value: object) -> dict:
         else None
     )
     return {
+        **({"artifact_reason": artifact_reason} if artifact_reason else {}),
         **({"markdown_reason": markdown_reason} if markdown_reason else {}),
         **({"markdown_line": markdown_line} if markdown_line is not None else {}),
         **(

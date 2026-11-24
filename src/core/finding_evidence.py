@@ -21,6 +21,7 @@ from ..services.source_tables import SourceTable, source_tables
 
 from .derivations import derivation_scope, memoized
 from .cve import CVE_ID_PATTERN, extract_cve_ids
+from .heading_identity import normalize_heading_identity
 from .version_state import ABSENT, STATE_FIELD, VersionEvidenceStatus
 from .report_findings import FIELD, FindingRow, report_findings
 from .report_validation import has_meaningful_list_suffix, indentation_columns
@@ -2284,17 +2285,331 @@ def _validate_finding(
 
 
 VENDOR_LINKS_FIELD = re.compile(
-    r"^(?P<prefix>-[ \t]+\*\*Vendor Links\*\*:[ \t]*)(?P<value>[^\r\n]*)$",
+    r"^(?P<prefix>-[ \t]+\*\*Vendor Links(?:\*\*:|:\*\*)[ \t]*)(?P<value>[^\r\n]*)$",
     re.MULTILINE,
 )
 EMPTY_DETAIL_FIELD = re.compile(
-    r"^(?P<prefix>-[ \t]+\*\*(?P<name>Exceptions|Recommended Actions)\*\*:[ \t]*)(?P<value>[^\r\n]*)$",
+    r"^(?P<prefix>-[ \t]+\*\*(?P<name>Exceptions|Recommended Actions)(?:\*\*:|:\*\*)[ \t]*)(?P<value>[^\r\n]*)$",
     re.MULTILINE,
 )
 CVE_IDS_FIELD_LINE = re.compile(
-    r"^(?P<prefix>-[ \t]+\*\*CVE IDs?\*\*:[ \t]*)(?P<value>[^\r\n]*)(?:\r?\n|$)",
+    r"^(?P<prefix>-[ \t]+\*\*CVE IDs?(?:\*\*:|:\*\*)[ \t]*)(?P<value>[^\r\n]*)(?:\r?\n|$)",
     re.MULTILINE,
 )
+ARTIFACT_FIELD_LINE = re.compile(
+    r"^(?P<prefix>-[ \t]+\*\*(?P<name>Severity|Exploitation Status|Action|Exceptions|Recommended Actions|Vendor Links)(?:\*\*:|:\*\*)[ \t]*)(?P<value>[^\r\n]*)(?P<eol>\r?\n|$)",
+    re.MULTILINE,
+)
+PARTIAL_CVE_RE = re.compile(r"\bCVE-\d{4}-\d{0,3}(?!\d)", re.IGNORECASE)
+COMPLETE_CVE_RE = re.compile(r"^CVE-\d{4}-\d{4,}$", re.IGNORECASE)
+CVE_PLACEHOLDERS = frozenset(
+    {
+        "none",
+        "n/a",
+        "na",
+        "none assigned",
+        "not assigned",
+        "unassigned",
+        "not applicable",
+        "none stated",
+        "not stated",
+        "not stated in supplied sources",
+        "pending",
+        "tbd",
+        "unknown",
+        "not available",
+        "no cve",
+        "no cves",
+        "no cve assigned",
+    }
+)
+TRIAGE_ENUMS: dict[str, tuple[frozenset[str], str]] = {
+    "Severity": (
+        frozenset({"critical", "high", "medium", "low", "unknown"}),
+        "unknown",
+    ),
+    "Exploitation Status": (
+        frozenset({"active", "observed", "potential", "not_observed", "unknown"}),
+        "unknown",
+    ),
+    "Action": (
+        frozenset({"patch", "mitigate", "investigate", "monitor", "none"}),
+        "none",
+    ),
+}
+SEVERITY_WITH_NOTE_RE = re.compile(
+    r"^(critical|high|medium|low|unknown)(?:\s*\([^)]*\)|\s*[-—–]\s*cvss\b.*)?$",
+    re.IGNORECASE,
+)
+
+
+def _clean_inline_enum(value: str) -> str:
+    cleaned = value.strip().rstrip(".,;").strip()
+    while len(cleaned) >= 2 and (
+        (cleaned.startswith("`") and cleaned.endswith("`"))
+        or (cleaned.startswith("**") and cleaned.endswith("**"))
+        or (cleaned.startswith("*") and cleaned.endswith("*"))
+    ):
+        if cleaned.startswith("**") and cleaned.endswith("**"):
+            cleaned = cleaned[2:-2].strip()
+        else:
+            cleaned = cleaned[1:-1].strip()
+        cleaned = cleaned.rstrip(".,;").strip()
+    return cleaned
+
+
+def _normalize_triage_value(name: str, raw: str) -> tuple[str, bool]:
+    """Normalize unambiguous formatting slips; fall back conservatively if invalid."""
+    allowed, fallback = TRIAGE_ENUMS[name]
+    stripped = raw.strip()
+    if stripped.casefold() in allowed:
+        return stripped.casefold(), False
+    cleaned = _clean_inline_enum(stripped).casefold()
+    if name == "Exploitation Status" and cleaned in {"not observed", "not-observed"}:
+        return "not_observed", True
+    if cleaned in allowed:
+        return cleaned, True
+    if name == "Severity":
+        note_match = SEVERITY_WITH_NOTE_RE.fullmatch(cleaned)
+        if note_match:
+            return note_match.group(1).casefold(), True
+    return fallback, True
+
+
+def _finding_slug(title: str) -> str:
+    slug = normalize_heading_identity(title)
+    if COMPLETE_CVE_RE.fullmatch(slug):
+        return f"finding-{slug}"
+    return slug
+
+
+def _append_finding_lines(body: str, extra_lines: list[str]) -> str:
+    if not extra_lines:
+        return body
+    stripped = body.rstrip("\r\n")
+    trailing = body[len(stripped) :]
+    prefix = "\n" if stripped else ""
+    return stripped + prefix + "\n".join(extra_lines) + (trailing or "\n")
+
+
+def sanitize_finding_artifact_fields(
+    report: str,
+    catalog: Mapping[str, ReportingSource],
+    *,
+    on_drop: Any = None,
+) -> str:
+    """Advisory-only deterministic normalization for finding contract fields.
+
+    Runs before vendor-link sanitization and grouping so duplicate fields,
+    omitted required fields, triage formatting slips, and placeholder/formatted
+    CVE IDs cannot crash report artifact parsing. Never invents higher
+    severity, exploitation claims, or CVE identifiers.
+    """
+    table = report_findings(report)
+    if not table.has_section:
+        return report
+    replacements: list[tuple[int, int, str]] = []
+    for row in table.rows:
+        body = row.body
+        changed = False
+
+        def emit(
+            code: str,
+            message: str,
+            field: str,
+            *,
+            expected: str | int | bool | None = True,
+            observed: str | int | bool | None = False,
+        ) -> None:
+            if on_drop is None:
+                return
+            error = EvidenceError(
+                message,
+                code=code,
+                field=field,
+                expected=expected,
+                observed=observed,
+            )
+            _identify(error, row, catalog)
+            on_drop(error)
+
+        # 1. Collapse duplicate detail/triage fields and normalize triage values.
+        grouped_matches: dict[str, list[re.Match[str]]] = {}
+        for match in ARTIFACT_FIELD_LINE.finditer(body):
+            grouped_matches.setdefault(match["name"], []).append(match)
+
+        body_edits: list[tuple[int, int, str]] = []
+        for name, matches in grouped_matches.items():
+            if name in {"Exceptions", "Recommended Actions", "Vendor Links"}:
+                if len(matches) > 1:
+                    changed = True
+                    emit(
+                        "duplicate_finding_field",
+                        f"Duplicate {name} field",
+                        name,
+                    )
+                    values: list[str] = []
+                    for match in matches:
+                        val = match["value"].strip()
+                        if val and val != ABSENT and val not in values:
+                            values.append(val)
+                    merged = "; ".join(values) if values else ABSENT
+                    eol = matches[0]["eol"]
+                    body_edits.append(
+                        (
+                            matches[0].start(),
+                            matches[0].end(),
+                            f"- **{name}**: {merged}{eol}",
+                        )
+                    )
+                    for extra in matches[1:]:
+                        body_edits.append((extra.start(), extra.end(), ""))
+                continue
+
+            # Triage fields: Severity, Exploitation Status, Action.
+            normalized_values = [
+                _normalize_triage_value(name, match["value"]) for match in matches
+            ]
+            if len(matches) > 1:
+                changed = True
+                emit("duplicate_finding_field", f"Duplicate {name} field", name)
+                distinct = list(dict.fromkeys(val for val, _ in normalized_values))
+                chosen = distinct[0] if len(distinct) == 1 else TRIAGE_ENUMS[name][1]
+                eol = matches[0]["eol"]
+                body_edits.append(
+                    (
+                        matches[0].start(),
+                        matches[0].end(),
+                        f"- **{name}**: {chosen}{eol}",
+                    )
+                )
+                for extra in matches[1:]:
+                    body_edits.append((extra.start(), extra.end(), ""))
+            else:
+                chosen, altered = normalized_values[0]
+                if altered:
+                    changed = True
+                    code = (
+                        "unsupported_exploitation_status"
+                        if name == "Exploitation Status"
+                        else "detail_not_grounded"
+                    )
+                    emit(code, f"Normalized invalid {name} value", name)
+                    eol = matches[0]["eol"]
+                    body_edits.append(
+                        (
+                            matches[0].start(),
+                            matches[0].end(),
+                            f"- **{name}**: {chosen}{eol}",
+                        )
+                    )
+
+        # 2. Normalize formatted CVE IDs or drop placeholder CVE IDs on no-CVE findings.
+        cve_matches = list(CVE_IDS_FIELD_LINE.finditer(body))
+        if len(cve_matches) == 1:
+            cve_match = cve_matches[0]
+            raw_cve = cve_match["value"].strip()
+            if raw_cve and not PARTIAL_CVE_RE.search(raw_cve):
+                cleaned_placeholder = _clean_inline_enum(raw_cve).casefold()
+                if not row.cves and cleaned_placeholder in CVE_PLACEHOLDERS:
+                    changed = True
+                    emit(
+                        "missing_detail_field", "Dropped placeholder CVE IDs", "CVE IDs"
+                    )
+                    body_edits.append((cve_match.start(), cve_match.end(), ""))
+                elif row.cves:
+                    tokens = [
+                        _clean_inline_enum(part)
+                        for part in re.split(
+                            r"\s*[,;]\s*|\s+\band\b\s+", raw_cve, flags=re.IGNORECASE
+                        )
+                        if part.strip()
+                    ]
+                    if tokens and all(COMPLETE_CVE_RE.fullmatch(t) for t in tokens):
+                        canonical_cves = ", ".join(
+                            dict.fromkeys(t.upper() for t in tokens)
+                        )
+                        if canonical_cves != raw_cve:
+                            changed = True
+                            emit(
+                                "detail_not_grounded",
+                                "Normalized CVE IDs formatting",
+                                "CVE IDs",
+                            )
+                            eol = "\n" if cve_match.group(0).endswith("\n") else ""
+                            body_edits.append(
+                                (
+                                    cve_match.start(),
+                                    cve_match.end(),
+                                    f"- **CVE IDs**: {canonical_cves}{eol}",
+                                )
+                            )
+
+        if body_edits:
+            for start, end, text in sorted(body_edits, reverse=True):
+                body = body[:start] + text + body[end:]
+
+        # 3. Insert omitted required triage or detail fields with conservative defaults.
+        present = {match["name"] for match in ARTIFACT_FIELD_LINE.finditer(body)}
+        missing_lines: list[str] = []
+        for name, (_, default_value) in TRIAGE_ENUMS.items():
+            if name not in present:
+                changed = True
+                emit("missing_detail_field", f"Missing {name}", name)
+                missing_lines.append(f"- **{name}**: {default_value}")
+        for name in ("Exceptions", "Recommended Actions", "Vendor Links"):
+            if name not in present:
+                changed = True
+                emit("missing_detail_field", f"Missing {name}", name)
+                missing_lines.append(f"- **{name}**: {ABSENT}")
+        if missing_lines:
+            body = _append_finding_lines(body, missing_lines)
+
+        if changed:
+            replacements.append((row.body_start, row.end, body))
+
+    return table.render(replacements) if replacements else report
+
+
+def disambiguate_duplicate_finding_slugs(
+    report: str,
+    catalog: Mapping[str, ReportingSource],
+    *,
+    on_drop: Any = None,
+) -> str:
+    """Advisory-only disambiguation for distinct findings that produce the same slug."""
+    table = report_findings(report)
+    if not table.has_section:
+        return report
+    seen: set[str] = set()
+    replacements: list[tuple[int, int, str]] = []
+    for row in table.rows:
+        slug = _finding_slug(row.title)
+        if not slug:
+            continue
+        if slug not in seen:
+            seen.add(slug)
+            continue
+        suffix = 2
+        candidate_title = f"{row.title} ({suffix})"
+        candidate_slug = _finding_slug(candidate_title)
+        while candidate_slug in seen:
+            suffix += 1
+            candidate_title = f"{row.title} ({suffix})"
+            candidate_slug = _finding_slug(candidate_title)
+        seen.add(candidate_slug)
+        if on_drop is not None:
+            error = EvidenceError(
+                "Disambiguated duplicate finding heading",
+                code="duplicate_finding_field",
+                expected=True,
+                observed=False,
+            )
+            _identify(error, row, catalog)
+            on_drop(error)
+        eol = "\n" if row.heading.endswith("\n") else ""
+        replacements.append((row.start, row.body_start, f"### {candidate_title}{eol}"))
+    return table.render(replacements) if replacements else report
 
 
 def _has_indented_follower(body: str, line_end: int) -> bool:

@@ -11,7 +11,9 @@ from .derivations import derivation_scope
 from .exploitation_coverage import collect_exploitation_relevant_prompt_cves
 from .finding_evidence import (
     EvidenceError,
+    disambiguate_duplicate_finding_slugs,
     sanitize_empty_finding_fields,
+    sanitize_finding_artifact_fields,
     sanitize_vendor_links,
     validate_finding_evidence,
     validate_vendor_links,
@@ -281,10 +283,11 @@ def _resolve_reviewed_analysis(
     )
     stage("finding_evidence")
     if advisory:
-        # Neutralize invalid or unsupported vendor links and empty detail fields
-        # before grouping so combining citations never legitimizes an unsupported
-        # link and empty fields render the explicit absence marker instead of
-        # tripping markdown validation.
+        # Normalize contract fields and neutralize invalid or unsupported vendor
+        # links and empty detail fields before grouping so combining citations
+        # never legitimizes an unsupported link and omitted/malformed fields use
+        # conservative absence/unknown markers instead of failing artifact parsing.
+        canonical = sanitize_finding_artifact_fields(canonical, catalog, on_drop=advise)
         canonical = sanitize_vendor_links(canonical, catalog, on_drop=advise)
         canonical = sanitize_empty_finding_fields(canonical, catalog, on_drop=advise)
     grouped = group_related_findings(canonical, catalog)
@@ -294,6 +297,9 @@ def _resolve_reviewed_analysis(
         validate_vendor_links(canonical, catalog)
         canonical = grouped
     if advisory:
+        canonical = disambiguate_duplicate_finding_slugs(
+            canonical, catalog, on_drop=advise
+        )
         # Source identity stays blocking even when grounding is advisory.
         validate_vendor_links(canonical, catalog)
     try:

@@ -744,6 +744,18 @@ class ReportValidationTests(unittest.TestCase):
                 "- **Affected Products:**\n - Gateway 1.0\n - Gateway 2.0",
                 "- **Affected Products:**\n  - Gateway 1.0\n  - Gateway 2.0",
             ),
+            (
+                "- **Unknown actor — Opportunistic exploitation.**",
+                "- **Unknown actor** — Opportunistic exploitation.",
+            ),
+            (
+                "- **Unknown actor **: Opportunistic exploitation.",
+                "- **Unknown actor**: Opportunistic exploitation.",
+            ),
+            (
+                "- ** Unknown actor**: Opportunistic exploitation.",
+                "- **Unknown actor**: Opportunistic exploitation.",
+            ),
         ]
         for raw, expected in cases:
             with self.subTest(raw=raw):
@@ -760,6 +772,19 @@ class ReportValidationTests(unittest.TestCase):
                 self.assertIn(expected, normalized)
                 self.assertEqual(validate_report_content(normalized), [])
                 self.assertEqual(normalize_bold_list_items(normalized), normalized)
+
+    def test_normalize_bold_list_items_canonicalizes_finding_field_colons(self):
+        raw = VALID_REPORT.replace(
+            "- **Status**: Active exploitation observed.",
+            "- **Status:** Active exploitation observed.\n"
+            "- **Severity:** high\n"
+            "- **Action:**patch",
+        )
+        normalized = normalize_bold_list_items(raw)
+        self.assertIn("- **Status**: Active exploitation observed.", normalized)
+        self.assertIn("- **Severity**: high", normalized)
+        self.assertIn("- **Action**: patch", normalized)
+        self.assertEqual(normalize_bold_list_items(normalized), normalized)
 
     def test_normalize_bold_list_items_leaves_truly_broken_and_code_blocks_alone(self):
         broken_cases = (
