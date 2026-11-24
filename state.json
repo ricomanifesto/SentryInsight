@@ -6494,6 +6494,13 @@
       "run_id": "45297804877",
       "stage": "request_finished",
       "token": "a58831e19acdc0456241550d9b784528"
+    },
+    {
+      "admission_key": "digest:c3ef5dc5c3ace8c30b4f185d46cd333647e27318",
+      "at": "2026-11-24T00:38:58.300Z",
+      "outcome": "failed",
+      "run_id": "45297804877",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
