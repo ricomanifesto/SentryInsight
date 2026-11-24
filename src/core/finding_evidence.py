@@ -2302,6 +2302,7 @@ ARTIFACT_FIELD_LINE = re.compile(
 )
 PARTIAL_CVE_RE = re.compile(r"\bCVE-\d{4}-\d{0,3}(?!\d)", re.IGNORECASE)
 COMPLETE_CVE_RE = re.compile(r"^CVE-\d{4}-\d{4,}$", re.IGNORECASE)
+UNICODE_DASH_RE = re.compile("[\u2010\u2011\u2012\u2013\u2014\u2212]")
 CVE_PLACEHOLDERS = frozenset(
     {
         "none",
@@ -2504,46 +2505,49 @@ def sanitize_finding_artifact_fields(
                         )
                     )
 
-        # 2. Normalize formatted CVE IDs or drop placeholder CVE IDs on no-CVE findings.
+        # 2. Normalize CVE IDs to the complete identifiers it names, or drop a line
+        # that names none. A partial identifier may be a truncated real CVE, so
+        # its line is left for artifact parsing to reject. Commentary is never
+        # kept, and no identifier is added that the finding did not already state.
         cve_matches = list(CVE_IDS_FIELD_LINE.finditer(body))
-        if len(cve_matches) == 1:
+        if len(cve_matches) == 1 and not PARTIAL_CVE_RE.search(
+            UNICODE_DASH_RE.sub("-", cve_matches[0]["value"])
+        ):
             cve_match = cve_matches[0]
             raw_cve = cve_match["value"].strip()
-            if raw_cve and not PARTIAL_CVE_RE.search(raw_cve):
-                cleaned_placeholder = _clean_inline_enum(raw_cve).casefold()
-                if not row.cves and cleaned_placeholder in CVE_PLACEHOLDERS:
+            eol = "\n" if cve_match.group(0).endswith("\n") else ""
+            dashed = UNICODE_DASH_RE.sub("-", raw_cve)
+            named = extract_cve_ids(dashed)
+            stated = [cve for cve in named if COMPLETE_CVE_RE.fullmatch(cve)]
+            if raw_cve and stated and len(stated) == len(named):
+                canonical_cves = ", ".join(stated)
+                if canonical_cves != raw_cve:
                     changed = True
                     emit(
-                        "missing_detail_field", "Dropped placeholder CVE IDs", "CVE IDs"
+                        "detail_not_grounded",
+                        "Normalized CVE IDs formatting",
+                        "CVE IDs",
                     )
-                    body_edits.append((cve_match.start(), cve_match.end(), ""))
-                elif row.cves:
-                    tokens = [
-                        _clean_inline_enum(part)
-                        for part in re.split(
-                            r"\s*[,;]\s*|\s+\band\b\s+", raw_cve, flags=re.IGNORECASE
+                    body_edits.append(
+                        (
+                            cve_match.start(),
+                            cve_match.end(),
+                            f"- **CVE IDs**: {canonical_cves}{eol}",
                         )
-                        if part.strip()
-                    ]
-                    if tokens and all(COMPLETE_CVE_RE.fullmatch(t) for t in tokens):
-                        canonical_cves = ", ".join(
-                            dict.fromkeys(t.upper() for t in tokens)
-                        )
-                        if canonical_cves != raw_cve:
-                            changed = True
-                            emit(
-                                "detail_not_grounded",
-                                "Normalized CVE IDs formatting",
-                                "CVE IDs",
-                            )
-                            eol = "\n" if cve_match.group(0).endswith("\n") else ""
-                            body_edits.append(
-                                (
-                                    cve_match.start(),
-                                    cve_match.end(),
-                                    f"- **CVE IDs**: {canonical_cves}{eol}",
-                                )
-                            )
+                    )
+            elif raw_cve and not named:
+                changed = True
+                cleaned_placeholder = _clean_inline_enum(raw_cve).casefold()
+                emit(
+                    "missing_detail_field",
+                    (
+                        "Dropped placeholder CVE IDs"
+                        if cleaned_placeholder in CVE_PLACEHOLDERS
+                        else "Dropped CVE IDs without a complete identifier"
+                    ),
+                    "CVE IDs",
+                )
+                body_edits.append((cve_match.start(), cve_match.end(), ""))
 
         if body_edits:
             for start, end, text in sorted(body_edits, reverse=True):

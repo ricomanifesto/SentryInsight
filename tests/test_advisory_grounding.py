@@ -704,3 +704,36 @@ def test_duplicate_finding_fields_and_slugs_are_resolved_deterministically_in_ad
     assert artifact.findings[0].vendor_links == ("https://vendor.example/first",)
     assert "https://evil.example/invented" not in candidate.source
     assert "Rotate keys.; Update firmware." == artifact.findings[0].recommended_actions
+
+
+def test_cve_ids_with_commentary_or_no_identifier_normalize_in_advisory():
+    other = "CVE-2026-5678"
+    article = source(f"{CVE} and {other} affect Gateway.", "good")
+    result = prepared_result([article])
+    result["exploitation_report"] = result["exploitation_report"].replace(
+        "### Synthetic campaign\n",
+        f"### Gateway flaws ({CVE})\n"
+        f"- **CVE IDs**: {CVE} (gateway) and {other.replace('-', '‑')}\n",
+    )
+    candidate = resolve_reviewed_analysis(result, advisory=True)
+    artifact = parse_report_artifact(candidate.source)
+    assert artifact.findings[0].cve_ids == (CVE, other)
+
+    untitled = prepared_result()
+    untitled["exploitation_report"] = untitled["exploitation_report"].replace(
+        "- **Reporting**:", "- **CVE IDs**: not yet assigned\n- **Reporting**:"
+    )
+    candidate = resolve_reviewed_analysis(untitled, advisory=True)
+    assert "**CVE IDs**" not in candidate.source
+    parse_report_artifact(candidate.source)
+
+
+def test_cve_ids_spelled_with_spaces_are_kept_in_advisory():
+    result = prepared_result([source(f"{CVE} affects Gateway.", "good")])
+    spaced = CVE.replace("-", " ")
+    result["exploitation_report"] = result["exploitation_report"].replace(
+        "### Synthetic campaign\n",
+        f"### Gateway flaw ({CVE})\n- **CVE IDs**: {spaced} (exploited)\n",
+    )
+    candidate = resolve_reviewed_analysis(result, advisory=True)
+    assert parse_report_artifact(candidate.source).findings[0].cve_ids == (CVE,)
