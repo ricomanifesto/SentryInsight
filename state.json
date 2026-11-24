@@ -6838,6 +6838,12 @@
       "run_attempt": "1",
       "run_id": "45444751920",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "run:45444751920",
+      "at": "2026-11-24T17:11:07.600Z",
+      "run_id": "45444751920",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
