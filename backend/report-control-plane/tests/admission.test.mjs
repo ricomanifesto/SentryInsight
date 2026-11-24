@@ -113,7 +113,7 @@ test("A5 A7 A37 conflicting reuse of a source revision is refused and rolled bac
   assert.equal(after.snapshots, before.snapshots + 1);
   assert.equal(after.operation_articles, before.operation_articles + 2, "losers' article rows rolled back");
   assert.equal(after.article_revisions, before.article_revisions + 2);
-  assert.equal(after.r2, before.r2 + 5, "losers' snapshots remain as harmless orphans");
+  assert.equal(after.r2, before.r2 + 5, "losers' snapshots remain under their capacity reservations");
   assert.deepEqual(await env.q("SELECT * FROM targets"), lastGood);
   // A sequential repeat of a loser is still a conflict, and still writes nothing.
   assert.equal((await env.admit(bodies.find((b, i) => responses[i].status === 409))).status, 409);
@@ -135,7 +135,7 @@ test("A36 article metadata equals the admitted set and is queryable", async () =
   assert.deepEqual(consumers.map((c) => c.operation_id).sort(), [id, id2].sort());
 });
 
-test("malformed, oversized and unsupported requests fail closed with no write", async () => {
+test("malformed, oversized and unsupported requests retain no request or delivery", async () => {
   const before = await env.counts();
   const duplicate = `{"schema":"report-control-plane/admission/1","pipeline":"reports","policy_id":"standard","source_revision":"m1","source_revision":"m2","articles":[]}`;
   const cases = [
@@ -154,7 +154,7 @@ test("malformed, oversized and unsupported requests fail closed with no write", 
   assert.deepEqual(await env.counts(), before);
 });
 
-test("W-1 interruption after the snapshot, before the batch, leaves only an orphan object", async () => {
+test("W-1 interruption after the snapshot, before the batch, leaves reserved bytes without operation intent", async () => {
   const before = await env.counts();
   await env.fault("after_snapshot_before_batch");
   const response = await env.admit(admission("w1", [article(91)]));

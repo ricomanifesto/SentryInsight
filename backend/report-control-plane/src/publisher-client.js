@@ -44,6 +44,7 @@ export async function observePublication(settings, publication) {
     response = await fetch(`${settings.PUBLISHER_URL}/publications/${publication.publication_id}`, {
       headers: headers(settings),
       signal: AbortSignal.timeout(settings.CALL_TIMEOUT_MS),
+      redirect: "manual",
     });
   } catch {
     return { kind: "transient" };
@@ -70,6 +71,7 @@ export async function postPublication(settings, publication, expectedRemote) {
         candidate_seq: publication.candidate_seq,
       }),
       signal: AbortSignal.timeout(settings.CALL_TIMEOUT_MS),
+      redirect: "manual",
     });
   } catch {
     return { kind: "transient" };

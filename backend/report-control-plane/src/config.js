@@ -40,6 +40,7 @@ export const LIMITS = Object.freeze({
   artifactFileBytes: 4 * 1024 * 1024,
   artifactTotalBytes: 8 * 1024 * 1024,
   maxSendAttempts: 3,
+  maxDeliveryAttempts: 3,
   maxRetryRounds: 3,
   sweepBatch: 20,
 });
@@ -123,7 +124,11 @@ export function settings(env) {
     } catch {
       throw new ConfigInvalid(urlName);
     }
-    if (!["http:", "https:"].includes(url.protocol) || url.search || url.hash) throw new ConfigInvalid(urlName);
+    // Credentials may cross the network only over TLS. Numeric loopback is
+    // the narrow exception for local fakes; DNS names are never a bypass.
+    const loopback = url.hostname === "127.0.0.1" || url.hostname === "[::1]";
+    if ((url.protocol !== "https:" && !(url.protocol === "http:" && loopback)) ||
+        url.username || url.password || url.search || url.hash) throw new ConfigInvalid(urlName);
     out[urlName] = url.href.replace(/\/$/, "");
     if (typeof rawToken !== "string" || rawToken.length < 16 || rawToken.length > 512 || /\s/.test(rawToken)) {
       throw new ConfigInvalid(tokenName);

@@ -5,7 +5,7 @@ A Cloudflare Worker that keeps SentryInsight's report history in D1 and R2. It w
 - **Execution:** it admits report requests, hands them to a generic execution service through a Queue, verifies and stores accepted report artifacts in R2, and publishes them through a fenced publisher while keeping the last-good revision.
 - **Projection:** it records runs that the report workflow already completed, together with their observed deployments, as an immutable history (`contracts/projection.md`). The workflow stays the authority for generation and publication.
 
-Either way, a read-only research export serves the history (`contracts/export.md`). The execution service and the publisher are optional. Without them, execution and publication refuse before any write, and projection and the export still serve.
+Either way, a read-only research export serves the history (`contracts/export.md`). The execution service and the publisher are optional. Without them, execution and publication refuse before operation intent or external delivery, and projection and the export still serve. Execution refusals may update bounded authenticated diagnostics.
 
 Tests and the local stack use no account, route, remote binding or credential. `wrangler.staging.toml` declares the staging deployment.
 
@@ -28,12 +28,20 @@ The Worker is the only writer of D1 and R2, and completion is pulled from the ex
 | Completion of submitted work | the sweeper's status pull |
 | Publications | the target claim and the publisher's fence |
 
+Execute admission and staged sources reserve aggregate retained capacity in D1
+before snapshot storage. The [admission capacity contract](contracts/admission-capacity.md)
+defines exact limits, authenticated diagnostics, migration accounting and the
+separate operator procedure needed at capacity.
+Follow its quiesced upgrade sequence: old admission/staging writers must be
+drained or fenced before inventory and backfill, and producers resume only
+after both migrations and the updated Worker have been verified.
+
 ## Layout
 
 | Path | Contents |
 |---|---|
 | `src/` | Worker modules: routes, authentication, identities, strict JSON, admission, delivery, completion, publication and the sweeper |
-| `migrations/` | the D1 schema: `0001_init.sql`, `0002_transition_nonce.sql`, `0003_export.sql` for the facts the research export needs, and `0004_projection.sql` for the trigger-written change log, projection pipelines and publication observations |
+| `migrations/` | the D1 schema: `0001_init.sql`, `0002_transition_nonce.sql`, `0003_export.sql` for the facts the research export needs, `0004_projection.sql` for the trigger-written change log, projection pipelines and publication observations, `0005_admission_capacity.sql` for capacity and bounded audit storage, and `0006_delivery_revision_bounds.sql` for delivery attempts and stored revision order |
 | `contracts/` | product API, execution service, publisher, projection (`projection.md`) and the research export (`export.md`) |
 | `cli/report-control.mjs` | a command-line client; `artifact` downloads and verifies an accepted artifact |
 | `local/stack.mjs`, `local/serve.mjs` | the local stack on the installed Miniflare/workerd API, plus a runner with a read-only inspection endpoint |
@@ -53,7 +61,7 @@ MINIFLARE_MODULE=/path/to/miniflare/dist/src/index.js node local/export-demo.mjs
 
 ## Running locally
 
-The local stack loads the installed Miniflare module by absolute path. Nothing is downloaded or installed.
+The local stack loads the installed Miniflare module by absolute path. Nothing is downloaded or installed. Miniflare 4 requires Node 22 or newer. `local/serve.mjs` and the complete test suite that includes its inspector require Node 24.10 or newer for native SQLite authorization (verified with Node 24.22 and 25.9); the existing CLI and Worker sources retain their declared runtime range.
 
 ```bash
 MINIFLARE_MODULE=/path/to/miniflare/dist/src/index.js node --test --test-concurrency=1 'tests/*.test.mjs'
@@ -67,7 +75,11 @@ For a long-running stack, copy `local/config.example.json` to `local/config.loca
 node local/serve.mjs --config local/config.local.json
 ```
 
-It writes a ready file with the Worker URL and the inspection URL. On SIGTERM the engine's own exit hook disposes the workerd runtime and the process exits with status 143 (128 + SIGTERM); that status is the engine's convention, not an application success code, so a caller that owns the process should also confirm that the engine's child processes are gone.
+It writes a ready file with the Worker URL and the inspection URL. The authenticated `/sql` inspector opens the configured D1 file through a separate native SQLite connection with `readOnly: true`. A SQLite authorizer permits reads and functions while refusing writes, attachments, connection changes and extension loading. Parameters stay bound; worker writes use their original D1 connection. The adapter derives exactly the configured database filename using Miniflare 4's namespace layout and fails closed if that file or authorizer is unavailable. It does not discover other databases or accept file paths through queries.
+
+Execution and publisher URLs require HTTPS. HTTP is allowed only for numeric loopback (`127.0.0.1` or `[::1]`) test services; URL credentials, fragments and query strings are refused. Authenticated calls use manual redirect handling, and a redirect is an unsuccessful upstream response. No bearer request follows it.
+
+On SIGTERM the engine's own exit hook disposes the workerd runtime and the process exits with status 143 (128 + SIGTERM); that status is the engine's convention, not an application success code, so a caller that owns the process should also confirm that the engine's child processes are gone.
 
 ### Queue names
 
@@ -92,12 +104,15 @@ node cli/report-control.mjs status <operation_id>
 
 **Admission:**
 - Identical requests are one operation, and conflicting reuse of a source revision is refused.
-- A failed admission batch rolls back every row, including article metadata and the sequence number.
+- A failed operation-admission batch rolls back operation and article metadata rows and the sequence number. Its earlier capacity reservation persists, accounting for any retained snapshot and allowing the exact request to retry.
+- Aggregate identity and snapshot-byte capacity is reserved atomically before storage. Replays reuse reservations; repeated source staging updates one schedule audit row.
 
 **Delivery:**
 - The consumer calls the execution service only after winning a durable claim.
 - A late write from an expired claim changes nothing.
 - Delayed or dead-lettered messages from an earlier delivery generation are stale.
+- A dead-letter notification settles only its current generation with no live claim or terminal decision, corroborated by three durable send attempts or three won main-delivery claims. Platform queue attempts and manual delivery generations are different counters: the declared `max_retries = 2` yields three platform attempts, while a manual retry advances the generation and atomically resets its durable claim counter. The declared queue retry bound and `LIMITS.maxDeliveryAttempts` must stay aligned.
+- Incomplete dead-letter evidence stays advisory for the existing bounded sweeper. Old in-flight rows start their new claim counter at zero; reconciliation recovers them through their durable send budget. Unknown operations write no audit event, and advisory diagnostics are bounded to one per durable current generation.
 - Unconfirmed sends are bounded, and their exhaustion is recorded.
 
 **Completion:**
@@ -106,7 +121,7 @@ node cli/report-control.mjs status <operation_id>
 
 **Export:**
 - The `export` role reads the export and nothing else, and reading it writes nothing.
-- A replayed admission or export changes nothing, and a changed article is a new revision that names its predecessor.
+- A successful admission replay leaves its operation unchanged, and export reads write nothing. Conflict replays update bounded authenticated refusal summaries. A changed article is a new revision that names its predecessor.
 - A refused reuse of a source revision is retained and visible on the existing run, once per distinct refused snapshot.
 - Failed, incomplete, excluded and refused outcomes are exported apart from published results.
 - Identical text under another URL is a duplicate, not corroboration.
@@ -127,6 +142,7 @@ node cli/report-control.mjs status <operation_id>
 
 ## Limits
 
+- **Inspection runtime:** the native SQLite adapter depends on the documented local Node minimum and the tested Miniflare 4 persistence layout. Its file-backed and live-runner checks cover parameter binding, Unicode, read-only writes and continued worker writes; they do not establish compatibility with another persistence layout.
 - **Local emulation only:** local Miniflare/workerd is evidence about the D1, R2 and Queue APIs, not about a production account's consistency, latency or scale.
 - **Queue concurrency and persistence:** local Queue consumer concurrency is not emulated; concurrent deliveries are exercised by dispatching to the handler directly. In one local test, a message still pending when the local engine restarted was not observed to be delivered before the sweeper's staleness re-send, and the re-send recovered the operation. That observation is narrower than proof that the message was permanently lost, and it says nothing about the durability of a deployed Queue.
 - **Queue names:** the name grammar is checked only against the installed local engine; a deployment's queue declarations are not derived from the variables (see Queue names).

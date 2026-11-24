@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 
 import pytest
+import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 CURRENT_REPORT = (ROOT / "index.md").read_text()
@@ -218,12 +219,17 @@ def test_publisher_runs_after_validation_or_through_the_manual_gate():
     assert re.search(
         r"^  workflow_call:\n    inputs:\n      invocation:\n", workflow, re.M
     )
-    assert re.search(r"^permissions:\n  contents: write\n", workflow, re.M)
-    assert "group: publish-production\n  cancel-in-progress: false" in workflow
+    document = yaml.load(workflow, Loader=yaml.BaseLoader)
+    assert document["permissions"] == {"contents": "read", "actions": "read"}
+    assert document["jobs"]["publish"]["permissions"] == {"contents": "write"}
+    assert document["jobs"]["publish"]["concurrency"] == {
+        "group": "publish-production",
+        "cancel-in-progress": "false",
+    }
     assert "inputs.invocation != ''" in workflow
     assert "github.event.workflow_run.conclusion == 'success'" in workflow
     assert "github.event.workflow_run.event == 'push'" in workflow
-    assert "github.event.workflow_run.head_sha || inputs.source_sha" in workflow
+    assert "needs.authorize.outputs.source_sha" in workflow
     # Every publish that Validate did not already gate runs the repository
     # gate on the exact source, whichever event started it.
     assert re.search(
@@ -237,17 +243,16 @@ def test_publisher_runs_after_validation_or_through_the_manual_gate():
 
 def test_an_unchanged_generation_resumes_the_current_release():
     workflow = _workflow("generate-report.yml")
-    assert re.search(
-        r"generate-report:\n\s+runs-on: ubuntu-24.04\n\s+outputs:\n"
-        r"\s+published: \$\{\{ steps\.publish\.outputs\.published \}\}",
-        workflow,
+    document = yaml.load(workflow, Loader=yaml.BaseLoader)
+    assert document["jobs"]["generate-report"]["outputs"]["published"] == (
+        "${{ steps.publish.outputs.published }}"
     )
     # A pushed report is published after Validate; otherwise the same single
     # publisher resumes the current release, never promoting new source.
     assert re.search(
         r"\n  resume-publication:\n    needs: generate-report\n"
         r"    if: always\(\) && needs\.generate-report\.outputs\.published != 'true'\n"
-        r"    permissions:\n      contents: write\n"
+        r"    permissions:\n      contents: write\n      actions: read\n"
         r"    uses: \./\.github/workflows/publish-production\.yml\n"
         r"    with:\n      invocation: resume\n",
         workflow,

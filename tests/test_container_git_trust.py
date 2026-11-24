@@ -2,11 +2,11 @@
 
 import os
 from pathlib import Path
-import re
 import subprocess
 import sys
 
 import pytest
+import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -18,16 +18,18 @@ def test_container_git_trust_is_inherited_and_limited_to_checkout(
     tmp_path, workflow_name
 ):
     workflow = (ROOT / ".github/workflows" / f"{workflow_name}.yml").read_text()
-    job_config = workflow.split("    steps:\n", 1)[0]
-    configured = dict(re.findall(r"^      (GIT_CONFIG_\w+): (.+)$", job_config, re.M))
+    document = yaml.load(workflow, Loader=yaml.BaseLoader)
+    job_name = "publish" if workflow_name == "publish-production" else workflow_name
+    job = document["jobs"][job_name]
+    configured = job["env"]
     assert configured == {
-        "GIT_CONFIG_COUNT": "'1'",
+        "GIT_CONFIG_COUNT": "1",
         "GIT_CONFIG_KEY_0": "safe.directory",
         "GIT_CONFIG_VALUE_0": "${{ github.workspace }}",
     }
     assert "git rev-parse --verify HEAD\n          git status --porcelain" in workflow
     assert (
-        workflow.index("uses: actions/checkout@v5")
+        workflow.index("uses: actions/checkout@")
         < workflow.index("git rev-parse --verify HEAD")
         < workflow.index("name: Set up Python")
     )

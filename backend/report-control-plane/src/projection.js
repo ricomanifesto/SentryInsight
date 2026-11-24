@@ -332,7 +332,7 @@ export async function project(env, principal, bytes) {
       .bind(projection.pipeline, projection.source_revision)
       .first();
     if (conflict !== null) {
-      await recordConflict(db, { pipeline: projection.pipeline, sourceRevision: projection.source_revision, fingerprint, existing: conflict.operation_id });
+      await recordConflict(db, { principal, pipeline: projection.pipeline, sourceRevision: projection.source_revision, fingerprint, existing: conflict.operation_id });
       return { status: 409, body: { error: "source_revision_conflict", operation_id: conflict.operation_id } };
     }
     throw error;

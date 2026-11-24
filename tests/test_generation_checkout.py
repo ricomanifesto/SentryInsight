@@ -72,14 +72,14 @@ class GitWorld:
         (self.writer / "sitemap.xml").write_text("fixture sitemap")
         self.commit(self.writer, "Initial source")
         self.git(self.writer, "push", "origin", "HEAD:main")
-        # The workflow's unchanged push command is translated by Git to this
-        # local file remote. No test may use a network transport or real token.
+        # Canonical GitHub origin is translated to this local file remote.
+        # No test may use a network transport or real token.
         self.git(
             root,
             "config",
             "--global",
             f"url.{self.remote.as_uri()}.insteadOf",
-            "https://fixture-token@github.com/fixture/report.git",
+            "https://github.com/fixture/report.git",
         )
 
     def git(self, cwd, *args):
@@ -118,14 +118,19 @@ class GitWorld:
         return job
 
     def run_step(self, repo, name, **extra_env):
-        script = _step(name)["run"].replace(
-            "${{ secrets.PAT_GITHUB }}", "fixture-token"
-        )
-        script = script.replace("${{ github.repository }}", "fixture/report")
+        script = _step(name)["run"]
         return subprocess.run(
             ["bash", "--noprofile", "--norc", "-e", "-o", "pipefail", "-c", script],
             cwd=repo,
-            env={**self.env, **extra_env},
+            env={
+                **self.env,
+                "GITHUB_REPOSITORY": "fixture/report",
+                "GH_TOKEN": "fixture-token",
+                "GIT_CONFIG_COUNT": "1",
+                "GIT_CONFIG_KEY_0": "safe.directory",
+                "GIT_CONFIG_VALUE_0": str(repo),
+                **extra_env,
+            },
             capture_output=True,
             text=True,
             check=False,

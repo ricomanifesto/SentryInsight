@@ -2,6 +2,8 @@
 
 The control plane hands an admitted operation to an execution service and later pulls its outcome. The control plane never writes to the service's stores, and the service never writes to the control plane's. Every call carries `Authorization: Bearer <token>`, and every response is bounded and parsed strictly; an unknown or malformed field fails closed.
 
+Outbound bearer calls require HTTPS, except numeric loopback HTTP (`127.0.0.1` or `[::1]`) for local development. URL user information, query strings and fragments are refused. Redirects are returned without following them and treated as unsuccessful responses.
+
 ## `POST /executions`
 
 Body: the snapshot bytes exactly as admitted. A record may carry `published_at`, the producer's own publication time in RFC 3339 UTC. The service may use it or ignore it, but it must not refuse a snapshot because of it. Headers:

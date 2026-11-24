@@ -29,6 +29,10 @@ on:
         required: false
         default: ''
 
+permissions:
+  contents: read
+  actions: read
+
 concurrency:
   group: sentryinsight-report-generation
   cancel-in-progress: false
@@ -37,6 +41,9 @@ jobs:
   # Match host Python tool-cache builds to the Noble container's OS libraries.
   generate-report:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      actions: read
     outputs:
       published: ${{ steps.publish.outputs.published }}
     timeout-minutes: 75
@@ -54,22 +61,23 @@ jobs:
       GIT_CONFIG_VALUE_0: ${{ github.workspace }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           # A queued main run starts from the preceding run's published report.
           # Other refs retain the exact revision that requested the run.
           ref: ${{ github.ref == 'refs/heads/main' && github.ref || github.sha }}
-          token: ${{ secrets.PAT_GITHUB }}
+          persist-credentials: false
 
       - name: Verify checkout Git access
         id: source
         run: |
           git rev-parse --verify HEAD
           git status --porcelain
+          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
           echo "revision=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: '3.11'
 
@@ -114,7 +122,7 @@ jobs:
         uses: astral-sh/setup-uv@eb1897b8dc4b5d5bfe39a428a8f2304605e0983c # v7.0.0
 
       - name: Set up Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: '24'
           cache: npm
@@ -135,7 +143,7 @@ jobs:
       - name: Find Validate result for this commit
         id: validated
         env:
-          GH_TOKEN: ${{ secrets.PAT_GITHUB }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           passed=false
           if [ "$(git rev-parse HEAD)" = "$GITHUB_SHA" ]; then
@@ -165,10 +173,16 @@ jobs:
       - name: Admit generation
         id: admission
         env:
+          SENTRYINSIGHT_ADMISSION_GITHUB_TOKEN: ${{ github.token }}
           READMIT: ${{ github.event.inputs.readmit || 'false' }}
           GENERATION_MODEL: ${{ vars.SENTRYINSIGHT_MODEL || 'openrouter/nvidia/nemotron-3.5-super-vl:free' }}
           PAID_VERIFICATION: ${{ github.event.inputs.paid_verification || 'false' }}
         run: |
+          export GIT_CONFIG_COUNT=2
+          export GIT_CONFIG_KEY_1="http.https://github.com/${GITHUB_REPOSITORY}.git.extraheader"
+          GIT_CONFIG_VALUE_1="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$SENTRYINSIGHT_ADMISSION_GITHUB_TOKEN" | base64 | tr -d '\n')"
+          printf '::add-mask::%s\n' "${GIT_CONFIG_VALUE_1#AUTHORIZATION: basic }"
+          export GIT_CONFIG_VALUE_1
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
           # A free route has zero-price ceilings and no paid fallback, so an
@@ -200,8 +214,15 @@ jobs:
         id: invoked
         if: steps.admission.outputs.decision == 'admitted'
         env:
+          SENTRYINSIGHT_ADMISSION_GITHUB_TOKEN: ${{ github.token }}
           ADMISSION_KEY: ${{ steps.admission.outputs.admission_key }}
-        run: node publication/cli.js invoked --key "$ADMISSION_KEY" --run-id "$GITHUB_RUN_ID"
+        run: |
+          export GIT_CONFIG_COUNT=2
+          export GIT_CONFIG_KEY_1="http.https://github.com/${GITHUB_REPOSITORY}.git.extraheader"
+          GIT_CONFIG_VALUE_1="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$SENTRYINSIGHT_ADMISSION_GITHUB_TOKEN" | base64 | tr -d '\n')"
+          printf '::add-mask::%s\n' "${GIT_CONFIG_VALUE_1#AUTHORIZATION: basic }"
+          export GIT_CONFIG_VALUE_1
+          node publication/cli.js invoked --key "$ADMISSION_KEY" --run-id "$GITHUB_RUN_ID"
 
       - name: Prepare fixed verification billing evidence
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.paid_verification == 'true' && steps.admission.outputs.decision == 'admitted'
@@ -222,8 +243,14 @@ jobs:
       - name: Generate exploitation report
         id: generate
         if: steps.admission.outputs.decision == 'admitted'
-        run: uv run python main.py
+        run: |
+          authorization=$(printf 'x-access-token:%s' "$SENTRYINSIGHT_ADMISSION_GITHUB_TOKEN" | base64 | tr -d '\n')
+          printf '::add-mask::%s\n' "$authorization"
+          uv run python main.py
         env:
+          # Only the admission child receives process-local Git authentication.
+          # Durable request reservations need repository writes during generation.
+          SENTRYINSIGHT_ADMISSION_GITHUB_TOKEN: ${{ github.token }}
           # Report generation calls OpenRouter directly (free model default);
           # no local OpenCode gateway is needed in CI.
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
@@ -364,6 +391,8 @@ jobs:
         id: publish
         if: success() && github.ref == 'refs/heads/main' && steps.admission.outputs.decision == 'admitted' && steps.generate.outputs.report_generated == 'true' && steps.source-review-summary.outcome == 'success'
         env:
+          # PAT-backed pushes start Validate; the job token does not.
+          GH_TOKEN: ${{ secrets.PAT_GITHUB }}
           ADMISSION_KEY: ${{ steps.admission.outputs.admission_key }}
           ADMISSION_FEED: ${{ steps.admission.outputs.feed_url }}
           GENERATION_SOURCE_SHA: ${{ steps.source.outputs.revision }}
@@ -383,7 +412,11 @@ jobs:
           # The trailers let a later run recover this exact admission.
           printf 'Update exploitation report [automated]\n\nAdmission-Key: %s\nAdmission-Feed: %s\n' "$ADMISSION_KEY" "${ADMISSION_FEED:-none}" > "$RUNNER_TEMP/report-commit-message.txt"
           git commit -F "$RUNNER_TEMP/report-commit-message.txt"
-          push_url="https://${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }}.git"
+          export GIT_CONFIG_COUNT=2
+          export GIT_CONFIG_KEY_1="http.https://github.com/${GITHUB_REPOSITORY}.git.extraheader"
+          GIT_CONFIG_VALUE_1="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 | tr -d '\n')"
+          printf '::add-mask::%s\n' "${GIT_CONFIG_VALUE_1#AUTHORIZATION: basic }"
+          export GIT_CONFIG_VALUE_1
           max_attempts="${PUSH_MAX_ATTEMPTS:-3}"
           retry_delay="${PUSH_RETRY_DELAY_SECONDS:-2}"
           attempt=1
@@ -407,7 +440,7 @@ jobs:
               echo "published=false" >> "$GITHUB_OUTPUT"
               exit 0
             fi
-            if git push "$push_url" HEAD:main; then
+            if git push origin HEAD:main; then
               echo "published=true" >> "$GITHUB_OUTPUT"
               exit 0
             fi
@@ -428,6 +461,7 @@ jobs:
         id: outcome
         if: always() && steps.invoked.outcome == 'success'
         env:
+          SENTRYINSIGHT_ADMISSION_GITHUB_TOKEN: ${{ github.token }}
           ADMISSION_KEY: ${{ steps.admission.outputs.admission_key }}
           BINDING: ${{ steps.admission.outputs.binding }}
           GENERATE: ${{ steps.generate.outcome }}
@@ -435,6 +469,11 @@ jobs:
           REPORT_GENERATED: ${{ steps.generate.outputs.report_generated }}
           REVIEW_DELIVERED: ${{ steps.source-review-summary.outcome }}
         run: |
+          export GIT_CONFIG_COUNT=2
+          export GIT_CONFIG_KEY_1="http.https://github.com/${GITHUB_REPOSITORY}.git.extraheader"
+          GIT_CONFIG_VALUE_1="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$SENTRYINSIGHT_ADMISSION_GITHUB_TOKEN" | base64 | tr -d '\n')"
+          printf '::add-mask::%s\n' "${GIT_CONFIG_VALUE_1#AUTHORIZATION: basic }"
+          export GIT_CONFIG_VALUE_1
           if [ "$GENERATE" = "cancelled" ]; then OUTCOME=cancelled
           elif [ "$GENERATE" != "success" ]; then OUTCOME=failed
           elif [ "$PUBLISHED" = "true" ]; then OUTCOME=published
@@ -471,6 +510,7 @@ jobs:
     if: always() && needs.generate-report.outputs.published != 'true'
     permissions:
       contents: write
+      actions: read
     uses: ./.github/workflows/publish-production.yml
     with:
       invocation: resume

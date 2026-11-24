@@ -41,6 +41,7 @@ export async function submitExecution(env, settings, row, bytes) {
       }),
       body: bytes,
       signal: AbortSignal.timeout(settings.CALL_TIMEOUT_MS),
+      redirect: "manual",
     });
   } catch {
     return { kind: "transient", reason: "execution_unreachable" };
@@ -74,6 +75,7 @@ export async function readExecution(env, settings, operationId, snapshotSha256, 
     response = await fetch(`${settings.EXECUTION_URL}/executions/${operationId}`, {
       headers: headers(settings, { "x-snapshot-sha256": snapshotSha256, "x-binding-id": bindingId }),
       signal: AbortSignal.timeout(settings.CALL_TIMEOUT_MS),
+      redirect: "manual",
     });
   } catch {
     return { kind: "transient", reason: "execution_unreachable" };
@@ -93,7 +95,7 @@ export async function fetchPart(env, settings, operationId, path, expectedBytes)
   try {
     response = await fetch(
       `${settings.EXECUTION_URL}/executions/${operationId}/artifact/${path.split("/").map(encodeURIComponent).join("/")}`,
-      { headers: headers(settings), signal: AbortSignal.timeout(settings.CALL_TIMEOUT_MS) },
+      { headers: headers(settings), signal: AbortSignal.timeout(settings.CALL_TIMEOUT_MS), redirect: "manual" },
     );
   } catch {
     return { kind: "transient" };

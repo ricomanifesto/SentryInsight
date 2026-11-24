@@ -1,8 +1,8 @@
 name: Publish Production
 
 # The only publisher of the production artifact branch. It publishes a main
-# commit after Validate succeeded for that exact commit, or any other chosen
-# source after running the same validation gate itself. The report generation
+# commit after Validate succeeded for that exact commit. Manual publication
+# also requires a validated main commit before source checkout. The generation
 # workflow calls it to resume the current release when a run pushed nothing.
 # The GitHub Pages deployment remains as the mirror. While publication is
 # disabled in publication/site.json the publisher only builds and validates.
@@ -38,15 +38,68 @@ on:
         required: false
 
 permissions:
-  contents: write
-
-concurrency:
-  group: publish-production
-  cancel-in-progress: false
+  contents: read
+  actions: read
 
 jobs:
+  # Admission uses provider metadata, never code from the requested revision.
+  authorize:
+    if: >-
+      (github.event_name != 'workflow_run' &&
+       github.ref == 'refs/heads/main' && inputs.invocation != '') ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ubuntu-latest
+    outputs:
+      source_sha: ${{ steps.source.outputs.sha }}
+    steps:
+      - name: Authorize source
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VALIDATED_SHA: ${{ github.event.workflow_run.head_sha }}
+          REQUESTED_SHA: ${{ inputs.source_sha }}
+          INVOCATION: ${{ inputs.invocation || 'publish' }}
+        run: |
+          set -euo pipefail
+          SOURCE_SHA="$GITHUB_SHA"
+          if [ "$GITHUB_EVENT_NAME" = "workflow_run" ]; then
+            SOURCE_SHA="$VALIDATED_SHA"
+          elif [ "$INVOCATION" = "publish" ]; then
+            SOURCE_SHA="${REQUESTED_SHA:-$GITHUB_SHA}"
+          fi
+          if ! [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo '::error::Publication requires a full source commit SHA'
+            exit 1
+          fi
+          if [ "$GITHUB_EVENT_NAME" != "workflow_run" ] && [ "$INVOCATION" = "publish" ]; then
+            export SOURCE_SHA
+            relation=$(gh api "repos/$GITHUB_REPOSITORY/compare/$SOURCE_SHA...$GITHUB_SHA" --jq '.status')
+            case "$relation" in
+              ahead|identical) ;;
+              *) echo '::error::Publication source must belong to main'; exit 1 ;;
+            esac
+            validated=$(gh api \
+              "repos/$GITHUB_REPOSITORY/actions/workflows/validate.yml/runs?head_sha=$SOURCE_SHA&event=push&branch=main&status=success&per_page=100" \
+              --jq 'any(.workflow_runs[]; .head_sha == env.SOURCE_SHA and .head_repository.full_name == env.GITHUB_REPOSITORY and .head_branch == "main" and .event == "push" and .conclusion == "success")')
+            if [ "$validated" != "true" ]; then
+              echo '::error::Publication source requires successful push Validate on main'
+              exit 1
+            fi
+          fi
+          echo "sha=$SOURCE_SHA" >> "$GITHUB_OUTPUT"
+
   publish:
-    if: inputs.invocation != '' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    needs: authorize
+    permissions:
+      contents: write
+    # Only admitted jobs may enter the production publication queue.
+    concurrency:
+      group: publish-production
+      cancel-in-progress: false
     # Match host Python tool-cache builds to the Noble container's OS libraries.
     runs-on: ubuntu-24.04
     container:
@@ -63,18 +116,20 @@ jobs:
       GIT_CONFIG_VALUE_0: ${{ github.workspace }}
     steps:
       - name: Checkout source
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
-          ref: ${{ github.event.workflow_run.head_sha || inputs.source_sha || github.sha }}
+          ref: ${{ needs.authorize.outputs.source_sha }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Verify checkout Git access
         run: |
           git rev-parse --verify HEAD
           git status --porcelain
+          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: '3.11'
 
@@ -85,7 +140,7 @@ jobs:
         uses: astral-sh/setup-uv@eb1897b8dc4b5d5bfe39a428a8f2304605e0983c # v7.0.0
 
       - name: Set up Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: '24'
           cache: npm
@@ -108,12 +163,18 @@ jobs:
 
       - name: Run publisher
         env:
+          GH_TOKEN: ${{ github.token }}
           INVOCATION: ${{ inputs.invocation || 'publish' }}
-          SOURCE_SHA: ${{ github.event.workflow_run.head_sha || inputs.source_sha || github.sha }}
+          SOURCE_SHA: ${{ needs.authorize.outputs.source_sha }}
           RELEASE_KEY: ${{ inputs.release_key }}
           REASON: ${{ inputs.reason }}
           ATTESTATION: ${{ inputs.attestation }}
         run: |
+          export GIT_CONFIG_COUNT=2
+          export GIT_CONFIG_KEY_1="http.https://github.com/${GITHUB_REPOSITORY}.git.extraheader"
+          GIT_CONFIG_VALUE_1="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 | tr -d '\n')"
+          printf '::add-mask::%s\n' "${GIT_CONFIG_VALUE_1#AUTHORIZATION: basic }"
+          export GIT_CONFIG_VALUE_1
           source .venv/bin/activate
           case "$INVOCATION" in
             publish) set -- --source "$SOURCE_SHA" ;;

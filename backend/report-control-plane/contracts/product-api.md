@@ -44,6 +44,13 @@ The admission queue and its dead-letter queue are named by `ADMISSIONS_QUEUE_NAM
 
 ## Admission request
 
+New execute admissions and staged snapshots share fixed aggregate retained
+capacity across principals and pipelines. A full reservoir returns
+`429 admission_capacity_exhausted` before snapshot storage or Queue work;
+known operation/conflict replays keep their usual result. See
+[retained admission capacity](admission-capacity.md) for exact limits,
+authenticated diagnostics, migration accounting and operator rotation limits.
+
 At most 1 MiB, strict JSON. Duplicate keys and unknown fields are refused, and so is any string that is not valid Unicode text, such as an escaped unpaired surrogate (`\ud800`): such a string has no UTF-8 encoding, so it could not be hashed or forwarded without rewriting it.
 
 ```json

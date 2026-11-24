@@ -17,6 +17,7 @@ export const BINDINGS = { db: "PRODUCT_DB", artifacts: "ARTIFACTS", queue: "ADMI
 // The default queue names, kept here for existing callers; the effective
 // names always come from queueNames over the variables.
 export { QUEUES };
+export const DATABASE_ID = "report-control-plane";
 export const COMPATIBILITY_DATE = "2025-06-01";
 
 const TEST_FAULTS_TABLE = `CREATE TABLE IF NOT EXISTS test_faults (
@@ -64,7 +65,7 @@ export function workerOptions({ vars, queue = {}, workerVars = vars }) {
     modulesRules: [{ type: "ESModule", include: ["**/*.js"] }],
     compatibilityDate: COMPATIBILITY_DATE,
     bindings: workerVars,
-    d1Databases: { [BINDINGS.db]: "report-control-plane" },
+    d1Databases: { [BINDINGS.db]: DATABASE_ID },
     r2Buckets: [BINDINGS.artifacts],
     queueProducers: { [BINDINGS.queue]: names.admissions },
     queueConsumers: {

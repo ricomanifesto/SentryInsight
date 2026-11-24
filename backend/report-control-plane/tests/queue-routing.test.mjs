@@ -82,15 +82,16 @@ test("Q4 a batch from an unknown queue is retried, never handled, with one bound
   assert.deepEqual(await world(), before, "no job, call, object, publication, target or effect");
 });
 
-test("Q5 a dead-letter message on the configured name is a dead-letter disposition, never another call", async () => {
+test("Q5 an uncorroborated dead-letter notification stays advisory without another call", async () => {
   const id = await heldAdmission("q5-dispatch", 2);
   const before = await world();
   const result = await dispatch(NAMES.dead, [message(id)]);
   assert.equal(result.outcome, "ok");
   assert.equal(result.explicitAcks.length, 1);
   const row = await env.row(id);
-  assert.deepEqual([row.state, row.reason, row.delivery_generation], ["dead_letter", "delivery_exhausted", 1]);
-  assert.equal(await events(id, "dead_letter"), 1);
+  assert.deepEqual([row.state, row.reason, row.delivery_generation], ["admitted", null, 1]);
+  assert.equal(await events(id, "dead_letter"), 0);
+  assert.equal(await events(id, "stale_dead_letter"), 1);
   assert.deepEqual(await world(), before, "no execution call, job, publication or effect");
 });
 

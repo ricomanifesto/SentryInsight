@@ -96,6 +96,7 @@ export async function handleDelivery(env, settings, body) {
   const claim = await db
     .prepare(
       `UPDATE operations SET state = 'submitting', claim_token = ?, claim_expires_at = ?,
+         delivery_attempts = delivery_attempts + 1,
          version = version + 1, updated_at = ?
        WHERE operation_id = ? AND delivery_generation = ?
          AND (state IN ('admitted', 'enqueued') OR (state = 'submitting' AND claim_expires_at < ?)) RETURNING operation_id`,
@@ -150,24 +151,32 @@ export async function handleDeadLetter(env, settings, body) {
   const db = env.PRODUCT_DB;
   const message = parseMessage(body);
   if (message === null) return;
+  const row = await operation(db, message.operation_id);
+  if (row === null) return;
   const at = now();
   const result = await db
     .prepare(
       `UPDATE operations SET state = 'dead_letter', reason = 'delivery_exhausted', claim_token = NULL,
          claim_expires_at = NULL, version = version + 1, updated_at = ?
        WHERE operation_id = ? AND delivery_generation = ?
+         AND (send_attempts >= ? OR delivery_attempts >= ?)
          AND (state IN ('admitted', 'enqueued') OR (state = 'submitting' AND claim_expires_at < ?)) RETURNING operation_id`,
     )
-    .bind(at, message.operation_id, message.generation, at)
+    .bind(at, message.operation_id, message.generation, LIMITS.maxSendAttempts, LIMITS.maxDeliveryAttempts, at)
     .run();
   const applied = rowsChanged(result) === 1;
-  await record(db, {
-    operationId: message.operation_id,
-    kind: applied ? "dead_letter" : "stale_dead_letter",
-    token: applied ? "delivery_exhausted" : null,
-    detail: { generation: message.generation },
-    at,
-  });
+  // A DLQ envelope is advisory until durable work corroborates exhaustion.
+  // Deduplicate stale/advisory diagnostics per observed current generation;
+  // missing operations produce no unbound event.
+  const kind = applied ? "dead_letter" : "stale_dead_letter";
+  const detail = JSON.stringify({ generation: row.delivery_generation });
+  await db.prepare(
+    `INSERT INTO events (operation_id, kind, token, detail, at)
+     SELECT ?, ?, ?, ?, ? WHERE NOT EXISTS (
+       SELECT 1 FROM events WHERE operation_id = ? AND kind = ? AND detail = ?
+     )`,
+  ).bind(message.operation_id, kind, applied ? "delivery_exhausted" : null, detail, at,
+    message.operation_id, kind, detail).run();
 }
 
 export async function consume(batch, env, settings, handler) {
@@ -195,7 +204,7 @@ export async function manualRetry(env, settings, operationId) {
   const update = await db
     .prepare(
       `UPDATE operations SET state = 'admitted', delivery_generation = delivery_generation + 1,
-         retry_rounds = retry_rounds + 1, send_attempts = 1, next_send_at = ?, reason = NULL,
+         retry_rounds = retry_rounds + 1, send_attempts = 1, delivery_attempts = 0, next_send_at = ?, reason = NULL,
          enqueued_at = NULL, version = version + 1, updated_at = ?
        WHERE operation_id = ? AND state = 'dead_letter' AND version = ? AND retry_rounds < ? RETURNING operation_id`,
     )

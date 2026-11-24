@@ -4,6 +4,8 @@ Every call carries `Authorization: Bearer <token>`.
 
 **Publication id:** `publication_id = sha256("report-control-plane/publication/1\n" + target + "\n" + artifact_sha256)`.
 
+Outbound bearer calls require HTTPS, except numeric loopback HTTP (`127.0.0.1` or `[::1]`) for local development. URL user information, query strings and fragments are refused. Redirects are returned without following them and treated as unsuccessful responses.
+
 ## `GET /publications/{publication_id}`
 
 Returns the receipt (`200`), or `404` if no effect was ever applied for this id. The control plane uses this observation to repair an ambiguous outcome. Observation is not the fence.

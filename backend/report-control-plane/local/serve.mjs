@@ -11,9 +11,9 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import { createHash, timingSafeEqual } from "node:crypto";
-import { startStack } from "./stack.mjs";
+import { DATABASE_ID, startStack } from "./stack.mjs";
+import { openInspectionDatabase, ReadOnlyRefused } from "./read-only-db.mjs";
 
-const READ_ONLY = /^\s*(SELECT|WITH)\b[^;]*$/is;
 const KEYS = ["miniflare_module", "persist_dir", "port", "vars_file", "inspect_port", "inspect_token_file", "ready_file", "test_faults", "queue"];
 
 function argument(name) {
@@ -64,6 +64,7 @@ async function main() {
     testFaults: config.test_faults === true,
   });
 
+  const inspectionDb = openInspectionDatabase(config.persist_dir, DATABASE_ID);
   const inspect = createServer(async (request, response) => {
     try {
       const presented = /^Bearer (\S+)$/.exec(request.headers.authorization ?? "")?.[1] ?? "";
@@ -72,8 +73,13 @@ async function main() {
       const url = new URL(request.url, "http://127.0.0.1");
       if (request.method === "POST" && url.pathname === "/sql") {
         const { sql, params = [] } = JSON.parse(await readBody(request));
-        if (!READ_ONLY.test(sql)) return send(response, 400, { error: "read_only" });
-        const { results } = await stack.db.prepare(sql).bind(...params).all();
+        let results;
+        try {
+          results = inspectionDb.query(sql, params);
+        } catch (error) {
+          if (error instanceof ReadOnlyRefused) return send(response, 400, { error: "read_only" });
+          throw error;
+        }
         return send(response, 200, { results });
       }
       if (request.method === "GET" && url.pathname === "/r2") {
@@ -139,6 +145,7 @@ async function main() {
     if (stopping) return;
     stopping = true;
     inspect.close();
+    inspectionDb.close();
     await stack.dispose();
     process.exit(0);
   };

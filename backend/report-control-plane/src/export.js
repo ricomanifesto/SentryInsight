@@ -115,9 +115,7 @@ function runStatements(db, operationId) {
       .prepare(
         `SELECT oa.position, oa.executed, oa.exclusion, r.article_key, r.content_sha256, r.title, r.source, r.content_kind,
            r.content_bytes, r.first_operation_id, r.created_at, r.published_at,
-           (SELECT count(*) FROM article_revisions x WHERE x.article_key = r.article_key AND x.rowid < r.rowid) + 1 AS revision_index,
-           (SELECT x.content_sha256 FROM article_revisions x WHERE x.article_key = r.article_key AND x.rowid < r.rowid
-              ORDER BY x.rowid DESC LIMIT 1) AS previous_sha256,
+           r.revision_index AS revision_index, r.previous_content_sha256 AS previous_sha256,
            (SELECT x.article_key FROM article_revisions x WHERE x.content_sha256 = r.content_sha256
               ORDER BY x.rowid LIMIT 1) AS first_key,
            o.fingerprint AS retained_snapshot, f.position AS retained_position

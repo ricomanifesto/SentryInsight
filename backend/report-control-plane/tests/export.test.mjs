@@ -170,12 +170,12 @@ test("failed, incomplete and late outcomes stay separate from published findings
   const lateRow = await env.row(failed);
   assert.deepEqual([lateRow.state, lateRow.version, lateRow.artifact_sha256], ["failed", failedRow.version, null]);
 
-  // Incomplete: delivery dead-lettered before any execution.
-  await env.fault("after_intent_before_send");
-  assert.equal((await env.admit(admission("incomplete-1", [article(9302)]))).status, 500);
-  const incomplete = (await env.one("SELECT operation_id FROM operations WHERE source_revision = 'incomplete-1'")).operation_id;
-  await env.stack.worker.queue(env.stack.queues.dead, [{ id: "dlq-export", timestamp: new Date(), attempts: 1, body: { operation_id: incomplete, generation: 1 } }]);
-  await env.waitState(incomplete, "dead_letter");
+  // Incomplete: the real Queue exhausts three transient calls without a job.
+  env.execution.plan.submitStatus.push(503, 503, 503);
+  const exhausted = await env.admit(admission("incomplete-1", [article(9302)]));
+  assert.equal(exhausted.status, 201);
+  const incomplete = exhausted.body.operation.operation_id;
+  await env.waitState(incomplete, "dead_letter", { timeout: 20000 });
 
   const records = await latest();
   const f = records.get(runId(failed));

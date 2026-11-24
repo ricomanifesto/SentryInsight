@@ -1,6 +1,7 @@
 """Reserve before sending; the admission store owns durable request history."""
 
 import asyncio
+import base64
 import json
 import os
 from pathlib import Path
@@ -119,8 +120,7 @@ class AdmissionAttemptBudget:
             self.revision,
             *arguments,
         ]
-        # Existing checkout authentication remains available to git. Inference
-        # and tracing credentials are intentionally absent from the child env.
+        # Inference and tracing credentials are absent from the admission child.
         env = {
             k: os.environ[k]
             for k in ("PATH", "HOME", "TMPDIR", "SYSTEMROOT")
@@ -138,6 +138,23 @@ class AdmissionAttemptBudget:
                 GIT_CONFIG_COUNT="1",
                 GIT_CONFIG_KEY_0="safe.directory",
                 GIT_CONFIG_VALUE_0=root,
+            )
+        token = os.environ.get("SENTRYINSIGHT_ADMISSION_GITHUB_TOKEN")
+        if token:
+            repository = os.environ.get("GITHUB_REPOSITORY", "")
+            if not (
+                os.environ.get("GITHUB_ACTIONS") == "true"
+                and env.get("GIT_CONFIG_VALUE_0") == root
+                and re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repository)
+            ):
+                raise AttemptBudgetError()
+            authorization = base64.b64encode(
+                f"x-access-token:{token}".encode()
+            ).decode()
+            env.update(
+                GIT_CONFIG_COUNT="2",
+                GIT_CONFIG_KEY_1=f"http.https://github.com/{repository}.git.extraheader",
+                GIT_CONFIG_VALUE_1=f"AUTHORIZATION: basic {authorization}",
             )
         try:
             completed = subprocess.run(

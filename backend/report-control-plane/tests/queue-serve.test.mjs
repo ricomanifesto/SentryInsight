@@ -95,6 +95,15 @@ test("the runner dispatches only the configured names, refuses the defaults and 
       body: JSON.stringify({ sql: "SELECT count(*) AS n FROM events" }),
     });
     assert.deepEqual((await sql.json()).results, [{ n: 0 }], "the malformed messages recorded nothing");
+    const query = async (sql, params = []) => {
+      const response = await fetch(`${ready.inspect_url}/sql`, {
+        method: "POST", headers: { authorization: `Bearer ${TOKEN}` }, body: JSON.stringify({ sql, params }),
+      });
+      return { status: response.status, body: await response.json() };
+    };
+    assert.deepEqual(await query("SELECT ? AS value", ["Synthetic café 😀"]), { status: 200, body: { results: [{ value: "Synthetic café 😀" }] } });
+    assert.deepEqual(await query("UPDATE events SET token = ?", ["changed"]), { status: 400, body: { error: "read_only" } });
+    assert.deepEqual(await query("SELECT count(*) AS n FROM events"), { status: 200, body: { results: [{ n: 0 }] } });
   } finally {
     const engine = (await run("/usr/bin/pgrep", ["-P", String(child.pid)]).catch(() => ({ stdout: "" }))).stdout.split(/\s+/).filter(Boolean);
     child.kill("SIGTERM");

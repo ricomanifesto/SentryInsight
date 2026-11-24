@@ -4,10 +4,10 @@ export function now() {
   return Date.now();
 }
 
-export function event(db, { operationId = null, subject = null, kind, token = null, detail = null, at }) {
+export function event(db, { operationId = null, subject = null, principal = null, kind, token = null, detail = null, at }) {
   return db
-    .prepare("INSERT INTO events (operation_id, subject, kind, token, detail, at) VALUES (?, ?, ?, ?, ?, ?)")
-    .bind(operationId, subject, kind, token, detail === null ? null : JSON.stringify(detail), at);
+    .prepare("INSERT INTO events (operation_id, subject, kind, token, detail, at, principal) VALUES (?, ?, ?, ?, ?, ?, ?)")
+    .bind(operationId, subject, kind, token, detail === null ? null : JSON.stringify(detail), at, principal);
 }
 
 export function record(db, fields) {

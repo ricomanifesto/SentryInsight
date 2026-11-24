@@ -205,6 +205,8 @@ test("refusals: missing or wrong bytes, wrong pipeline, conflicts, and the proje
   const other = await projectRun({ revision: "conflict-p", articles: [article(8303)], files: { "index.md": "# Q\n" } });
   assert.deepEqual([other.response.status, other.response.body.error], [409, "source_revision_conflict"]);
   assert.equal((await latest()).get(runId(id)).identity_conflicts.length, 1);
+  assert.equal((await env.one("SELECT principal FROM identity_conflicts WHERE existing_operation_id = ?", id)).principal, "projector");
+  assert.equal((await env.one("SELECT principal FROM events WHERE operation_id = ? AND kind = 'identity_conflict'", id)).principal, "projector");
   const rewritten = await projectRun({ revision: "conflict-p", articles: [article(8302)], files: { "index.md": "# P\n" }, executionId: "actions-run-other-1", upload: false });
   assert.deepEqual([rewritten.response.status, rewritten.response.body.error], [409, "projection_conflict"]);
 

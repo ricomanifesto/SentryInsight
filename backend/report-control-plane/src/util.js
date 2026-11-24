@@ -44,25 +44,31 @@ export class TooLarge extends Error {}
 export async function readBounded(stream, limit) {
   if (stream === null) return new Uint8Array(0);
   const reader = stream.getReader();
-  const chunks = [];
+  // Copy on arrival: retaining every chunk makes bookkeeping scale with
+  // chunk count and can pin much larger backing buffers than their views.
+  let bytes = new Uint8Array(Math.min(limit, 64 * 1024));
   let total = 0;
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    total += value.byteLength;
-    if (total > limit) {
-      await reader.cancel().catch(() => {});
-      throw new TooLarge();
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const next = total + value.byteLength;
+      if (next > limit) {
+        await reader.cancel().catch(() => {});
+        throw new TooLarge();
+      }
+      if (next > bytes.length) {
+        const grown = new Uint8Array(Math.min(limit, Math.max(next, bytes.length * 2)));
+        grown.set(bytes.subarray(0, total));
+        bytes = grown;
+      }
+      bytes.set(value, total);
+      total = next;
     }
-    chunks.push(value);
+    return total === bytes.length ? bytes : bytes.slice(0, total);
+  } finally {
+    reader.releaseLock();
   }
-  const bytes = new Uint8Array(total);
-  let offset = 0;
-  for (const chunk of chunks) {
-    bytes.set(chunk, offset);
-    offset += chunk.byteLength;
-  }
-  return bytes;
 }
 
 export function randomToken() {

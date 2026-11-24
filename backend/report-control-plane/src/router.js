@@ -1,7 +1,7 @@
 // HTTP routes. Authentication and request validation run before any binding
 // call; refusals carry fixed reason tokens.
 
-import { admit, putImmutable } from "./admission.js";
+import { admit, putImmutable, recordAdmissionRefusal, reserveSnapshot } from "./admission.js";
 import { authenticate } from "./auth.js";
 import { ConfigInvalid, LIMITS, PROJECTION_LIMITS, settings as readSettings } from "./config.js";
 import { now, operation, record } from "./db.js";
@@ -92,7 +92,8 @@ async function smallJson(request, keys) {
 async function admitRoute({ request, env, settings, principal }) {
   const bytes = await body(request);
   const parsed = await parseAdmission(bytes);
-  const outcome = await admit(env, settings, { ...parsed, principal, bytes, fingerprint: await sha256Hex(bytes) });
+  const fingerprint = await sha256Hex(bytes);
+  const outcome = await admit(env, settings, { ...parsed, principal, bytes, fingerprint });
   if (outcome.operation) return json(outcome.status, await operationStatus(env.PRODUCT_DB, outcome.operation));
   return json(outcome.status, outcome.body);
 }
@@ -209,18 +210,25 @@ async function scheduleRoute({ request, env, match }) {
 
 // Stage a source bundle for the next scheduled admission. The bundle is a
 // local stand-in for an upstream digest; nothing is fetched.
-async function sourcesRoute({ request, env, match }) {
+async function sourcesRoute({ request, env, match, principal }) {
   const bytes = await body(request);
   await parseBundle(bytes);
   const fingerprint = await sha256Hex(bytes);
   const schedule = await env.PRODUCT_DB.prepare("SELECT schedule_id FROM schedules WHERE schedule_id = ?").bind(match[1]).first();
-  if (schedule === null) return refusal(404, "not_found");
+  if (schedule === null) {
+    await recordAdmissionRefusal(env.PRODUCT_DB, { principal, reason: "not_found", subject: match[1] });
+    return refusal(404, "not_found");
+  }
+  if (!(await reserveSnapshot(env.PRODUCT_DB, { principal, fingerprint, bytes: bytes.byteLength }))) {
+    await recordAdmissionRefusal(env.PRODUCT_DB, { principal, reason: "admission_capacity_exhausted", subject: match[1] });
+    return refusal(429, "admission_capacity_exhausted");
+  }
   await putImmutable(env.ARTIFACTS, `snapshots/${fingerprint}`, bytes, fingerprint);
   await env.PRODUCT_DB
-    .prepare("UPDATE schedules SET pending_bundle_sha256 = ?, updated_at = ? WHERE schedule_id = ?")
-    .bind(fingerprint, now(), match[1])
+    .prepare(`UPDATE schedules SET pending_bundle_sha256 = ?, staged_by = ?, staging_count = staging_count + 1,
+      staged_at = ?, updated_at = ? WHERE schedule_id = ?`)
+    .bind(fingerprint, principal, now(), now(), match[1])
     .run();
-  await record(env.PRODUCT_DB, { subject: match[1], kind: "schedule_staged", token: null, detail: { bundle: fingerprint }, at: now() });
   return json(202, { schedule_id: match[1], pending_bundle_sha256: fingerprint });
 }
 
@@ -233,12 +241,19 @@ export async function route(request, env) {
     return refusal(known ? 405 : 404, known ? "method_not_allowed" : "not_found");
   }
   const [, pattern, role, handler] = found;
+  let principal = null;
   try {
     const auth = await authenticate(request, env, role);
     if (auth.status) return refusal(auth.status, auth.reason);
+    principal = auth.principal;
     const settings = readSettings(env);
     return await handler({ request, env, settings, principal: auth.principal, match: pattern.exec(url.pathname) });
   } catch (error) {
+    if (principal !== null && (handler === admitRoute || handler === sourcesRoute) &&
+        (error instanceof RequestRefused || error instanceof TooLarge)) {
+      const reason = error instanceof RequestRefused ? error.reason : "request_too_large";
+      await recordAdmissionRefusal(env.PRODUCT_DB, { principal, reason });
+    }
     if (error instanceof ConfigInvalid) return refusal(503, "config_invalid");
     if (error instanceof RequestRefused) return refusal(422, error.reason);
     if (error instanceof ProjectionRefused) return refusal(error.status, error.reason);
