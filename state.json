@@ -6651,6 +6651,13 @@
       "run_id": "45363717202",
       "stage": "request_finished",
       "token": "6f82700b59078d4344e55675ebe423f4"
+    },
+    {
+      "admission_key": "digest:82b31b095af7b9f26da7f5467c4ddf71fc9ec8cc",
+      "at": "2026-11-24T09:23:59.118Z",
+      "outcome": "failed",
+      "run_id": "45363717202",
+      "stage": "unresolved"
     }
   ],
   "schema_version": 1,
