@@ -6598,6 +6598,14 @@
       "run_id": "45359973301",
       "stage": "request_finished",
       "token": "d113d880e50c0009ecb936091e067a12"
+    },
+    {
+      "admission_key": "run:45359973301",
+      "at": "2026-11-24T09:00:49.148Z",
+      "binding": "none",
+      "outcome": "published",
+      "run_id": "45359973301",
+      "stage": "completed"
     }
   ],
   "schema_version": 1,
