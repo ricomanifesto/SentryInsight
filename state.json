@@ -6868,6 +6868,14 @@
       "run_id": "45444751920",
       "stage": "request_finished",
       "token": "1823963018890cbfddc01518a37ef385"
+    },
+    {
+      "admission_key": "run:45444751920",
+      "at": "2026-11-24T17:14:21.527Z",
+      "binding": "none",
+      "outcome": "published",
+      "run_id": "45444751920",
+      "stage": "completed"
     }
   ],
   "schema_version": 1,
