@@ -1,6 +1,9 @@
 import unittest
 
 from src.core.report_validation import (
+    MALFORMED_MARKDOWN_EXCERPT_LIMIT,
+    normalize_bold_list_items,
+    prepare_generated_report,
     remove_source_attribution_section,
     split_overlong_executive_summary,
     validate_report_content,
@@ -646,6 +649,146 @@ class ReportValidationTests(unittest.TestCase):
         )
 
         self.assertEqual(validate_report_content(report), [])
+
+    def test_valid_bold_list_shapes_pass(self):
+        cases = {
+            "colon_inside_with_indented_sublist": (
+                "- **Mitigation:**\n" "  - Apply the vendor update.\n"
+            ),
+            "colon_inside_with_fenced_block": (
+                "- **Indicators:**\n" "  ```text\n" "  GET /admin HTTP/1.1\n" "  ```"
+            ),
+            "colon_inside_with_indented_table": (
+                "- **Affected Products:**\n\n"
+                "  | Product | Status |\n"
+                "  | --- | --- |\n"
+                "  | Gateway | Patched |"
+            ),
+            "description_on_next_line_unindented": (
+                "- **Mitigation:**\nApply the vendor update."
+            ),
+            "description_on_next_line_indented": (
+                "- **Mitigation:**\n  Apply the vendor update."
+            ),
+            "link_inside_bold_label": (
+                "- **[Vendor Advisory](https://example.test/advisory)**: Patch released."
+            ),
+            "cve_inside_bold_label": (
+                "- **CVE-2026-1234**: Actively exploited in edge devices."
+            ),
+            "cve_link_inside_bold_label": (
+                "- **[CVE-2026-1234](https://nvd.nist.gov/vuln/detail/CVE-2026-1234)**: "
+                "Actively exploited in edge devices."
+            ),
+            "trailing_colon_outside_bold": (
+                "- **Mitigation**: Apply the vendor update."
+            ),
+        }
+        for name, snippet in cases.items():
+            with self.subTest(case=name):
+                report = VALID_REPORT.replace(
+                    "- **Unknown actor**: Opportunistic exploitation.", snippet
+                )
+                self.assertEqual(validate_report_content(report), [])
+
+    def test_empty_field_with_colon_inside_bold_fails_with_line_and_excerpt(self):
+        report = "\n\n" + VALID_REPORT.replace(
+            "- **Unknown actor**: Opportunistic exploitation.",
+            "- **Mitigation:**",
+        )
+        expected_line = next(
+            idx
+            for idx, line in enumerate(report.splitlines(), 1)
+            if line == "- **Mitigation:**"
+        )
+        issues = validate_report_content(report)
+        markdown_issues = [i for i in issues if i.code == "malformed_markdown"]
+        self.assertEqual(len(markdown_issues), 1)
+        issue = markdown_issues[0]
+        self.assertEqual(issue.markdown_reason, "missing_bold_label_description")
+        self.assertEqual(issue.markdown_line, expected_line)
+        self.assertEqual(issue.markdown_excerpt, "- **Mitigation:**")
+
+    def test_malformed_markdown_excerpt_is_capped_and_single_line(self):
+        long_label = "A" * 260
+        offending = f"- **{long_label}**:"
+        report = VALID_REPORT.replace(
+            "- **Unknown actor**: Opportunistic exploitation.", offending
+        )
+        issues = [
+            i for i in validate_report_content(report) if i.code == "malformed_markdown"
+        ]
+        self.assertEqual(len(issues), 1)
+        excerpt = issues[0].markdown_excerpt
+        self.assertIsNotNone(excerpt)
+        assert excerpt is not None
+        self.assertLessEqual(len(excerpt), MALFORMED_MARKDOWN_EXCERPT_LIMIT)
+        self.assertTrue(excerpt.endswith("..."))
+        self.assertNotIn("\n", excerpt)
+
+    def test_normalize_bold_list_items_repairs_unambiguous_shapes(self):
+        cases = [
+            (
+                "- **Unknown actor: Opportunistic exploitation.**",
+                "- **Unknown actor**: Opportunistic exploitation.",
+            ),
+            (
+                "- **Unknown actor:**Opportunistic exploitation.",
+                "- **Unknown actor:** Opportunistic exploitation.",
+            ),
+            (
+                "1. **Affected Products:**\n  - Gateway 1.0\n  - Gateway 2.0",
+                "1. **Affected Products:**\n   - Gateway 1.0\n   - Gateway 2.0",
+            ),
+            (
+                "- **Affected Products:**\n - Gateway 1.0\n - Gateway 2.0",
+                "- **Affected Products:**\n  - Gateway 1.0\n  - Gateway 2.0",
+            ),
+        ]
+        for raw, expected in cases:
+            with self.subTest(raw=raw):
+                report = VALID_REPORT.replace(
+                    "- **Unknown actor**: Opportunistic exploitation.", raw
+                )
+                self.assertTrue(
+                    any(
+                        i.code == "malformed_markdown"
+                        for i in validate_report_content(report)
+                    )
+                )
+                normalized = prepare_generated_report(report)
+                self.assertIn(expected, normalized)
+                self.assertEqual(validate_report_content(normalized), [])
+                self.assertEqual(normalize_bold_list_items(normalized), normalized)
+
+    def test_normalize_bold_list_items_leaves_truly_broken_and_code_blocks_alone(self):
+        broken_cases = (
+            "- **FishMonger**",
+            "- **Mitigation:**",
+            "- **FishMonger**:",
+            "- **FishMonger**: &mdash;",
+            "- **FishMonger: &mdash;**",
+            "- **No threat actor activity observed.**",
+            "- **Unclosed label",
+            "- **Unclosed: with description",
+            "- **FishMonger**:\n- **Other**: Opportunistic exploitation.",
+        )
+        for broken in broken_cases:
+            with self.subTest(broken=broken):
+                report = VALID_REPORT.replace(
+                    "- **Unknown actor**: Opportunistic exploitation.", broken
+                )
+                normalized = normalize_bold_list_items(report)
+                self.assertEqual(normalized, report)
+                self.assertTrue(
+                    any(
+                        i.code == "malformed_markdown"
+                        for i in validate_report_content(normalized)
+                    )
+                )
+
+        fenced = VALID_REPORT + "\n```markdown\n- **Example: kept inside fence**\n```\n"
+        self.assertEqual(normalize_bold_list_items(fenced), fenced)
 
     def test_api_error_marker_fails(self):
         issues = validate_report_content(

@@ -85,6 +85,8 @@ CONTENT_CODES = frozenset("""
     missing_descriptive_finding_title
     """.split())
 MARKDOWN_REASONS = frozenset({"invalid_bold_label", "missing_bold_label_description"})
+MAX_MARKDOWN_LINE = 1_000_000
+MAX_MARKDOWN_EXCERPT_CHARS = 200
 MAX_ISSUES = 8
 MAX_FINDING_INDEX = 1_000_000
 UNKNOWN_CODE = "unclassified_validation_failure"
@@ -92,6 +94,26 @@ UNKNOWN_CODE = "unclassified_validation_failure"
 
 def _known(value: object, allowed: frozenset[str], fallback: str) -> str:
     return value if type(value) is str and value in allowed else fallback
+
+
+def _bounded_positive_int(value: object, maximum: int) -> int | None:
+    return value if type(value) is int and 1 <= value <= maximum else None
+
+
+def _bounded_markdown_excerpt(value: object) -> str | None:
+    """Keep a single-line public-report excerpt capped at MAX_MARKDOWN_EXCERPT_CHARS."""
+    if type(value) is not str:
+        return None
+    first_line = value.splitlines()[0] if value.splitlines() else ""
+    cleaned = "".join(
+        " " if ord(character) < 32 or ord(character) == 127 else character
+        for character in first_line
+    ).rstrip()
+    if not cleaned:
+        return None
+    if len(cleaned) > MAX_MARKDOWN_EXCERPT_CHARS:
+        return cleaned[: MAX_MARKDOWN_EXCERPT_CHARS - 3].rstrip() + "..."
+    return cleaned
 
 
 EVIDENCE_STATES = frozenset(
@@ -109,11 +131,12 @@ def _bounded_value(value: object) -> str | int | bool | None:
 
 
 def validation_diagnostic(stage: str, error: Exception) -> dict:
-    """Return only fixed labels, bounded integers and a truncation flag.
+    """Return fixed labels, bounded integers and a truncation flag.
 
-    Messages, repr/str, traceback, titles, URLs, CVEs, hashes and source/candidate
-    text are never read by this formatter. Categories for legacy
-    errors without a structured code are less specific than coded rejections.
+    Messages, repr/str, traceback, headers, credentials and source bodies are
+    never read by this formatter. Only ``malformed_markdown`` issues may include
+    the offending 1-based line number and a bounded single-line excerpt of that
+    public-report line so generation diagnostics identify what tripped the rule.
     """
     codes = [UNKNOWN_CODE]
     field = None
@@ -121,6 +144,8 @@ def validation_diagnostic(stage: str, error: Exception) -> dict:
     truncated = False
     expected = observed = None
     markdown_reason = None
+    markdown_line = None
+    markdown_excerpt = None
     if isinstance(error, EvidenceError):
         codes = [_known(error.code, EVIDENCE_CODES, UNKNOWN_CODE)]
         field = _known(error.field, FIELDS, "") or None
@@ -160,7 +185,15 @@ def validation_diagnostic(stage: str, error: Exception) -> dict:
                     markdown_reason = (
                         _known(issue.markdown_reason, MARKDOWN_REASONS, "") or None
                     )
-                    if markdown_reason:
+                    markdown_line = _bounded_positive_int(
+                        issue.markdown_line, MAX_MARKDOWN_LINE
+                    )
+                    markdown_excerpt = _bounded_markdown_excerpt(issue.markdown_excerpt)
+                    if (
+                        markdown_reason
+                        or markdown_line is not None
+                        or markdown_excerpt is not None
+                    ):
                         break
     elif isinstance(error, ReportingGroundingError):
         codes = ["reporting_identity_rejected"]
@@ -168,6 +201,12 @@ def validation_diagnostic(stage: str, error: Exception) -> dict:
         codes = ["artifact_rejected"]
     return {
         **({"markdown_reason": markdown_reason} if markdown_reason else {}),
+        **({"markdown_line": markdown_line} if markdown_line is not None else {}),
+        **(
+            {"markdown_excerpt": markdown_excerpt}
+            if markdown_excerpt is not None
+            else {}
+        ),
         "schema_version": 1,
         "stage": _known(stage, STAGES, "unknown_validation_stage"),
         "codes": codes,
@@ -228,13 +267,30 @@ def sanitize_diagnostic(value: object) -> dict:
     raw_codes = value.get("codes")
     codes = raw_codes if type(raw_codes) is list else []
     index = value.get("finding_index")
+    has_malformed_markdown = "malformed_markdown" in codes[:MAX_ISSUES]
     markdown_reason = (
         _known(value.get("markdown_reason"), MARKDOWN_REASONS, "")
-        if "malformed_markdown" in codes[:MAX_ISSUES]
+        if has_malformed_markdown
         else ""
+    )
+    markdown_line = (
+        _bounded_positive_int(value.get("markdown_line"), MAX_MARKDOWN_LINE)
+        if has_malformed_markdown
+        else None
+    )
+    markdown_excerpt = (
+        _bounded_markdown_excerpt(value.get("markdown_excerpt"))
+        if has_malformed_markdown
+        else None
     )
     return {
         **({"markdown_reason": markdown_reason} if markdown_reason else {}),
+        **({"markdown_line": markdown_line} if markdown_line is not None else {}),
+        **(
+            {"markdown_excerpt": markdown_excerpt}
+            if markdown_excerpt is not None
+            else {}
+        ),
         "schema_version": 1,
         "stage": _known(
             value.get("stage"), WORKFLOW_STAGES, "unknown_validation_stage"

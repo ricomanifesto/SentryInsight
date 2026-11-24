@@ -97,21 +97,56 @@ def test_sanitizer_reapplies_the_same_bounds_to_untrusted_input():
 @pytest.mark.parametrize(
     ("markdown", "reason"),
     [
-        ("- **Unclosed PRIVATE-MARKER", "invalid_bold_label"),
+        ("- **Unclosed label", "invalid_bold_label"),
         ("- ** **:", "invalid_bold_label"),
-        ("- **PRIVATE-MARKER**", "missing_bold_label_description"),
-        ("- **PRIVATE-MARKER**: &mdash;", "missing_bold_label_description"),
+        ("- **FishMonger**", "missing_bold_label_description"),
+        ("- **FishMonger**: &mdash;", "missing_bold_label_description"),
     ],
 )
-def test_markdown_rejection_keeps_only_fixed_reason(markdown, reason):
+def test_markdown_rejection_keeps_reason_line_and_bounded_excerpt(markdown, reason):
     from src.core.report_validation import validate_report_content
     from src.core.reviewed_report import ReviewedReportValidationError
 
-    error = ReviewedReportValidationError(validate_report_content(markdown))
+    report = "\n\n" + markdown
+    error = ReviewedReportValidationError(validate_report_content(report))
     diagnostic = validation_diagnostic("report_content", error)
     assert diagnostic["markdown_reason"] == reason
-    assert sanitize_diagnostic(diagnostic)["markdown_reason"] == reason
-    assert "PRIVATE-MARKER" not in json.dumps(diagnostic)
+    assert diagnostic["markdown_line"] == 3
+    assert diagnostic["markdown_excerpt"] == markdown
+    assert sanitize_diagnostic(diagnostic) == diagnostic
+
+
+def test_markdown_excerpt_is_capped_and_single_line_in_diagnostics():
+    from src.core.report_validation import (
+        ReportValidationIssue,
+        validate_report_content,
+    )
+    from src.core.reviewed_report import ReviewedReportValidationError
+
+    long_line = "- **" + ("X" * 260) + "**:"
+    error = ReviewedReportValidationError(validate_report_content(long_line))
+    diagnostic = validation_diagnostic("report_content", error)
+    assert diagnostic["markdown_line"] == 1
+    assert len(diagnostic["markdown_excerpt"]) == 200
+    assert diagnostic["markdown_excerpt"].endswith("...")
+    assert sanitize_diagnostic(diagnostic) == diagnostic
+
+    multiline = ReviewedReportValidationError(
+        [
+            ReportValidationIssue(
+                "malformed_markdown",
+                PRIVATE,
+                "missing_bold_label_description",
+                markdown_line=7,
+                markdown_excerpt="- **Label**:\t\nAuthorization: Bearer secret",
+            )
+        ]
+    )
+    clean = validation_diagnostic("report_content", multiline)
+    assert clean["markdown_line"] == 7
+    assert clean["markdown_excerpt"] == "- **Label**:"
+    assert "Authorization" not in json.dumps(clean)
+    assert PRIVATE not in json.dumps(clean)
 
 
 @pytest.mark.parametrize("reason", [PRIVATE, {"text": PRIVATE}, 1, None])
@@ -128,7 +163,30 @@ def test_untrusted_markdown_reason_is_omitted(reason):
     )
 
 
-def test_markdown_reason_requires_matching_content_code():
-    assert "markdown_reason" not in sanitize_diagnostic(
-        {"codes": ["active_content"], "markdown_reason": "invalid_bold_label"}
+@pytest.mark.parametrize("bad_line", [True, False, 0, -1, 1_000_001, "3", 3.5, None])
+@pytest.mark.parametrize("bad_excerpt", [None, 123, {"a": 1}, "", "   ", "\nsecond"])
+def test_untrusted_markdown_line_and_excerpt_are_omitted(bad_line, bad_excerpt):
+    clean = sanitize_diagnostic(
+        {
+            "codes": ["malformed_markdown"],
+            "markdown_reason": "missing_bold_label_description",
+            "markdown_line": bad_line,
+            "markdown_excerpt": bad_excerpt,
+        }
     )
+    assert "markdown_line" not in clean
+    assert "markdown_excerpt" not in clean
+
+
+def test_markdown_fields_require_matching_content_code():
+    clean = sanitize_diagnostic(
+        {
+            "codes": ["active_content"],
+            "markdown_reason": "invalid_bold_label",
+            "markdown_line": 4,
+            "markdown_excerpt": "- **Label**:",
+        }
+    )
+    assert "markdown_reason" not in clean
+    assert "markdown_line" not in clean
+    assert "markdown_excerpt" not in clean

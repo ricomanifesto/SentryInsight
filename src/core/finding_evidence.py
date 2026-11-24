@@ -23,6 +23,7 @@ from .derivations import derivation_scope, memoized
 from .cve import CVE_ID_PATTERN, extract_cve_ids
 from .version_state import ABSENT, STATE_FIELD, VersionEvidenceStatus
 from .report_findings import FIELD, FindingRow, report_findings
+from .report_validation import has_meaningful_list_suffix, indentation_columns
 from .reporting import (
     ReportingGroundingError,
     ReportingSource,
@@ -2286,6 +2287,78 @@ VENDOR_LINKS_FIELD = re.compile(
     r"^(?P<prefix>-[ \t]+\*\*Vendor Links\*\*:[ \t]*)(?P<value>[^\r\n]*)$",
     re.MULTILINE,
 )
+EMPTY_DETAIL_FIELD = re.compile(
+    r"^(?P<prefix>-[ \t]+\*\*(?P<name>Exceptions|Recommended Actions)\*\*:[ \t]*)(?P<value>[^\r\n]*)$",
+    re.MULTILINE,
+)
+CVE_IDS_FIELD_LINE = re.compile(
+    r"^(?P<prefix>-[ \t]+\*\*CVE IDs?\*\*:[ \t]*)(?P<value>[^\r\n]*)(?:\r?\n|$)",
+    re.MULTILINE,
+)
+
+
+def _has_indented_follower(body: str, line_end: int) -> bool:
+    for line in body[line_end:].splitlines():
+        if not line.strip():
+            continue
+        return indentation_columns(line) > 0
+    return False
+
+
+def sanitize_empty_finding_fields(
+    report: str,
+    catalog: Mapping[str, ReportingSource],
+    *,
+    on_drop: Any = None,
+) -> str:
+    """Advisory fallback for empty or punctuation-only finding detail/CVE fields.
+
+    Replaces empty or punctuation-only Exceptions and Recommended Actions values
+    with the explicit absence marker without inventing content, and omits an
+    empty CVE IDs line on a finding that names no CVEs.
+    """
+    table = report_findings(report)
+    replacements: list[tuple[int, int, str]] = []
+    for row in table.rows:
+        for match in EMPTY_DETAIL_FIELD.finditer(row.body):
+            value = match["value"].strip()
+            if has_meaningful_list_suffix(value) or _has_indented_follower(
+                row.body, match.end()
+            ):
+                continue
+            name = match["name"]
+            error = EvidenceError(
+                f"Missing {name}",
+                code="missing_detail_field",
+                field=name,
+                expected=True,
+                observed=False,
+            )
+            _identify(error, row, catalog)
+            if on_drop is not None:
+                on_drop(error)
+            replacements.append(
+                (
+                    row.body_start + match.start(),
+                    row.body_start + match.end(),
+                    f"- **{name}**: {ABSENT}",
+                )
+            )
+        if not row.cves:
+            for match in CVE_IDS_FIELD_LINE.finditer(row.body):
+                value = match["value"].strip()
+                if has_meaningful_list_suffix(value) or _has_indented_follower(
+                    row.body, match.end()
+                ):
+                    continue
+                replacements.append(
+                    (
+                        row.body_start + match.start(),
+                        row.body_start + match.end(),
+                        "",
+                    )
+                )
+    return table.render(sorted(replacements)) if replacements else report
 
 
 def sanitize_vendor_links(
@@ -2306,7 +2379,28 @@ def sanitize_vendor_links(
         links = {link for key in keys if key in catalog for link in catalog[key].links}
         for match in VENDOR_LINKS_FIELD.finditer(row.body):
             value = match["value"].strip()
-            if not value or value == ABSENT:
+            if value == ABSENT:
+                continue
+            if not value:
+                if _has_indented_follower(row.body, match.end()):
+                    continue
+                error = EvidenceError(
+                    "Missing Vendor Links",
+                    code="missing_detail_field",
+                    field="Vendor Links",
+                    expected=True,
+                    observed=False,
+                )
+                _identify(error, row, catalog)
+                if on_drop is not None:
+                    on_drop(error)
+                replacements.append(
+                    (
+                        row.body_start + match.start(),
+                        row.body_start + match.end(),
+                        f"- **Vendor Links**: {ABSENT}",
+                    )
+                )
                 continue
             entries = [entry.strip() for entry in value.split(";")]
             kept: list[str] = []
@@ -2359,9 +2453,9 @@ def sanitize_vendor_links(
                 replacement = "; ".join(kept) if kept else ABSENT
                 replacements.append(
                     (
-                        row.body_start + match.start("value"),
-                        row.body_start + match.end("value"),
-                        replacement,
+                        row.body_start + match.start(),
+                        row.body_start + match.end(),
+                        f"- **Vendor Links**: {replacement}",
                     )
                 )
     return table.render(replacements) if replacements else report

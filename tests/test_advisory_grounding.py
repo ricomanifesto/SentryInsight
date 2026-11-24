@@ -411,3 +411,83 @@ def test_strict_resolver_refuses_an_advisory_review_plan():
     result[PLAN_KEY] = plan.packet
     with pytest.raises(SourceReviewError, match="source_review_plan_mismatch"):
         analysis_review_plan(result)
+
+
+@pytest.mark.parametrize(
+    ("field", "old", "new", "expected_text"),
+    [
+        (
+            "Vendor Links",
+            "- **Vendor Links**: " + ABSENT,
+            "- **Vendor Links**:",
+            "- **Vendor Links**: " + ABSENT,
+        ),
+        (
+            "Exceptions",
+            "- **Exceptions**: " + ABSENT,
+            "- **Exceptions**:",
+            "- **Exceptions**: " + ABSENT,
+        ),
+        (
+            "Exceptions",
+            "- **Exceptions**: " + ABSENT,
+            "- **Exceptions**: —",
+            "- **Exceptions**: " + ABSENT,
+        ),
+        (
+            "Recommended Actions",
+            "- **Recommended Actions**: " + ABSENT,
+            "- **Recommended Actions**:",
+            "- **Recommended Actions**: " + ABSENT,
+        ),
+        (
+            "Affected Versions",
+            "- **Affected Versions**: " + ABSENT,
+            "- **Affected Versions:**",
+            "- **Affected Versions**: " + UNRESOLVED,
+        ),
+    ],
+)
+def test_empty_finding_fields_block_strict_and_fallback_cleanly_in_advisory(
+    field, old, new, expected_text
+):
+    strict = prepared_result()
+    strict["exploitation_report"] = strict["exploitation_report"].replace(old, new)
+    with pytest.raises(EvidenceError):
+        resolve_reviewed_analysis(strict, advisory=False)
+
+    advisory_input = prepared_result()
+    advisory_input["exploitation_report"] = advisory_input[
+        "exploitation_report"
+    ].replace(old, new)
+    candidate = resolve_reviewed_analysis(advisory_input, advisory=True)
+    assert expected_text in candidate.report
+    assert new + "\n" not in candidate.report
+    assert any(a["field"] == field for a in candidate.advisories)
+    parse_report_artifact(candidate.source)
+
+
+@pytest.mark.parametrize("cve_line", ["- **CVE IDs**:", "- **CVE IDs**: —"])
+def test_empty_cve_ids_field_on_non_cve_finding_is_omitted_in_advisory(cve_line):
+    result = prepared_result()
+    result["exploitation_report"] = result["exploitation_report"].replace(
+        "- **Reporting**:", f"{cve_line}\n- **Reporting**:"
+    )
+    with pytest.raises((EvidenceError, ReviewedReportValidationError)):
+        resolve_reviewed_analysis(result, advisory=False)
+
+    candidate = resolve_reviewed_analysis(result, advisory=True)
+    assert "**CVE IDs**" not in candidate.report
+    artifact = parse_report_artifact(candidate.source)
+    assert artifact.findings[0].cve_ids == ()
+
+
+def test_truly_empty_bold_bullet_still_blocks_advisory_with_line_and_excerpt():
+    result = prepared_result()
+    result["exploitation_report"] += "\n- **FishMonger**:\n"
+    with pytest.raises(ReviewedReportValidationError) as caught:
+        resolve_reviewed_analysis(result, advisory=True)
+    [issue] = [i for i in caught.value.issues if i.code == "malformed_markdown"]
+    assert issue.markdown_reason == "missing_bold_label_description"
+    assert isinstance(issue.markdown_line, int) and issue.markdown_line >= 1
+    assert issue.markdown_excerpt == "- **FishMonger**:"

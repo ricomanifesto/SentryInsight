@@ -87,7 +87,14 @@ def test_real_rejections_keep_exception_type_and_gain_only_safe_categories(
     diagnostic = validation_diagnostic(stages[-1], observed.value)
     assert diagnostic["stage"] == stage
     assert diagnostic["codes"] == [code]
-    assert PRIVATE not in json.dumps(diagnostic)
+    if code == "malformed_markdown":
+        assert isinstance(diagnostic["markdown_line"], int)
+        assert diagnostic["markdown_line"] >= 1
+        assert isinstance(diagnostic["markdown_excerpt"], str)
+        assert len(diagnostic["markdown_excerpt"]) <= 200
+        assert "\n" not in diagnostic["markdown_excerpt"]
+    else:
+        assert PRIVATE not in json.dumps(diagnostic)
 
 
 def test_successful_observation_changes_neither_report_bytes_nor_coverage():
@@ -148,7 +155,14 @@ def test_remaining_boundaries_preserve_failures_and_do_not_guess_messages(
     diagnostic = validation_diagnostic(stages[-1], error)
     assert diagnostic["stage"] == stage
     assert diagnostic["codes"] == [code]
-    assert PRIVATE not in json.dumps(diagnostic)
+    if code == "malformed_markdown":
+        assert isinstance(diagnostic["markdown_line"], int)
+        assert diagnostic["markdown_line"] >= 1
+        assert isinstance(diagnostic["markdown_excerpt"], str)
+        assert len(diagnostic["markdown_excerpt"]) <= 200
+        assert "\n" not in diagnostic["markdown_excerpt"]
+    else:
+        assert PRIVATE not in json.dumps(diagnostic)
 
 
 @pytest.mark.parametrize(
@@ -191,10 +205,16 @@ def test_real_prompt_receipt_exports_diagnostic_without_answer_or_publication(
         )
         round_trip = json.loads(json.dumps(receipt))["validation_diagnostic"]
         assert round_trip["markdown_reason"] == reason
-        assert sanitize_diagnostic(round_trip)["markdown_reason"] == reason
+        assert isinstance(round_trip["markdown_line"], int)
+        assert round_trip["markdown_line"] >= 1
+        assert isinstance(round_trip["markdown_excerpt"], str)
+        assert len(round_trip["markdown_excerpt"]) <= 200
+        assert "\n" not in round_trip["markdown_excerpt"]
+        assert sanitize_diagnostic(round_trip) == round_trip
     assert receipt["published"] is receipt["production_ready"] is False
     output = json.dumps(receipt) + caplog.text + str(capsys.readouterr())
-    assert PRIVATE not in output
+    if code != "malformed_markdown":
+        assert PRIVATE not in output
     assert "test-secret" not in output
     assert answer not in output
     assert list(tmp_path.iterdir()) == [last_good]

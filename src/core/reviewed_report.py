@@ -11,6 +11,7 @@ from .derivations import derivation_scope
 from .exploitation_coverage import collect_exploitation_relevant_prompt_cves
 from .finding_evidence import (
     EvidenceError,
+    sanitize_empty_finding_fields,
     sanitize_vendor_links,
     validate_finding_evidence,
     validate_vendor_links,
@@ -280,9 +281,12 @@ def _resolve_reviewed_analysis(
     )
     stage("finding_evidence")
     if advisory:
-        # Neutralize invalid or unsupported vendor links before grouping so
-        # combining citations never legitimizes an unsupported link.
+        # Neutralize invalid or unsupported vendor links and empty detail fields
+        # before grouping so combining citations never legitimizes an unsupported
+        # link and empty fields render the explicit absence marker instead of
+        # tripping markdown validation.
         canonical = sanitize_vendor_links(canonical, catalog, on_drop=advise)
+        canonical = sanitize_empty_finding_fields(canonical, catalog, on_drop=advise)
     grouped = group_related_findings(canonical, catalog)
     if grouped != canonical:
         # Combining citations must never legitimize a link that its original

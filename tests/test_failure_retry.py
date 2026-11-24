@@ -522,3 +522,41 @@ def test_receipt_keeps_bounded_token_breakdown_and_latency():
             sanitize_request({**request, "elapsed_seconds": bad})["elapsed_seconds"]
             is None
         )
+
+
+def test_malformed_markdown_failure_receipt_retains_line_and_excerpt(tmp_path):
+    from src.core.source_review import prepare_source_review, digest, PLAN_KEY
+    from test_generation_verification import articles
+    from test_reviewed_report import prepared_result
+    from test_workflow_guards import import_workflow_with_stubs
+
+    inputs = articles()
+    plan = prepare_source_review(inputs)
+    result = prepared_result(inputs)
+    result["exploitation_report"] += "\n- **Mitigation:**\n"
+    result["request_metadata"] = request_state()
+    last_good = tmp_path / "index.md"
+    last_good.write_text("last-good marker")
+    state = {
+        "status": "analyzed",
+        "analysis_results": result,
+        "filtered_articles": inputs,
+        PLAN_KEY: plan.packet,
+        "articles_fingerprint": digest(
+            {"generation_schema": 5, "plan_id": plan.packet["plan_id"]}
+        ),
+        "config": {"output_path": str(last_good)},
+    }
+    rejected = asyncio.run(import_workflow_with_stubs().generate_report(state))
+    assert rejected["status"] == "failed"
+    path = tmp_path / "receipt.json"
+    write_receipt(path, make_receipt(rejected, environ={}))
+    value = read_receipt(path)
+    diag = value["diagnostic"]
+    assert diag["stage"] == "report_content"
+    assert diag["codes"] == ["malformed_markdown"]
+    assert diag["markdown_reason"] == "missing_bold_label_description"
+    assert isinstance(diag["markdown_line"], int) and diag["markdown_line"] >= 1
+    assert diag["markdown_excerpt"] == "- **Mitigation:**"
+    assert value["retry"]["action"] == "repair_required"
+    assert last_good.read_text() == "last-good marker"

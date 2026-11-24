@@ -109,11 +109,23 @@ ACTIVE_CONTENT_PATTERNS = (
 )
 
 
+MALFORMED_MARKDOWN_EXCERPT_LIMIT = 200
+
+
+@dataclass(frozen=True)
+class MalformedBoldListDetail:
+    reason: str
+    line: int
+    excerpt: str
+
+
 @dataclass(frozen=True)
 class ReportValidationIssue:
     code: str
     message: str
     markdown_reason: str | None = None
+    markdown_line: int | None = None
+    markdown_excerpt: str | None = None
 
 
 # Report-quality and coverage checks that advisory grounding logs instead of
@@ -528,13 +540,34 @@ def normalize_markdown_escapes(markdown: str) -> str:
     return MARKDOWN_ESCAPE_PATTERN.sub(r"\1", markdown)
 
 
+def sanitize_markdown_excerpt(
+    line: str, limit: int = MALFORMED_MARKDOWN_EXCERPT_LIMIT
+) -> str:
+    """Return a single-line bounded excerpt with control characters neutralized."""
+    first_line = line.splitlines()[0] if line.splitlines() else ""
+    cleaned = "".join(
+        " " if ord(character) < 32 or ord(character) == 127 else character
+        for character in first_line
+    ).rstrip()
+    if len(cleaned) <= limit:
+        return cleaned
+    return cleaned[: limit - 3].rstrip() + "..."
+
+
 def has_malformed_bold_list_item(markdown: str) -> bool:
     """Return True for list items that are only a broken or empty bold label."""
-    return malformed_bold_list_reason(markdown) is not None
+    return malformed_bold_list_detail(markdown) is not None
 
 
 def malformed_bold_list_reason(markdown: str) -> str | None:
     """Return a fixed category for the first failure, never candidate text."""
+    detail = malformed_bold_list_detail(markdown)
+    return detail.reason if detail is not None else None
+
+
+def malformed_bold_list_detail(markdown: str) -> MalformedBoldListDetail | None:
+    """Return the fixed category, 1-based line number and bounded excerpt of the first failure."""
+    lines = markdown.splitlines()
     tokens = MARKDOWN_PARSER.parse(markdown)
     for index, token in enumerate(tokens):
         if token.type != "inline" or not token.content.lstrip().startswith(
@@ -545,14 +578,30 @@ def malformed_bold_list_reason(markdown: str) -> str | None:
         if not is_list_item_inline_token(tokens, index):
             continue
 
+        reason: str | None = None
         if not inline_token_starts_with_strong(token):
-            return "invalid_bold_label"
+            reason = "invalid_bold_label"
+        else:
+            remaining_text = text_after_first_strong_token(token)
+            if not has_meaningful_list_suffix(
+                remaining_text
+            ) and not list_item_has_following_content(tokens, index):
+                reason = "missing_bold_label_description"
 
-        remaining_text = text_after_first_strong_token(token)
-        if not has_meaningful_list_suffix(
-            remaining_text
-        ) and not list_item_has_following_content(tokens, index):
-            return "missing_bold_label_description"
+        if reason is not None:
+            token_map = token.map or (tokens[index - 1].map if index > 0 else None)
+            line_index = token_map[0] if token_map else 0
+            raw_line = (
+                lines[line_index] if 0 <= line_index < len(lines) else token.content
+            )
+            excerpt = sanitize_markdown_excerpt(raw_line) or sanitize_markdown_excerpt(
+                token.content
+            )
+            return MalformedBoldListDetail(
+                reason=reason,
+                line=line_index + 1,
+                excerpt=excerpt,
+            )
 
     return None
 
@@ -926,6 +975,172 @@ def has_single_overlong_executive_summary(markdown: str) -> bool:
     return len(paragraph) >= 500 or sentence_count >= 4
 
 
+WHOLE_BOLD_LIST_ITEM_PATTERN = re.compile(
+    r"^(?P<prefix>[ \t]*(?:[-+*]|\d+[.)])[ \t]+)\*\*(?P<body>[^*\n]+)\*\*(?P<trailing>[ \t]*)$"
+)
+BOLD_COLON_NO_SPACE_PATTERN = re.compile(
+    r"^(?P<head>[ \t]*(?:[-+*]|\d+[.)])[ \t]+\*\*(?P<label>[^*\n]+):\*\*)(?P<rest>[^\s*:\n][^\n]*)$"
+)
+ANY_LIST_MARKER_PATTERN = re.compile(r"^[ \t]*(?:[-+*]|\d+[.)])[ \t]+")
+
+
+def _split_bold_label_description(body: str) -> tuple[str, str] | None:
+    """Split an unambiguous 'Label: Description' span outside links and inline code."""
+    in_code = False
+    bracket_depth = 0
+    for index, character in enumerate(body):
+        if character == "`" and not has_odd_backslash_escape(body, index):
+            in_code = not in_code
+            continue
+        if in_code:
+            continue
+        if character == "[":
+            bracket_depth += 1
+        elif character == "]" and bracket_depth > 0:
+            bracket_depth -= 1
+        elif (
+            character == ":"
+            and bracket_depth == 0
+            and index + 1 < len(body)
+            and body[index + 1] in (" ", "\t")
+        ):
+            label = body[:index].strip()
+            description = body[index + 1 :].strip()
+            if (
+                label
+                and description
+                and has_meaningful_list_suffix(label)
+                and has_meaningful_list_suffix(description)
+            ):
+                return label, description
+            return None
+    return None
+
+
+def _next_nonblank_index(lines: list[str], start: int) -> int | None:
+    for index in range(start, len(lines)):
+        if lines[index].strip():
+            return index
+    return None
+
+
+def _split_line_ending(line: str) -> tuple[str, str]:
+    if line.endswith("\r\n"):
+        return line[:-2], "\r\n"
+    if line.endswith("\n"):
+        return line[:-1], "\n"
+    if line.endswith("\r"):
+        return line[:-1], "\r"
+    return line, ""
+
+
+def normalize_bold_list_items(markdown: str) -> str:
+    """Repair only unambiguous bold list formatting slips without inventing content.
+
+    Repaired shapes (outside fenced code blocks):
+    - Whole-line bold ``- **Label: Description**`` (with no nested continuation)
+      -> ``- **Label**: Description``
+    - Missing space after ``:**`` in ``- **Label:**Description``
+      -> ``- **Label:** Description``
+    - Slightly under-indented nested list directly under a closed bold-only
+      parent label (for example 2 spaces under ``1. **Label:**`` or 1 space
+      under ``- **Label:**``) -> indented to the parent marker's content column.
+
+    Truly empty, punctuation-only, or unclosed bold labels are left unchanged so
+    validation continues to reject them.
+    """
+    lines = markdown.splitlines(keepends=True)
+    if not lines:
+        return markdown
+
+    fence: str | None = None
+    index = 0
+    while index < len(lines):
+        line_content, ending = _split_line_ending(lines[index])
+        if fence is not None:
+            if is_fence_closer(lines[index], fence, max_indent=12):
+                fence = None
+            index += 1
+            continue
+
+        if opener := parse_fence_opener(lines[index], max_indent=12):
+            fence = opener
+            index += 1
+            continue
+
+        no_space_match = BOLD_COLON_NO_SPACE_PATTERN.match(line_content)
+        if (
+            no_space_match
+            and "`" not in no_space_match["label"]
+            and has_meaningful_list_suffix(no_space_match["label"])
+            and has_meaningful_list_suffix(no_space_match["rest"])
+        ):
+            lines[index] = f"{no_space_match['head']} {no_space_match['rest']}{ending}"
+            index += 1
+            continue
+
+        whole_match = WHOLE_BOLD_LIST_ITEM_PATTERN.match(line_content)
+        if whole_match:
+            parent_indent = indentation_columns(line_content)
+            next_idx = _next_nonblank_index(lines, index + 1)
+            has_more_indented_follower = (
+                next_idx is not None
+                and indentation_columns(lines[next_idx]) > parent_indent
+            )
+            if not has_more_indented_follower:
+                split = _split_bold_label_description(whole_match["body"])
+                if split is not None:
+                    label, description = split
+                    lines[index] = (
+                        f"{whole_match['prefix']}**{label}**: {description}{ending}"
+                    )
+                    index += 1
+                    continue
+
+        marker_match = ANY_LIST_MARKER_PATTERN.match(line_content)
+        if marker_match:
+            parent_indent = indentation_columns(line_content)
+            content_indent = visual_columns(line_content[: marker_match.end()])
+            next_idx = _next_nonblank_index(lines, index + 1)
+            if next_idx is not None:
+                next_content, _ = _split_line_ending(lines[next_idx])
+                child_indent = indentation_columns(next_content)
+                if (
+                    NESTED_LIST_ITEM_PATTERN.match(next_content)
+                    and parent_indent < child_indent < content_indent
+                ):
+                    detail = malformed_bold_list_detail(line_content.lstrip(" \t"))
+                    if (
+                        detail is not None
+                        and detail.reason == "missing_bold_label_description"
+                    ):
+                        padding = " " * (content_indent - child_indent)
+                        cursor = next_idx
+                        nested_fence: str | None = None
+                        while cursor < len(lines):
+                            cur_content, cur_ending = _split_line_ending(lines[cursor])
+                            if not cur_content.strip():
+                                cursor += 1
+                                continue
+                            cur_indent = indentation_columns(cur_content)
+                            if nested_fence is None and cur_indent < child_indent:
+                                break
+                            if nested_fence is not None:
+                                if is_fence_closer(
+                                    lines[cursor], nested_fence, max_indent=12
+                                ):
+                                    nested_fence = None
+                            elif child_opener := parse_fence_opener(
+                                lines[cursor], max_indent=12
+                            ):
+                                nested_fence = child_opener
+                            lines[cursor] = f"{padding}{cur_content}{cur_ending}"
+                            cursor += 1
+        index += 1
+
+    return "".join(lines)
+
+
 class ReportPreparationError(ValueError):
     """A raw report failed policy before any normalization could erase it."""
 
@@ -936,7 +1151,9 @@ def prepare_generated_report(markdown: str) -> str:
         raise ReportPreparationError(
             "Report contains a blocked [Virtual Event] promotion."
         )
-    return split_overlong_executive_summary(remove_source_attribution_section(markdown))
+    return normalize_bold_list_items(
+        split_overlong_executive_summary(remove_source_attribution_section(markdown))
+    )
 
 
 def split_overlong_executive_summary(markdown: str) -> str:
@@ -1118,11 +1335,13 @@ def validate_report_content(
             )
         )
 
-    if markdown_reason := malformed_bold_list_reason(content):
+    if markdown_detail := malformed_bold_list_detail(markdown):
         issues.append(
             ReportValidationIssue(
                 code="malformed_markdown",
-                markdown_reason=markdown_reason,
+                markdown_reason=markdown_detail.reason,
+                markdown_line=markdown_detail.line,
+                markdown_excerpt=markdown_detail.excerpt,
                 message=(
                     "Report contains a malformed bold list item without a "
                     "description."

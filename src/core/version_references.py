@@ -44,6 +44,10 @@ VERSION_FIELD = re.compile(
     r"^(?P<prefix>-[ \t]+\*\*Affected Versions\*\*:[ \t]*)(?P<value>[^\r\n]*)$",
     re.MULTILINE,
 )
+VERSION_FIELD_FALLBACK = re.compile(
+    r"^(?P<prefix>-[ \t]+\*\*Affected Versions(?:\*\*:|:\*\*)[ \t]*)(?P<value>[^\r\n]*)$",
+    re.MULTILINE,
+)
 STATE_FIELD_LINE = re.compile(
     rf"^-[ \t]+\*\*{re.escape(STATE_FIELD)}\*\*:[ \t]*[^\r\n]*(?:\r?\n|$)",
     re.MULTILINE,
@@ -531,7 +535,7 @@ def _unresolved_fallback_body(body: str) -> str:
         f"- **Affected Versions**: {UNRESOLVED}\n"
         f"- **{STATE_FIELD}**: {VersionEvidenceStatus.UNRESOLVED.value}"
     )
-    matches = list(VERSION_FIELD.finditer(cleaned))
+    matches = list(VERSION_FIELD_FALLBACK.finditer(cleaned))
     if not matches:
         reporting = REPORTING_FIELD_LINE.search(cleaned)
         if reporting:
@@ -557,7 +561,7 @@ def _unresolved_fallback_body(body: str) -> str:
                 else ""
             )
             replacement = (
-                f"{field['prefix']}{UNRESOLVED}\n"
+                f"- **Affected Versions**: {UNRESOLVED}\n"
                 f"- **{STATE_FIELD}**: {VersionEvidenceStatus.UNRESOLVED.value}"
                 f"{trailing_newline}"
             )
