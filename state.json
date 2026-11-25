@@ -7080,6 +7080,12 @@
       "run_id": "45560192167",
       "source_revision": "1a704b2dcf5d33fd3002aab73797bf220dc1dd79",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "digest:1a704b2dcf5d33fd3002aab73797bf220dc1dd79",
+      "at": "2026-11-25T06:27:05.483Z",
+      "run_id": "45560192167",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
