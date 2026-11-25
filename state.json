@@ -7065,6 +7065,21 @@
       "release_key": "6a862cbca375164b9e7e30c45362404eae8625361a8ac46e1fb84e5ab0e106fc",
       "run_id": "45518962478",
       "stage": "completed"
+    },
+    {
+      "admission_key": "digest:1a704b2dcf5d33fd3002aab73797bf220dc1dd79",
+      "at": "2026-11-25T06:27:03.994Z",
+      "binding": "feed-bytes",
+      "digest_content_digest": "d0d59fd44a331cb85dda6ff88fbe1b60901a67470eef612015c139558dea2dc7",
+      "event": "repository_dispatch",
+      "feed_sha256": "80a25e4200fa5dc1678e9b7a670c08a3e76e05873daf4c01838e2a2becbbda9e",
+      "feed_url": "https://raw.githubusercontent.com/ricomanifesto/SentryDigest/c14e4bc3a889db78dba37da044ce854d188bf37a/site/feed.xml",
+      "release_key": "9da1890d427664c5ed3a748d9952a0cf9ced58aa6afa234b2e2675e008513c9a",
+      "release_ref": "c14e4bc3a889db78dba37da044ce854d188bf37a",
+      "run_attempt": "1",
+      "run_id": "45560192167",
+      "source_revision": "1a704b2dcf5d33fd3002aab73797bf220dc1dd79",
+      "stage": "admitted"
     }
   ],
   "schema_version": 1,
