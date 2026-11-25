@@ -29,6 +29,11 @@ from .reporting import (
     serialize_reporting_catalog,
 )
 from .report_findings import report_findings
+from .report_severity import (
+    critical_first,
+    has_critical_claim_without_known_severity,
+    restore_source_severity,
+)
 from .report_validation import (
     ReportValidationIssue,
     blocking_issues,
@@ -67,8 +72,7 @@ class ReviewedReport:
     catalog: dict[str, ReportingSource]
     source: str
     grounded_report: str
-    # Bounded reasons for accuracy checks that advisory grounding logged
-    # instead of blocking. Empty under strict grounding.
+    # Bounded advisory grounding and non-blocking severity observations.
     advisories: tuple[dict, ...] = ()
 
     @property
@@ -219,7 +223,7 @@ def _resolve_reviewed_analysis(
     advisory: bool,
     dropped_findings: Sequence[dict[str, Any]] = (),
 ) -> ReviewedReport:
-    from .validation_diagnostics import validation_diagnostic
+    from .validation_diagnostics import severity_advisory, validation_diagnostic
 
     advisories: list[dict] = []
     current = {"stage": "candidate_structure"}
@@ -315,6 +319,15 @@ def _resolve_reviewed_analysis(
         if not advisory:
             raise
         advise(exc)
+    canonical, restored_severity = restore_source_severity(canonical, catalog)
+    if restored_severity:
+        advisories.append(
+            severity_advisory("severity_recovered_from_sources", restored_severity)
+        )
+    if has_critical_claim_without_known_severity(canonical):
+        advisories.append(
+            severity_advisory("all_severity_unknown_with_critical_claim", 0)
+        )
     stage("reporting_identity")
     resolved = resolve_reporting_keys(canonical, catalog)
     stage("report_content")
@@ -354,16 +367,20 @@ def _resolve_reviewed_analysis(
         .isoformat(timespec="seconds")
         .replace("+00:00", "Z")
     )
-    source = (
+    front_matter = (
         "---\nschema_version: 5\n"
         f"report_date: {report_date}\ngenerated_at: {generated_at}\n"
         f"digest_issue_url: {DIGEST_ARCHIVE_ROOT}{report_date}/\n"
         f"source_coverage: {canonical_json(coverage)}\n---\n"
-        + resolved.lstrip().rstrip()
-        + "\n\n"
-        + coverage_markdown(coverage)
     )
-    parse_report_artifact(source)
+    footer = "\n\n" + coverage_markdown(coverage)
+
+    # Keep finding positions stable until artifact validation succeeds. A
+    # reordered draft would direct bounded repairs at the wrong raw finding.
+    parse_report_artifact(front_matter + resolved.strip() + footer)
+    resolved = critical_first(resolved)
+    canonical = critical_first(canonical)
+    source = front_matter + resolved.strip() + footer
     return ReviewedReport(
         resolved, coverage, catalog, source, canonical, tuple(advisories)
     )

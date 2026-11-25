@@ -152,6 +152,25 @@ def _bounded_value(value: object) -> str | int | bool | None:
     return value if type(value) is str and value in EVIDENCE_STATES else "invalid"
 
 
+SEVERITY_ADVISORY_CODES = frozenset(
+    {"severity_recovered_from_sources", "all_severity_unknown_with_critical_claim"}
+)
+
+
+def severity_advisory(code: str, observed: int) -> dict:
+    """Fixed severity observation, kept separate from rejection classifiers."""
+    return {
+        "schema_version": 1,
+        "stage": "finding_evidence",
+        "codes": [_known(code, SEVERITY_ADVISORY_CODES, UNKNOWN_CODE)],
+        "field": "Severity",
+        "finding_index": None,
+        "issues_truncated": False,
+        "expected": None,
+        "observed": _bounded_value(observed),
+    }
+
+
 def validation_diagnostic(stage: str, error: Exception) -> dict:
     """Return fixed labels, bounded integers and a truncation flag.
 

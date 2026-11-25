@@ -95,16 +95,20 @@ bounded repair, which never reopens that episode:
   carries the rule code, the field, the offending draft value (at most 400
   characters), fixed guidance for a valid value, and only the material from
   the original request for the sources that finding already cited. A repaired
-  block may keep or narrow its own citations, never add one. A failure
-  outside findings repairs its section; a report-level failure such as a
-  repeated section gets one full regeneration. Limits: three rounds per finding
+  block may keep or narrow its own citations, never add one, and must
+  preserve its complete CVE identities. A malformed item repairs the
+  matching finding or section only when the validator's diagnostic locates
+  it; a report-level or ambiguous failure gets at most one full regeneration. Limits: three rounds per finding
   or section, one full regeneration, six repair requests and 20 minutes of
   repair requests per run.
 - After every splice or drop, the complete validation and grounding pipeline
   runs again at its unchanged bar.
 - A finding that still fails after its rounds, or once the run's repair
-  requests are spent, is omitted. The omission is disclosed in the generation
-  receipt and in host-owned source coverage; sources cited only by omitted
+  requests are spent, may be omitted. If every attempted repair of that
+  finding failed before returning a response, preserve the last-good report
+  instead; hitting the global cap cannot turn provider failure into
+  permission to omit it. An omission is disclosed in the generation receipt
+  and in host-owned source coverage; sources cited only by omitted
   findings show as not represented, never as cited. The report publishes only
   while at least `analysis.min_findings` (default 1) findings remain.
   Identity, integrity and site-safety failures always block the whole report.
@@ -125,7 +129,7 @@ bounded repair, which never reopens that episode:
 | Read/write timeout, interrupted response, bare transient status, malformed HTTP 200, conflicting response metadata | Hold for reconciliation; no automatic replay |
 | Authentication/payment/configuration error or wrong resolved model | Stop for repair; no provider, credential or price fallback |
 | Output limit (`finish_reason=length`) | Reject partial output; allow at most one bounded recovery attempt (raising `max_tokens` to the free route's 131,072 ceiling without tightening reasoning) within the same three-attempt and wall-clock budgets, then preserve last-good output and advise `repair_required` |
-| Repairable evidence, content or artifact validation failure | Informed repair as above, then full revalidation; omit and disclose a finding that stays invalid when at least `min_findings` remain, otherwise preserve last-good output |
+| Repairable evidence, content or artifact validation failure | Informed repair as above, then full revalidation; omit and disclose a finding that stays invalid when at least `min_findings` remain, except after unanswered repair attempts; otherwise preserve last-good output |
 | Identity, integrity or site-safety failure | Fail fast without repair or omission; preserve last-good output |
 | Ambiguous source evidence | Preserve the existing explicit source-review state and coverage |
 | Publication failure after validation | Investigate/recover existing artifacts through the publisher; do not regenerate |
@@ -142,6 +146,19 @@ separate operational decisions.
 validation rejection does not silently become a conclusive publication success;
 the admission workflow retains its conservative failure mapping. No output is
 published merely because a receipt exists or a provider returned HTTP 200.
+
+## Production-shaped offline fault replay
+
+| Priority and historical evidence | Offline regression entry point | Acceptance |
+| --- | --- | --- |
+| Repeated missing bold descriptions: 45203452827, 45297804877, 45342305774; invalid CVE field: 45408698879 | `tests/test_production_fault_replay.py`, `tests/test_informed_repair.py`, `tests/test_report_severity.py` | Repair the exact section or finding; a local splice cannot replace, add or remove a complete CVE; keep last-good if attempted repairs receive no answer before either cap. |
+| Silent all-Unknown acceptance: 45458095454; manual interleaving 45444751920 | `tests/test_report_severity.py` | Exact source attribution only; stable Critical-first in Markdown, rendered HTML and embedded findings; flag all-Unknown with critical prose without a new send. |
+| Output ceiling: 45173523072 hit the then-configured 32,000 cap | `tests/test_production_fault_replay.py`, `tests/test_openrouter_client.py` | Exercise the current 96,000/131,072 budgets, explicit retryable failures and ambiguous outcomes; never use partial output or overrun the same three-attempt budget. |
+| Last-good publication verified after validator failure, e.g. 45408698879 | `tests/test_publication_transaction.py`, `publication/test/publisher.test.js` | Interrupted publication and stale/rejected artifacts preserve or reconcile last-good without uncontrolled writes. |
+
+Pairs in these fixtures simulate interacting faults; they do not claim that a
+specific historical run hit every failure in its pair. The tests use only inert
+fixtures and in-process mock replies.
 
 ## Large source metadata
 
