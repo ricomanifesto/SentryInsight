@@ -7025,6 +7025,12 @@
       "run_id": "45518962478",
       "source_revision": "35705b7b1d1a03addd3b43d6e8341e4033197eaa",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "digest:35705b7b1d1a03addd3b43d6e8341e4033197eaa",
+      "at": "2026-11-25T00:37:22.102Z",
+      "run_id": "45518962478",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
