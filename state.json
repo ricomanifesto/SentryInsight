@@ -7512,6 +7512,12 @@
       "run_id": "45767954826",
       "source_revision": "89bcc3032e0f575998c2a1d6aafeec04e6551938",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "digest:89bcc3032e0f575998c2a1d6aafeec04e6551938",
+      "at": "2026-11-26T06:29:45.163Z",
+      "run_id": "45767954826",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
