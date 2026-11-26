@@ -7809,6 +7809,16 @@
       "run_id": "45896757228",
       "stage": "request_finished",
       "token": "aaa9c26f936d1eab6c221df91c3126bc"
+    },
+    {
+      "admission_key": "digest:6c21b793f3ac8b8f0009ceedd19159eded855da6",
+      "at": "2026-11-26T21:23:58.472Z",
+      "binding": "feed-bytes",
+      "digest_content_digest": "8cbffb7f32d69abd08ef5c753cdf8927a4d4c87e175faaa75745c519d573727d",
+      "outcome": "published",
+      "release_key": "cd8c8d97d0fbcf13e5280d9b0771dc2e40ec344c1e38808b179a50f7d0634b17",
+      "run_id": "45896757228",
+      "stage": "completed"
     }
   ],
   "schema_version": 1,
