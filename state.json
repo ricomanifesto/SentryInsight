@@ -7620,6 +7620,17 @@
       "at": "2026-11-26T09:21:32.779Z",
       "run_id": "45790581629",
       "stage": "invoked"
+    },
+    {
+      "admission_key": "digest:e177497565e1ff7509ae1811fc686166e1e053f9",
+      "at": "2026-11-26T09:21:40.139Z",
+      "attempt": 1,
+      "limit": 3,
+      "request_sha256": "7cc6e2f4f29cee16c7d20ce8f06f030059cd7daa27bd3dea86f5ee48f956ea55",
+      "revision": "e12ac255f7dc298aaefaffb040c7a85675c9c833",
+      "run_id": "45790581629",
+      "stage": "request_reserved",
+      "token": "61f4d6a9a5e22c15201c943fe632b90c"
     }
   ],
   "schema_version": 1,
