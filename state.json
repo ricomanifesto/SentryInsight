@@ -7699,6 +7699,16 @@
       "run_id": "45818989952",
       "stage": "request_finished",
       "token": "68cb654dc791fa042715eb38f9b01aef"
+    },
+    {
+      "admission_key": "digest:a1dfe7d524d9cad6eb3f8ea297908c90d4904c1a",
+      "at": "2026-11-26T12:30:43.779Z",
+      "binding": "feed-bytes",
+      "digest_content_digest": "f6e0871ca6db389335ebe406c62f4ce626d4067109b1891ac065f837c8627f97",
+      "outcome": "published",
+      "release_key": "6a77cd3fd60e5e19d849d927cd5c239a7dc521982587ac5c558f4fc9ecb249dc",
+      "run_id": "45818989952",
+      "stage": "completed"
     }
   ],
   "schema_version": 1,
