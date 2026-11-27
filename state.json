@@ -8001,6 +8001,19 @@
       "run_id": "45998043267",
       "stage": "request_reserved",
       "token": "e531c434f2d6d546931f43f82d636077"
+    },
+    {
+      "admission_key": "digest:77311ff42d87c5054dd7afeb2d3c590557de6a26",
+      "at": "2026-11-27T12:51:37.947Z",
+      "attempt": 2,
+      "disposition": "permanent_rejection",
+      "limit": 3,
+      "request_sha256": "b6e490cfd84588ec58a2ce8445748607287b782a5d00c1c0fb145a2ed1d19128",
+      "retry_after": 0,
+      "revision": "61af974b9b97d872c76a77be7c8b82577cfa8170",
+      "run_id": "45998043267",
+      "stage": "request_finished",
+      "token": "e531c434f2d6d546931f43f82d636077"
     }
   ],
   "schema_version": 1,
