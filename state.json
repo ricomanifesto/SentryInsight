@@ -8072,6 +8072,16 @@
       "run_id": "46023130076",
       "stage": "request_finished",
       "token": "a157b17153d4c93823ff11b482d9cc4b"
+    },
+    {
+      "admission_key": "digest:b056479d9a8d6f02c4f68abec993a89a36ee7138",
+      "at": "2026-11-27T15:23:42.770Z",
+      "binding": "feed-bytes",
+      "digest_content_digest": "012f45c113b733d4fbd6c02a355ac7f88a6c412855086f7a873369ec32477a59",
+      "outcome": "not-published",
+      "release_key": "900514cbccd79da55791638725aac8c39c8d3f8dd86692cfa9fcbd42871b14c9",
+      "run_id": "46023130076",
+      "stage": "completed"
     }
   ],
   "schema_version": 1,
