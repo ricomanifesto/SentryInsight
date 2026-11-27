@@ -7977,6 +7977,19 @@
       "run_id": "45998043267",
       "stage": "request_reserved",
       "token": "2870687eb05b966d2df6f234ff5aff1b"
+    },
+    {
+      "admission_key": "digest:77311ff42d87c5054dd7afeb2d3c590557de6a26",
+      "at": "2026-11-27T12:38:18.088Z",
+      "attempt": 1,
+      "disposition": "retryable_rejection",
+      "limit": 3,
+      "request_sha256": "b6e490cfd84588ec58a2ce8445748607287b782a5d00c1c0fb145a2ed1d19128",
+      "retry_after": 0,
+      "revision": "61af974b9b97d872c76a77be7c8b82577cfa8170",
+      "run_id": "45998043267",
+      "stage": "request_finished",
+      "token": "2870687eb05b966d2df6f234ff5aff1b"
     }
   ],
   "schema_version": 1,
