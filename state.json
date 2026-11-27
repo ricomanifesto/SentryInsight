@@ -8042,6 +8042,12 @@
       "run_id": "46023130076",
       "source_revision": "b056479d9a8d6f02c4f68abec993a89a36ee7138",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "digest:b056479d9a8d6f02c4f68abec993a89a36ee7138",
+      "at": "2026-11-27T15:20:43.554Z",
+      "run_id": "46023130076",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
