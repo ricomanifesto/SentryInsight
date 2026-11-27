@@ -8097,6 +8097,12 @@
       "run_id": "46048364001",
       "source_revision": "a1ef6c2a0e2aec304861b16dd20745c3f360f0ec",
       "stage": "admitted"
+    },
+    {
+      "admission_key": "digest:a1ef6c2a0e2aec304861b16dd20745c3f360f0ec",
+      "at": "2026-11-27T18:22:00.235Z",
+      "run_id": "46048364001",
+      "stage": "invoked"
     }
   ],
   "schema_version": 1,
