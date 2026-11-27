@@ -7858,6 +7858,14 @@
       "run_id": "45953353658",
       "stage": "request_finished",
       "token": "8a5fcd14a6372048cbce5d73f2b7fe89"
+    },
+    {
+      "admission_key": "run:45953353658",
+      "at": "2026-11-27T06:52:39.090Z",
+      "binding": "none",
+      "outcome": "published",
+      "run_id": "45953353658",
+      "stage": "completed"
     }
   ],
   "schema_version": 1,
