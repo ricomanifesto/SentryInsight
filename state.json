@@ -7911,6 +7911,17 @@
       "run_id": "45972403882",
       "stage": "request_finished",
       "token": "f1d2b12ce5d598d93d64ef23e323059e"
+    },
+    {
+      "admission_key": "digest:f66cdc1812c5323fff2dce7c1cf756949d59b262",
+      "at": "2026-11-27T09:27:59.978Z",
+      "max_repairs": 6,
+      "request_sha256": "ce7028bb19bd0bacdfeaaae0832d99da8feaaf9e1f2282e88a5069b33784bbf4",
+      "revision": "c1c56bc308bce68fd8d9f81f5151777def6aaea4",
+      "run_id": "45972403882",
+      "slot": 1,
+      "stage": "repair_reserved",
+      "token": "839436d9d2b806256361113ea2f46815"
     }
   ],
   "schema_version": 1,
