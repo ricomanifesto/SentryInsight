@@ -8260,6 +8260,17 @@
       "at": "2026-11-28T09:21:58.993Z",
       "run_id": "46129696769",
       "stage": "invoked"
+    },
+    {
+      "admission_key": "digest:0ac6d04fae098c94ede8e706e552eaef0d07d2c1",
+      "at": "2026-11-28T09:22:07.807Z",
+      "attempt": 1,
+      "limit": 3,
+      "request_sha256": "762f2a8b4d3ef247eb286c073e2b84a39ba8a9c60724a0a436899b653a9eab2f",
+      "revision": "2aea7a6be4455d021e1cd5015c5aa0f2df72838a",
+      "run_id": "46129696769",
+      "stage": "request_reserved",
+      "token": "e5a0853a1c46942404f5f68abd7cb677"
     }
   ],
   "schema_version": 1,
