@@ -8231,6 +8231,14 @@
       "run_id": "46117493676",
       "stage": "request_finished",
       "token": "9aa686f30daf3e45b91105b72baa9aff"
+    },
+    {
+      "admission_key": "run:46117493676",
+      "at": "2026-11-28T06:44:49.644Z",
+      "binding": "none",
+      "outcome": "published",
+      "run_id": "46117493676",
+      "stage": "completed"
     }
   ],
   "schema_version": 1,
